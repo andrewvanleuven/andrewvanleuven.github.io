@@ -4,4 +4,12 @@ This is my GitHub page. I have a [better page](https://andrewvanleuven.com) that
 
 Feel free to have a look around.
 
+[CV](https://andrewvanleuven.github.io/files/cv.pdf)
+
 [Papers](/papers)
+
+[Slides](/slides)
+
+[Data](/data)
+
+[Code](/code)
