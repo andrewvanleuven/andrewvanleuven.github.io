@@ -40,7 +40,7 @@ xax <- list(
   tickfont = font,
   zeroline = FALSE,
   showline = FALSE,
-  showgrid = F)
+  showgrid = T)
 yax <- list(
   title = "",
   showticklabels = TRUE,
@@ -48,7 +48,7 @@ yax <- list(
   tickfont = font,
   zeroline = FALSE,
   showline = FALSE,
-  showgrid = F)
+  showgrid = T)
 m <- list(l = 50,r = 50,b = 100,t = 100,pad = 4)
 bord <- list(color = "black",
              width = 1.1)
