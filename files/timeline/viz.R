@@ -67,7 +67,7 @@ timeline <- plot_ly(df, color = I("gray40")) %>%
     titlefont = tfont,
     xaxis = xax,
     yaxis = yax,
-    autosize = F, width = 1500, height = 750, margin = m,
+    autosize = F, width = 1000, height = 400, margin = m,
     font = list(
       family = "Ubuntu",
       color = "black")
