@@ -37,12 +37,18 @@ xax <- list(
   title = "",
   showticklabels = TRUE,
   tickangle = 45,
-  tickfont = font)
+  tickfont = font,
+  zeroline = FALSE,
+  showline = FALSE,
+  showgrid = F)
 yax <- list(
   title = "",
   showticklabels = TRUE,
   #tickangle = 15,
-  tickfont = font)
+  tickfont = font,
+  zeroline = FALSE,
+  showline = FALSE,
+  showgrid = F)
 m <- list(l = 50,r = 50,b = 100,t = 100,pad = 4)
 bord <- list(color = "black",
              width = 1.1)
@@ -61,9 +67,9 @@ timeline <- plot_ly(df, color = I("gray40")) %>%
     titlefont = tfont,
     xaxis = xax,
     yaxis = yax,
-    autosize = F, width = 1000, height = 500, margin = m,
+    autosize = F, width = 1500, height = 750, margin = m,
     font = list(
-      family = "Avenir",
+      family = "Ubuntu",
       color = "black")
   )
 timeline
