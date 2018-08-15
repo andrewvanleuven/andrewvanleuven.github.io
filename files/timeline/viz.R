@@ -25,35 +25,14 @@ df <- df %>%
 
 df$paper <- factor(df$paper, levels = df$paper[order(df$latest_date)])
 
-font <- list(
-#  family = "Courier New",
-  size = 14,
-  color = "black")
-tfont <- list(
-#  family = "Courier New",
-  size = 30,
-  color = "black")
-xax <- list(
-  title = "",
-  showticklabels = TRUE,
-  tickangle = 45,
-  tickfont = font,
-  zeroline = FALSE,
-  showline = FALSE,
-  showgrid = T)
-yax <- list(
-  title = "",
-  showticklabels = TRUE,
-  #tickangle = 15,
-  tickfont = font,
-  zeroline = FALSE,
-  showline = FALSE,
-  showgrid = T)
+font <- list(size = 14,color = "black")
+tfont <- list(size = 30,color = "black")
+xax <- list(title = "",showticklabels = TRUE,tickangle = 45,tickfont = font,zeroline = FALSE,showline = FALSE,showgrid = T)
+yax <- list(title = "",showticklabels = TRUE,tickfont = font,zeroline = FALSE,showline = FALSE,showgrid = T)
 m <- list(l = 50,r = 50,b = 100,t = 100,pad = 4)
-bord <- list(color = "black",
-             width = 1.1)
-seg <- list(color = "black",
-             width = 3)
+bord <- list(color = "black",width = 1.1)
+seg <- list(color = "black",width = 3)
+
 timeline <- plot_ly(df, color = I("gray40")) %>%
   add_segments(x = ~earliest_date, xend = ~latest_date, y = ~paper, yend = ~paper, showlegend = FALSE,line =seg) %>%
   add_markers(x = ~start, y = ~paper, name = "Started",marker = list(color = "yellow",size=10,line =bord)) %>%
@@ -62,15 +41,9 @@ timeline <- plot_ly(df, color = I("gray40")) %>%
   add_markers(x = ~pres, y = ~paper, name = "First Presentation",marker = list(color = "red",size=10,line =bord)) %>%
   add_markers(x = ~randr, y = ~paper, name = "First R&R",marker = list(color = "orange",size=10,line =bord)) %>%
   add_markers(x = ~accept, y = ~paper, name = "Accepted",marker = list(color = "white",size=10,line =bord)) %>%
-  layout(
-    title = "<b>Timeline of Research Streams</b>",
-    titlefont = tfont,
-    xaxis = xax,
-    yaxis = yax,
-    autosize = F, width = 1000, height = 400, margin = m,
-    font = list(
-      family = "Ubuntu",
-      color = "black")
-  )
+  layout(title = "<b>Timeline of Research Streams</b>",titlefont = tfont,
+         xaxis = xax,yaxis = yax,autosize = F, width = 1600, height = 650,
+         margin = m,font = list(family = "Ubuntu",color = "black"))
+
 timeline
 
