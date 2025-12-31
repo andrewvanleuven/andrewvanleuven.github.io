@@ -23,7 +23,9 @@ library(tigris)
 library(mapgl)
 
 df <- st_read('kountry_hex.geojson') |>
-  rename(`Businesses with 'Kountry' in the Name` = count)
+  select(-h3_index) |> 
+  rename(`Businesses with 'Kountry' in the Name` = count,
+         State = st)
 ```
 
 ```{r}
