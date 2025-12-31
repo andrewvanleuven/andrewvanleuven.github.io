@@ -1,14 +1,11 @@
 {
-  "index.qmd": {
-    "index.html": "031b33e0"
-  },
-  "posts/post-with-code/index.qmd": {
-    "index.html": "bc72d7fa"
-  },
   "posts/welcome/index.qmd": {
-    "index.html": "0a99d83a"
+    "index.html": "ae8e4a51"
+  },
+  "index.qmd": {
+    "index.html": "882de9eb"
   },
   "about.qmd": {
-    "about.html": "89d28a83"
+    "about.html": "402abded"
   }
 }

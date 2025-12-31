@@ -38,6 +38,10 @@ maplibre_view(
 
 ## Code for ggplot2 map
 
+This code aggregates business locations into H3 hexagons at resolution 3 (approximately 4,800 square miles each), counts the number of establishments per hexagon, and clips the results to the contiguous United States. The ggplot2 visualization uses an Albers Equal Area projection and a yellow-green color scale to show the spatial distribution of businesses with "Kountry" in their name.
+
+I use data from the [YourEconomy Time Series (YTS)](https://youreconomy.org/yts-database.html), which covers all U.S. business establishments from 1998 to 2025. For legal reasons—i.e., it's their data, not mine—that data is not provided in this repository.
+
 ```{r}
 #| eval: false
 library(arrow)
