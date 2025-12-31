@@ -1,0 +1,117 @@
+---
+title: "Welcome to MapDork"
+author: "Andrew J. Van Leuven"
+date: "2025-12-31"
+categories: [map]
+format:
+  html:
+    theme: cosmo
+    embed-resources: false
+---
+
+This site is for "under the hood" details on maps I publish on my [substack page](https://vanleuven.substack.com/). Below is some further detail on my "Kountry" restaurant map.
+
+## Interactive map
+
+
+```{r}
+#| include: false
+library(tidyverse)
+library(sf)
+library(h3jsr)
+library(tigris)
+library(mapgl)
+
+df <- st_read('kountry_hex.geojson') |>
+  rename(`Number of Establishments with 'Kountry'` = count)
+```
+
+```{r}
+#| echo: false
+maplibre_view(
+  df,
+  column = "Number of Establishments with 'Kountry'",
+  palette = function(n) RColorBrewer::brewer.pal(n, "YlGn"),
+  legend_position = "top-left"
+)
+```
+
+## Code for ggplot2 map
+
+```{r}
+#| eval: false
+library(arrow)
+library(tidyverse)
+library(janitor)
+library(sf)
+library(h3jsr)
+library(tigris)
+library(mapgl)
+
+# Contiguous 48 states
+states <- states(cb = TRUE, resolution = '20m') |>
+  filter(!STUSPS %in% c("AK", "HI") & STATEFP < 60)
+
+ytsdb <- open_dataset('data/yts')
+df <- ytsdb |>
+  filter(year %in% c(2021:2025), str_detect(tolower(company), 'kountry')) |>
+  collect() |>
+  filter(state != 'HI' & state != 'AK')
+
+# Clean and prepare spatial data
+dsf <- df |>
+  mutate(longitude = ifelse(longitude > 0, longitude * -1, longitude)) |>
+  st_as_sf(coords = c('longitude', 'latitude'), crs = 4326, remove = FALSE) |>
+  st_transform(6350) |> # Transform to Albers
+  slice(1, .by = id)
+
+# H3 requires WGS84, so transform back temporarily
+dsf <- dsf |>
+  mutate(h3_index = point_to_cell(st_transform(geometry, 4326), res = 3))
+
+# Count occurrences per hexagon
+hex_counts <- dsf |>
+  st_drop_geometry() |>
+  count(h3_index, name = "count")
+
+# Convert H3 indices to polygons
+hex_sf <- hex_counts |>
+  mutate(geometry = cell_to_polygon(h3_index)) |>
+  st_as_sf(crs = 4326)
+
+states <- states |> st_transform(6350) |> select(st = STUSPS)
+hex_sf <- hex_sf |> st_transform(6350) |> st_intersection(states)
+
+ggplot() +
+  geom_sf(data = states, fill = '#FFFFE5', color = NA) +
+  geom_sf(data = hex_sf, aes(fill = count), color = NA) +
+  geom_sf(data = states, fill = NA, color = "black", linewidth = .15) +
+  scale_fill_distiller(
+    palette = 'YlGn',
+    direction = 1,
+    name = 'Count',
+    limits = c(0, 12)
+  ) +
+  theme_void(base_family = 'Red Hat Display', base_size = 14) +
+  labs(
+    title = "Density of Business Establishments with 'Kountry' in the Name",
+    subtitle = '(Each Hexagon ≈ 4,800 square miles)',
+    caption = '\nSource: YourEconomy Time Series, 2025    \n'
+  ) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(face = "italic", hjust = 0.5),
+    legend.title = element_text(face = "bold", hjust = 0.5),
+    legend.position = 'bottom'
+  ) +
+  guides(
+    fill = guide_colourbar(
+      barheight = 0.5,
+      barwidth = 12,
+      title.position = "top"
+    )
+  )
+
+```
+
+![](kountry.jpg){fig-align="center"}
