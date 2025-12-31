@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this blog"
+  },
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome to MapDork",
+    "section": "",
+    "text": "This site is for “under the hood” details on maps I publish on my substack page. Below is some further detail on my “Kountry” restaurant map."
+  },
+  {
+    "objectID": "posts/welcome/index.html#interactive-map",
+    "href": "posts/welcome/index.html#interactive-map",
+    "title": "Welcome to MapDork",
+    "section": "Interactive map",
+    "text": "Interactive map"
+  },
+  {
+    "objectID": "posts/welcome/index.html#code-for-ggplot2-map",
+    "href": "posts/welcome/index.html#code-for-ggplot2-map",
+    "title": "Welcome to MapDork",
+    "section": "Code for ggplot2 map",
+    "text": "Code for ggplot2 map\n\nlibrary(arrow)\nlibrary(tidyverse)\nlibrary(janitor)\nlibrary(sf)\nlibrary(h3jsr)\nlibrary(tigris)\nlibrary(mapgl)\n\n# Contiguous 48 states\nstates &lt;- states(cb = TRUE, resolution = '20m') |&gt;\n  filter(!STUSPS %in% c(\"AK\", \"HI\") & STATEFP &lt; 60)\n\nytsdb &lt;- open_dataset('data/yts')\ndf &lt;- ytsdb |&gt;\n  filter(year %in% c(2021:2025), str_detect(tolower(company), 'kountry')) |&gt;\n  collect() |&gt;\n  filter(state != 'HI' & state != 'AK')\n\n# Clean and prepare spatial data\ndsf &lt;- df |&gt;\n  mutate(longitude = ifelse(longitude &gt; 0, longitude * -1, longitude)) |&gt;\n  st_as_sf(coords = c('longitude', 'latitude'), crs = 4326, remove = FALSE) |&gt;\n  st_transform(6350) |&gt; # Transform to Albers\n  slice(1, .by = id)\n\n# H3 requires WGS84, so transform back temporarily\ndsf &lt;- dsf |&gt;\n  mutate(h3_index = point_to_cell(st_transform(geometry, 4326), res = 3))\n\n# Count occurrences per hexagon\nhex_counts &lt;- dsf |&gt;\n  st_drop_geometry() |&gt;\n  count(h3_index, name = \"count\")\n\n# Convert H3 indices to polygons\nhex_sf &lt;- hex_counts |&gt;\n  mutate(geometry = cell_to_polygon(h3_index)) |&gt;\n  st_as_sf(crs = 4326)\n\nstates &lt;- states |&gt; st_transform(6350) |&gt; select(st = STUSPS)\nhex_sf &lt;- hex_sf |&gt; st_transform(6350) |&gt; st_intersection(states)\n\nggplot() +\n  geom_sf(data = states, fill = '#FFFFE5', color = NA) +\n  geom_sf(data = hex_sf, aes(fill = count), color = NA) +\n  geom_sf(data = states, fill = NA, color = \"black\", linewidth = .15) +\n  scale_fill_distiller(\n    palette = 'YlGn',\n    direction = 1,\n    name = 'Count',\n    limits = c(0, 12)\n  ) +\n  theme_void(base_family = 'Red Hat Display', base_size = 14) +\n  labs(\n    title = \"Density of Business Establishments with 'Kountry' in the Name\",\n    subtitle = '(Each Hexagon ≈ 4,800 square miles)',\n    caption = '\\nSource: YourEconomy Time Series, 2025    \\n'\n  ) +\n  theme(\n    plot.title = element_text(face = \"bold\", hjust = 0.5),\n    plot.subtitle = element_text(face = \"italic\", hjust = 0.5),\n    legend.title = element_text(face = \"bold\", hjust = 0.5),\n    legend.position = 'bottom'\n  ) +\n  guides(\n    fill = guide_colourbar(\n      barheight = 0.5,\n      barwidth = 12,\n      title.position = \"top\"\n    )\n  )"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "MapDork Library",
+    "section": "",
+    "text": "Welcome to MapDork\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nDec 31, 2025\n\n\nAndrew J. Van Leuven\n\n\n\n\n\nNo matching items"
+  }
+]
