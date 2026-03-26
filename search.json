@@ -1,10 +1,31 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
+    "objectID": "CLAUDE.html",
+    "href": "CLAUDE.html",
+    "title": "MapDork Blog",
     "section": "",
-    "text": "About this blog"
+    "text": "A Quarto blog that provides “under the hood” technical details on maps published on the Substack page. Posts show the R code and interactive maps behind each Substack post.\nAuthor: Andrew J. Van Leuven\n\n\n\nCreate a new directory under posts/ named after the post topic (e.g., posts/my-new-map/)\nCreate posts/my-new-map/index.qmd with this frontmatter:\n\n---\ntitle: \"Post Title\"\nauthor: \"Andrew J. Van Leuven\"\ndate: \"YYYY-MM-DD\"\ncategories: [map]\nformat:\n  html:\n    theme: cosmo\n    embed-resources: false\n---\n\nAdd any data files the post needs into that same directory\nRender and preview: quarto preview or quarto render\nThe posts/_metadata.yml applies to all posts automatically: freeze is enabled and title blocks use banner style\n\n\n\n\n\nWhen I ask for your help in writing, I don’t ever want standalone em dashes. I only like em dashes when there is a complete pair of them, and they are in the middle of a sentence. Also, do not surround em dashes with spaces. Let them touch the text directly."
+  },
+  {
+    "objectID": "CLAUDE.html#creating-a-new-post",
+    "href": "CLAUDE.html#creating-a-new-post",
+    "title": "MapDork Blog",
+    "section": "",
+    "text": "Create a new directory under posts/ named after the post topic (e.g., posts/my-new-map/)\nCreate posts/my-new-map/index.qmd with this frontmatter:\n\n---\ntitle: \"Post Title\"\nauthor: \"Andrew J. Van Leuven\"\ndate: \"YYYY-MM-DD\"\ncategories: [map]\nformat:\n  html:\n    theme: cosmo\n    embed-resources: false\n---\n\nAdd any data files the post needs into that same directory\nRender and preview: quarto preview or quarto render\nThe posts/_metadata.yml applies to all posts automatically: freeze is enabled and title blocks use banner style"
+  },
+  {
+    "objectID": "CLAUDE.html#rules",
+    "href": "CLAUDE.html#rules",
+    "title": "MapDork Blog",
+    "section": "",
+    "text": "When I ask for your help in writing, I don’t ever want standalone em dashes. I only like em dashes when there is a complete pair of them, and they are in the middle of a sentence. Also, do not surround em dashes with spaces. Let them touch the text directly."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "MapDork Library",
+    "section": "",
+    "text": "The 2025 County Population Data Is Out. Here’s What It Shows.\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nMar 26, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome to MapDork\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nDec 31, 2025\n\n\nAndrew J. Van Leuven\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/welcome/index.html",
@@ -28,10 +49,31 @@
     "text": "Code for ggplot2 map\nThis code aggregates business locations into H3 hexagons at resolution 3 (approximately 4,800 square miles each), counts the number of establishments per hexagon, and clips the results to the contiguous United States. The ggplot2 visualization uses an Albers Equal Area projection and a yellow-green color scale to show the spatial distribution of businesses with “Kountry” in their name.\nI use data from the YourEconomy Time Series (YTS), which covers all U.S. business establishments from 1998 to 2025. For legal reasons—i.e., it’s their data, not mine—that data is not provided in this repository.\n\nlibrary(arrow)\nlibrary(tidyverse)\nlibrary(janitor)\nlibrary(sf)\nlibrary(h3jsr)\nlibrary(tigris)\nlibrary(mapgl)\n\n# Contiguous 48 states\nstates &lt;- states(cb = TRUE, resolution = '20m') |&gt;\n  filter(!STUSPS %in% c(\"AK\", \"HI\") & STATEFP &lt; 60)\n\nytsdb &lt;- open_dataset('data/yts')\ndf &lt;- ytsdb |&gt;\n  filter(year %in% c(2021:2025), str_detect(tolower(company), 'kountry')) |&gt;\n  collect() |&gt;\n  filter(state != 'HI' & state != 'AK')\n\n# Clean and prepare spatial data\ndsf &lt;- df |&gt;\n  mutate(longitude = ifelse(longitude &gt; 0, longitude * -1, longitude)) |&gt;\n  st_as_sf(coords = c('longitude', 'latitude'), crs = 4326, remove = FALSE) |&gt;\n  st_transform(6350) |&gt; # Transform to Albers\n  slice(1, .by = id)\n\n# H3 requires WGS84, so transform back temporarily\ndsf &lt;- dsf |&gt;\n  mutate(h3_index = point_to_cell(st_transform(geometry, 4326), res = 3))\n\n# Count occurrences per hexagon\nhex_counts &lt;- dsf |&gt;\n  st_drop_geometry() |&gt;\n  count(h3_index, name = \"count\")\n\n# Convert H3 indices to polygons\nhex_sf &lt;- hex_counts |&gt;\n  mutate(geometry = cell_to_polygon(h3_index)) |&gt;\n  st_as_sf(crs = 4326)\n\nstates &lt;- states |&gt; st_transform(6350) |&gt; select(st = STUSPS)\nhex_sf &lt;- hex_sf |&gt; st_transform(6350) |&gt; st_intersection(states)\n\nggplot() +\n  geom_sf(data = states, fill = '#FFFFE5', color = NA) +\n  geom_sf(data = hex_sf, aes(fill = count), color = NA) +\n  geom_sf(data = states, fill = NA, color = \"black\", linewidth = .15) +\n  scale_fill_distiller(\n    palette = 'YlGn',\n    direction = 1,\n    name = 'Count',\n    limits = c(0, 12)\n  ) +\n  theme_void(base_family = 'Red Hat Display', base_size = 14) +\n  labs(\n    title = \"Density of Business Establishments with 'Kountry' in the Name\",\n    subtitle = '(Each Hexagon ≈ 4,800 square miles)',\n    caption = '\\nSource: YourEconomy Time Series, 2025    \\n'\n  ) +\n  theme(\n    plot.title = element_text(face = \"bold\", hjust = 0.5),\n    plot.subtitle = element_text(face = \"italic\", hjust = 0.5),\n    legend.title = element_text(face = \"bold\", hjust = 0.5),\n    legend.position = 'bottom'\n  ) +\n  guides(\n    fill = guide_colourbar(\n      barheight = 0.5,\n      barwidth = 12,\n      title.position = \"top\"\n    )\n  )"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "MapDork Library",
+    "objectID": "posts/03_2026_popest/index.html",
+    "href": "posts/03_2026_popest/index.html",
+    "title": "The 2025 County Population Data Is Out. Here’s What It Shows.",
     "section": "",
-    "text": "Welcome to MapDork\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nDec 31, 2025\n\n\nAndrew J. Van Leuven\n\n\n\n\n\nNo matching items"
+    "text": "Today marks the release of the latest batch of data from the U.S. Census Bureau: the 2025 County Population Totals and Components of Change. Below is a collection of a few interactive maps that visualize changes that have taken place since last year, as well as a quick guide (including code snippets) for how to load, clean, and map the data."
+  },
+  {
+    "objectID": "posts/03_2026_popest/index.html#components-of-growth-and-decline",
+    "href": "posts/03_2026_popest/index.html#components-of-growth-and-decline",
+    "title": "The 2025 County Population Data Is Out. Here’s What It Shows.",
+    "section": "Components of Growth and Decline",
+    "text": "Components of Growth and Decline\nNot all population growth looks the same. A county can be growing because it has more births than deaths, because people are moving in, or—ideally—both. Conversely, decline can stem from negative natural change (more deaths than births), outmigration, or both at once. The map below classifies every U.S. county into one of four categories based on its 2024–25 natural change and net migration:\n\n\n\n\n\n\n\n\n\nGrowth Type\nNatural Change\nNet Migration\nWhat it means\n\n\n\n\nGrowing Both Ways\nPositive\nPositive\nBirths exceed deaths and people are moving in\n\n\nMigration-Dependent\nNegative\nPositive\nMore deaths than births, but in-migration offsets the loss\n\n\nBirth-Dependent\nPositive\nNegative\nNatural increase keeps the county growing despite net outmigration\n\n\nDeclining Both Ways\nNegative\nNegative\nFewer births than deaths and net outmigration—the double squeeze\n\n\n\n\n\n\n\n\n\nPerhaps the most striking takeaway from this map is just how spatially mixed the picture is. Even in states with strong overall population growth—Texas, Florida, the Carolinas—you’ll find pockets of birth-dependent or declining counties alongside booming ones. And in states often written off as uniformly shrinking, migration is quietly propping up growth in college towns, retirement destinations, and rural amenity counties. In general, county data catches nuance that state-level summaries often miss.\nPlease feel free to share these maps with friends and colleagues. If you would like a particular map or data point, I am stretched pretty thin until the end of the semester but it’s still worth a try to email me at andrew.vanleuven@uvm.edu with any questions you might have."
+  },
+  {
+    "objectID": "posts/03_2026_popest/index.html#footnotes",
+    "href": "posts/03_2026_popest/index.html#footnotes",
+    "title": "The 2025 County Population Data Is Out. Here’s What It Shows.",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nMuch of what makes working with U.S. Census data in R so approachable is owed to Dr. Kyle Walker. His packages—tidycensus, tigris, and mapgl—have become essential tools in the applied spatial data science community. If you work with U.S. demographic or geographic data in R, his work is worth exploring.↩︎"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "My name is Andrew Van Leuven, and my day job is as an assistant professor at the University of Vermont. My research and teaching focus on regional economics and rural development efforts that strengthen and revitalize local economies.\nThis site is where I share my maps. For more about me, visit my other (more professional) website."
   }
 ]
