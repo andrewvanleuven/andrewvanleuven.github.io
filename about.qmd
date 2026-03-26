@@ -4,16 +4,15 @@ image: profile.jpg
 about:
   template: jolla
   links:
-    - icon: twitter
-      text: Twitter
-      href: https://twitter.com
     - icon: linkedin
       text: LinkedIn
-      href: https://linkedin.com
+      href: https://www.linkedin.com/in/andrewvanleuven/
     - icon: github
       text: Github
-      href: https://github.com
+      href: https://github.com/andrewvanleuven
 
 ---
 
-About this blog
+My name is Andrew Van Leuven, and my day job is as an assistant professor at the University of Vermont. My research and teaching focus on regional economics and rural development efforts that strengthen and revitalize local economies.
+
+This site is where I share my maps. For more about me, visit my other (more professional) [website](https://andrewvanleuven.com/).

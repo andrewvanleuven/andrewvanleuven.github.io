@@ -1,3 +1,6 @@
 /.quarto/
 **/*.quarto_ipynb
 .DS_Store
+/_site/
+
+posts/03_2026_popest/*.csv
