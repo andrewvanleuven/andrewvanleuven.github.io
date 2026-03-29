@@ -13,13 +13,6 @@ Today marks the release of the latest batch of data from the U.S. Census Bureau:
 
 # Interactive Maps
 
-```{css}
-#| echo: false
-.html-widget-container {
-  margin-bottom: 12px;
-}
-```
-
 The most obvious variable that we'd want to observe is the growth (or decline) from last year to this year. What counties grew? Which ones shrank? Let's look at a simple choropleth map visualizing the percent change in county population between 2024 and 2025.
 
 ```{r}
@@ -96,6 +89,7 @@ usa <- usa |> select(
   cty_fips, stname, ctyname, full_name,
   pop_pct_2024_25, pop_pct_2023_24, pop_chg_2024_25,
   naturalchg2025, netmig2025, growth_type,
+  births2025, deaths2025, domesticmig2025,
   rinternationalmig2024, rinternationalmig2025,
   internationalmig2024, internationalmig2025,
   tooltip_html, tooltip_html2
@@ -146,7 +140,7 @@ maplibre(bounds = us48, style = carto_style('positron')) |>
     fill_color = interpolate(
       column = "pop_pct_2024_25",
       values = c(-5, 0, 5),
-      stops = RColorBrewer::brewer.pal(3, "RdYlBu"),
+      stops = RColorBrewer::brewer.pal(3, "RdBu"),
       na_color = "lightgrey"
     ),
     fill_opacity = 0.9,
@@ -160,7 +154,7 @@ maplibre(bounds = us48, style = carto_style('positron')) |>
     fill_color = interpolate(
       column = "pop_pct_2023_24",
       values = c(-5, 0, 5),
-      stops = RColorBrewer::brewer.pal(3, "RdYlBu"),
+      stops = RColorBrewer::brewer.pal(3, "RdBu"),
       na_color = "lightgrey"
     ),
     fill_opacity = 0.9,
@@ -183,7 +177,7 @@ maplibre(bounds = us48, style = carto_style('positron')) |>
   add_continuous_legend(
   "Percent Change in Population",
   values = c(-5, -2.5, 0, 2.5, 5),
-  colors = RColorBrewer::brewer.pal(5, "RdYlBu"),
+  colors = RColorBrewer::brewer.pal(5, "RdBu"),
   position = "bottom-left",
   draggable = T
   ) |>  
@@ -509,7 +503,15 @@ gt_colors <- c(
 
 usa <- usa |>
   mutate(tooltip_growth = glue::glue(
-    "<b>{full_name}</b><br>Growth Type: {growth_type}"
+    "<b>{full_name}</b><br>
+    <hr style='background-color: #000; height: 1px'>
+    Births: +{scales::comma(births2025)}<br>
+    Deaths: -{scales::comma(deaths2025)}<br>
+    Natural Change: {scales::comma(naturalchg2025, style_positive = 'plus')}<br>
+    <hr style='background-color: #b0b0b0'>
+    Domestic Migration: {scales::comma(domesticmig2025, style_positive = 'plus')}<br>
+    International Migration: {scales::comma(internationalmig2025, style_positive = 'plus')}<br>
+    Net Migration: {scales::comma(netmig2025, style_positive = 'plus')}"
   ))
 
 maplibre(bounds = us48, style = carto_style('positron')) |>
@@ -554,7 +556,7 @@ Please feel free to share these maps with friends and colleagues. If you would l
 
 # Code Example: Loading, Cleaning, and Mapping
 
-The interactive maps above use the [mapgl](https://github.com/walkerke/mapgl) package, and you can find the full source on my GitHub. However, if you are a beginner or intermediate R user, the static map version below is a gentler starting point. Try swapping in different variables (e.g., `netmig2025` for net migration, `naturalchg2025` for natural change) or experimenting with different color palettes — it has never been easier to pull, clean, and visualize Census data in R.[^1]
+The interactive maps above use the [mapgl](https://github.com/walkerke/mapgl) package, and you can find the full source on my GitHub. However, if you are a beginner or intermediate R user, the static map version below is a gentler starting point. Try swapping in different variables (e.g., `netmig2025` for net migration, `naturalchg2025` for natural change) or experimenting with different color palettes. It has never been easier to pull, clean, and visualize Census data in R![^1]
 
 ```{r}
 #| echo: true
@@ -606,7 +608,7 @@ ggplot() +
   ) +
   labs(
     title   = 'Population Change by County, 2024–25',
-    caption = '\nSource: U.S. Census Population Estimates, 2025\n'
+    caption = '\nSource: U.S. Census Population Estimates, 2025    \n'
   ) +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 15, title.position = "top"))
 ```
@@ -616,3 +618,4 @@ ggplot() +
 
 
 [^1]: Much of what makes working with U.S. Census data in R so approachable is owed to [Dr. Kyle Walker](https://personal.tcu.edu/kylewalker/). His packages---[`tidycensus`](https://github.com/walkerke/tidycensus), [`tigris`](https://github.com/walkerke/tigris), and [`mapgl`](https://github.com/walkerke/mapgl)---have become essential tools in the applied spatial data science community. If you work with U.S. demographic or geographic data in R, his work is worth exploring.
+
