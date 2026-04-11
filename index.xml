@@ -15,9 +15,7 @@
   <title>Putting Farm Credit Branches on the Map</title>
   <dc:creator>Andrew J. Van Leuven</dc:creator>
   <link>https://andrewvanleuven.github.io/posts/04_2026_farmcredit/</link>
-  <description><![CDATA[ 
-Photo by <a href="https://unsplash.com/@taylorsiebert?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Taylor Siebert</a> on <a href="https://unsplash.com/photos/green-car-on-brown-field-during-sunset-XuGmpWwt3xc?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Unsplash</a>.
- ]]></description>
+  <description><![CDATA[ A look at where Farm Credit branches are located across the country. ]]></description>
   <category>map</category>
   <guid>https://andrewvanleuven.github.io/posts/04_2026_farmcredit/</guid>
   <pubDate>Sat, 11 Apr 2026 04:00:00 GMT</pubDate>
@@ -27,7 +25,7 @@ Photo by <a href="https://unsplash.com/@taylorsiebert?utm_source=unsplash&amp;ut
   <title>The 2025 County Population Data Is Out. Here’s What It Shows.</title>
   <dc:creator>Andrew J. Van Leuven</dc:creator>
   <link>https://andrewvanleuven.github.io/posts/03_2026_popest/</link>
-  <description><![CDATA[ Today marks the release of the latest batch of data from the U.S. Census Bureau: the <a href="https://www.census.gov/data/tables/time-series/demo/popest/2020s-counties-total.html">2025 County Population Totals and Components of Change</a>. Below is a collection of a few interactive maps that visualize changes that have taken place since last year, as well as a quick guide (including code snippets) for how to load, clean, and map the data. ]]></description>
+  <description><![CDATA[ Making sense of the latest county-level census data, including growth, decline, and migration. ]]></description>
   <category>map</category>
   <guid>https://andrewvanleuven.github.io/posts/03_2026_popest/</guid>
   <pubDate>Thu, 26 Mar 2026 04:00:00 GMT</pubDate>
