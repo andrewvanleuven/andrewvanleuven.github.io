@@ -1,0 +1,148 @@
+city_fips,city_name,st,pop_20,cty_fips,cty_type,cty_centrality,cty_msa_adj,rucc,peak_year,peak_pop,pop_2010,decline,pct_decline,type,reason
+0107000,"Birmingham city, Alabama",AL,200733,01073,Metro,Central,In Metro,1,1960,340887,212237,-140154,-0.4111450421987345,City,Both
+0162496,"Prichard city, Alabama",AL,19322,01097,Metro,Central,In Metro,2,1960,47371,22659,-28049,-0.5921133182748939,Town,Both
+0171190,"Smiths Station city, Alabama",AL,5384,01081,Metro,Central,In Metro,3,2000,21756,4926,-16372,-0.752528038242324,Small Town,Both
+0406260,"Bisbee city, Arizona",AZ,4923,04003,Metro,Central,In Metro,3,1960,9914,5575,-4991,-0.5034294936453501,Small Town,Both
+0452930,"Paradise Valley town, Arizona",AZ,12658,04013,Metro,Central,In Metro,1,2000,13664,12820,-1006,-0.07362412177985948,Town,Both
+0507330,"Blytheville city, Arkansas",AR,13406,05093,Micro,Central,Adjacent,4,1970,24752,15620,-11346,-0.45838720103425984,Town,Both
+0508950,"Brinkley city, Arkansas",AR,2700,05095,Non-Core,--,Non-Adjacent,9,1970,5275,3188,-2575,-0.4881516587677725,Small Town,Relative Decline
+0544120,"Marianna city, Arkansas",AR,3575,05077,Non-Core,--,Adjacent,8,1980,6220,4115,-2645,-0.4252411575562701,Small Town,Raw Decline
+0613588,"Citrus Heights city, California",CA,87583,06067,Metro,Central,In Metro,1,1990,107439,83301,-19856,-0.18481184672232615,City,Both
+0630378,"Goleta city, California",CA,32690,06083,Metro,Central,In Metro,2,2000,55204,29888,-22514,-0.4078327657416129,Town,Both
+0650874,"Nevada City city, California",CA,3152,06057,Micro,Central,Adjacent,4,1880,4022,3068,-870,-0.21631029338637495,Small Town,Relative Decline
+0669000,"Santa Ana city, California",CA,310227,06059,Metro,Central,In Metro,1,2000,337977,324528,-27750,-0.0821061788228193,Large City,Both
+0682744,"Villa Park city, California",CA,5843,06059,Metro,Central,In Metro,1,1980,7137,5812,-1294,-0.1813086731119518,Small Town,Raw Decline
+0824785,"Englewood city, Colorado",CO,33659,08005,Metro,Central,In Metro,1,1970,33695,30255,-36,-0.001068407775634367,Town,Both
+0844320,"Leadville city, Colorado",CO,2633,08065,Micro,Outlying,Non-Adjacent,9,1880,14820,2602,-12187,-0.8223346828609986,Small Town,Both
+0943300,"Litchfield borough, Connecticut",CT,1179,09160,Micro,Central,Adjacent,4,1790,20342,8466,-19163,-0.9420410972372432,Small Town,Both
+0952000,"New Haven city, Connecticut",CT,134023,09170,Metro,Central,In Metro,2,1950,164443,129779,-30420,-0.18498811138205945,City,Both
+0952280,"New London city, Connecticut",CT,27367,09180,Metro,Central,In Metro,2,1960,34182,27620,-6815,-0.1993739395003218,Town,Both
+1024540,"Elsmere town, Delaware",DE,6229,10003,Metro,Central,In Metro,1,1970,8415,6131,-2186,-0.2597742127153892,Small Town,Both
+1077580,"Wilmington city, Delaware",DE,70898,10003,Metro,Central,In Metro,1,1940,112504,70851,-41606,-0.36981796202801676,City,Both
+1211800,"Chattahoochee city, Florida",FL,2955,12039,Metro,Outlying,In Metro,2,1960,9699,3652,-6744,-0.6953294154036499,Small Town,Both
+1236550,"Key West city, Florida",FL,26444,12087,Micro,Central,Adjacent,4,1960,33956,24649,-7512,-0.22122747084462246,Town,Both
+1245060,"Miami Gardens city, Florida",FL,111640,12086,Metro,Central,In Metro,1,2000,124656,107167,-13016,-0.10441535104607881,City,Both
+1317776,"College Park city, Georgia",GA,13930,13121,Metro,Central,In Metro,1,1980,24632,13942,-10702,-0.43447547905164013,Town,Both
+1336472,"Hapeville city, Georgia",GA,6553,13121,Metro,Central,In Metro,1,1960,10082,6373,-3529,-0.3500297560007935,Small Town,Both
+1675195,"Soda Springs city, Idaho",ID,3133,16029,Non-Core,--,Adjacent,8,1980,4051,3058,-918,-0.22661071340409775,Small Town,Both
+1710383,"Cairo city, Illinois",IL,1733,17003,Metro,Outlying,In Metro,3,1920,15203,2831,-13470,-0.8860093402617905,Small Town,Both
+1714000,"Chicago city, Illinois",IL,2746388,17031,Metro,Central,In Metro,1,1950,3620962,2695598,-874574,-0.2415308418039184,Large City,Both
+1718823,"Decatur city, Illinois",IL,70522,17115,Metro,Central,In Metro,3,1980,94081,76122,-23559,-0.25041187912543444,City,Both
+1722255,"East St. Louis city, Illinois",IL,18469,17163,Metro,Central,In Metro,1,1950,82366,27006,-63897,-0.7757691280382683,Town,Both
+1805176,"Bicknell city, Indiana",IN,3029,18083,Micro,Central,Non-Adjacent,7,1920,7635,2915,-4606,-0.6032743942370662,Small Town,Relative Decline
+1813780,"Clinton city, Indiana",IN,4831,18165,Metro,Outlying,In Metro,3,1920,10962,4893,-6131,-0.5592957489509214,Small Town,Raw Decline
+1819486,"East Chicago city, Indiana",IN,26370,18089,Metro,Central,In Metro,1,1960,57669,29698,-31299,-0.542735265047079,Town,Both
+1827000,"Gary city, Indiana",IN,69093,18089,Metro,Central,In Metro,1,1960,178320,80294,-109227,-0.6125336473755048,City,Both
+1912315,"Centerville city, Iowa",IA,5412,19007,Non-Core,--,Non-Adjacent,7,1920,8486,5528,-3074,-0.3622436954984681,Small Town,Both
+1940845,"Keokuk city, Iowa",IA,9900,19111,Micro,Central,Non-Adjacent,7,1960,16316,10780,-6416,-0.3932336356950233,Town,Relative Decline
+1960465,"Ottumwa city, Iowa",IA,25529,19179,Micro,Central,Non-Adjacent,5,1960,33871,25023,-8342,-0.24628738448820525,Town,Raw Decline
+1982425,"Waterloo city, Iowa",IA,67314,19013,Metro,Central,In Metro,3,1980,75985,68406,-8671,-0.11411462788708297,City,Both
+2014600,"Coffeyville city, Kansas",KS,8826,20125,Non-Core,--,Non-Adjacent,7,1960,17382,10295,-8556,-0.4922333448394891,Town,Both
+2025100,"Galena city, Kansas",KS,2761,20021,Metro,Outlying,In Metro,3,1900,10155,3085,-7394,-0.7281142294436238,Small Town,Both
+2036000,"Kansas City city, Kansas",KS,156607,20209,Metro,Central,In Metro,1,1970,168213,145786,-11606,-0.06899585644391337,City,Both
+2117848,"Covington city, Kentucky",KY,40961,21117,Metro,Central,In Metro,1,1930,65252,40640,-24291,-0.3722644516643168,Town,Raw Decline
+2120350,"Dayton city, Kentucky",KY,5666,21037,Metro,Central,In Metro,1,1930,9071,5338,-3405,-0.3753720648219601,Small Town,Both
+2155884,"Newport city, Kentucky",KY,14150,21037,Metro,Central,In Metro,1,1950,31044,15273,-16894,-0.5441953356526221,Town,Relative Decline
+2208150,"Bogalusa city, Louisiana",LA,10659,22117,Micro,Central,Adjacent,6,1960,21423,12232,-10764,-0.5024506371656631,Town,Both
+2241400,"Lake Providence town, Louisiana",LA,3587,22035,Non-Core,--,Adjacent,8,1980,6361,3991,-2774,-0.4360949536236441,Small Town,Relative Decline
+2270000,"Shreveport city, Louisiana",LA,187593,22017,Metro,Central,In Metro,2,1980,206989,199311,-19396,-0.09370546260912416,City,Both
+2281165,"Westwego city, Louisiana",LA,8568,22051,Metro,Central,In Metro,1,1980,12663,8534,-4095,-0.32338308457711445,Small Town,Raw Decline
+2302795,"Bangor city, Maine",ME,31753,23019,Metro,Central,In Metro,3,1960,38912,33039,-7159,-0.18397923519736842,Town,Both
+2303355,"Bath city, Maine",ME,8766,23023,Metro,Outlying,In Metro,2,1920,14731,8514,-5965,-0.40492838232299233,Small Town,Raw Decline
+2309585,"Calais city, Maine",ME,3079,23029,Non-Core,--,Non-Adjacent,9,1900,7655,3123,-4576,-0.5977792292619203,Small Town,Relative Decline
+2360545,"Portland city, Maine",ME,68408,23005,Metro,Central,In Metro,2,1950,77634,66194,-9226,-0.11883968364376434,City,Both
+2421325,"Cumberland city, Maryland",MD,19076,24001,Micro,Central,Adjacent,4,1940,39483,20859,-20407,-0.5168553554694425,Town,Both
+2470850,"Seat Pleasant city, Maryland",MD,4522,24033,Metro,Central,In Metro,1,1970,7217,4542,-2695,-0.3734238603297769,Small Town,Both
+2503040,"Ayer CDP, Massachusetts",MA,2986,25017,Metro,Central,In Metro,1,1960,14927,7427,-11941,-0.7999598043813224,Small Town,Both
+2523000,"Fall River city, Massachusetts",MA,94000,25005,Metro,Central,In Metro,1,1920,120485,88857,-26485,-0.2198198945926879,City,Raw Decline
+2546225,"North Adams city, Massachusetts",MA,12961,25003,Metro,Central,In Metro,3,1900,24200,13708,-11239,-0.46442148760330576,Town,Relative Decline
+2553960,"Pittsfield city, Massachusetts",MA,43927,25003,Metro,Central,In Metro,3,1960,57879,44737,-13952,-0.24105461393596986,Town,Raw Decline
+2562535,"Somerville city, Massachusetts",MA,81045,25017,Metro,Central,In Metro,1,1930,103908,75754,-22863,-0.2200311814297263,City,Relative Decline
+2629000,"Flint city, Michigan",MI,81252,26049,Metro,Central,In Metro,2,1960,196940,102434,-115688,-0.5874276429369351,City,Both
+2638180,"Highland Park city, Michigan",MI,8977,26163,Metro,Central,In Metro,1,1930,52959,11776,-43982,-0.8304915123019695,Town,Both
+2641060,"Ironwood city, Michigan",MI,5045,26053,Non-Core,--,Non-Adjacent,7,1920,15739,5387,-10694,-0.6794586695469852,Small Town,Relative Decline
+2668760,"River Rouge city, Michigan",MI,7224,26163,Metro,Central,In Metro,1,1950,20549,7903,-13325,-0.6484500462309601,Small Town,Raw Decline
+2714158,"Crystal city, Minnesota",MN,23330,27053,Metro,Central,In Metro,1,1970,30925,22151,-7595,-0.2455941794664511,Town,Relative Decline
+2717000,"Duluth city, Minnesota",MN,86697,27137,Metro,Central,In Metro,2,1960,107312,86265,-20615,-0.19210339943342777,City,Both
+2719934,"Eveleth city, Minnesota",MN,3493,27137,Metro,Central,In Metro,2,1930,7484,3718,-3991,-0.5332709780865847,Small Town,Relative Decline
+2754214,"Richfield city, Minnesota",MN,36994,27053,Metro,Central,In Metro,1,1970,47231,35228,-10237,-0.21674324066820522,Town,Raw Decline
+2767288,"Virginia city, Minnesota",MN,8421,27137,Metro,Central,In Metro,2,1960,14034,8712,-5613,-0.3999572466866182,Small Town,Raw Decline
+2829180,"Greenville city, Mississippi",MS,29670,28151,Micro,Central,Non-Adjacent,5,1990,45226,34400,-15556,-0.3439614381108212,Town,Raw Decline
+2832900,"Hollandale city, Mississippi",MS,2323,28151,Micro,Central,Non-Adjacent,5,1980,4336,2702,-2013,-0.4642527675276753,Small Town,Relative Decline
+2836000,"Jackson city, Mississippi",MS,153701,28049,Metro,Central,In Metro,2,1980,202895,173514,-49194,-0.24246038591389635,City,Both
+2839640,"Laurel city, Mississippi",MS,17161,28067,Micro,Central,Adjacent,4,1960,27889,18540,-10728,-0.38466779016816666,Town,Relative Decline
+2840280,"Leland city, Mississippi",MS,3988,28151,Micro,Central,Non-Adjacent,5,1980,6667,4481,-2679,-0.4018299085045748,Small Town,Raw Decline
+2904906,"Berkeley city, Missouri",MO,8228,29189,Metro,Central,In Metro,1,1970,19743,8978,-11515,-0.5832446943220382,Small Town,Both
+2908398,"Bridgeton city, Missouri",MO,11445,29189,Metro,Central,In Metro,1,1970,19992,11550,-8547,-0.4275210084033613,Town,Relative Decline
+2924778,"Florissant city, Missouri",MO,52533,29189,Metro,Central,In Metro,1,1970,65908,52158,-13375,-0.20293439339685623,City,Both
+2975220,"University City city, Missouri",MO,35065,29189,Metro,Central,In Metro,1,1960,51249,35371,-16184,-0.3157915276395637,Town,Raw Decline
+3011397,"Butte-Silver Bow (balance), Montana",MT,34494,30093,Micro,Central,Non-Adjacent,5,1920,41611,36400,-7117,-0.17103650477037322,Town,Both
+3031075,"Glasgow city, Montana",MT,3202,30105,Non-Core,--,Non-Adjacent,9,1960,6398,3250,-3196,-0.4995311034698343,Small Town,Both
+3103390,"Beatrice city, Nebraska",NE,12261,31067,Micro,Central,Adjacent,6,1890,13836,12459,-1575,-0.11383347788378144,Town,Both
+3133705,"Nebraska City city, Nebraska",NE,7222,31131,Non-Core,--,Adjacent,6,1890,11941,7289,-4719,-0.39519303240934595,Small Town,Both
+3223500,"Ely city, Nevada",NV,3924,32033,Non-Core,--,Non-Adjacent,9,1980,4882,4255,-958,-0.19623105284719378,Small Town,Both
+3305140,"Berlin city, New Hampshire",NH,9425,33007,Non-Core,--,Non-Adjacent,7,1930,20018,10051,-10593,-0.5291737436307323,Town,Both
+3330180,"Gorham CDP, New Hampshire",NH,1851,33007,Non-Core,--,Non-Adjacent,7,1980,3322,2848,-1471,-0.4428055388320289,Small Town,Both
+3402080,"Atlantic City city, New Jersey",NJ,38497,34001,Metro,Central,In Metro,2,1930,66198,39558,-27701,-0.4184567509592435,Town,Both
+3410000,"Camden city, New Jersey",NJ,71791,34007,Metro,Central,In Metro,1,1950,124555,77344,-52764,-0.42362008751154107,City,Both
+3443890,"Margate City city, New Jersey",NJ,5317,34001,Metro,Central,In Metro,2,1970,10576,6354,-5259,-0.4972579425113464,Small Town,Both
+3451000,"Newark city, New Jersey",NJ,311549,34013,Metro,Central,In Metro,1,1930,442337,277140,-130788,-0.29567501701191623,Large City,Both
+3501780,"Alamogordo city, New Mexico",NM,30898,35035,Micro,Central,Adjacent,4,2000,35582,30403,-4684,-0.1316395930526671,Town,Both
+3579910,"Tucumcari city, New Mexico",NM,5278,35037,Non-Core,--,Non-Adjacent,7,1950,8419,5363,-3141,-0.37308468939303957,Small Town,Both
+3602066,"Amsterdam city, New York",NY,18219,36057,Micro,Central,Adjacent,4,1930,34817,18620,-16598,-0.4767211419708763,Town,Relative Decline
+3606607,"Binghamton city, New York",NY,47969,36007,Metro,Central,In Metro,3,1950,80674,47376,-32705,-0.4053970300220641,Town,Raw Decline
+3611000,"Buffalo city, New York",NY,278349,36029,Metro,Central,In Metro,1,1950,580132,261310,-301783,-0.5201971275502817,Large City,Both
+3642741,"Little Falls city, New York",NY,4605,36043,Metro,Outlying,In Metro,2,1920,13029,4946,-8424,-0.6465576790237163,Small Town,Both
+3651055,"Niagara Falls city, New York",NY,48671,36063,Metro,Central,In Metro,1,1960,102394,50193,-53723,-0.5246694142234897,City,Relative Decline
+3663000,"Rochester city, New York",NY,211328,36055,Metro,Central,In Metro,1,1950,332488,210565,-121160,-0.3644041288708164,City,Raw Decline
+3726880,"Goldsboro city, North Carolina",NC,33657,37191,Metro,Central,In Metro,3,1990,40709,36437,-7052,-0.1732295069886266,Town,Raw Decline
+3735920,"Kinston city, North Carolina",NC,19900,37107,Micro,Central,Adjacent,4,1990,25295,21677,-5395,-0.21328325756078276,Town,Relative Decline
+3745640,"Murfreesboro town, North Carolina",NC,2619,37091,Non-Core,--,Adjacent,8,1970,4418,2835,-1799,-0.4071978270710729,Small Town,Both
+3831820,"Grafton city, North Dakota",ND,4170,38099,Non-Core,--,Adjacent,8,1970,5946,4284,-1776,-0.29868819374369326,Small Town,Both
+3840580,"Jamestown city, North Dakota",ND,15849,38093,Micro,Central,Non-Adjacent,7,1980,16280,15427,-431,-0.026474201474201473,Town,Both
+3905074,"Bellaire village, Ohio",OH,3870,39013,Metro,Central,In Metro,3,1920,15061,4278,-11191,-0.743044950534493,Small Town,Both
+3916000,"Cleveland city, Ohio",OH,372624,39035,Metro,Central,In Metro,1,1950,914808,396698,-542184,-0.5926751843009681,Large City,Both
+3921000,"Dayton city, Ohio",OH,137644,39113,Metro,Central,In Metro,2,1960,262332,141759,-124688,-0.4753061006663312,City,Raw Decline
+3923730,"East Liverpool city, Ohio",OH,9958,39029,Micro,Central,Adjacent,4,1970,26243,11195,-16285,-0.6205464314293335,Town,Relative Decline
+3925704,"Euclid city, Ohio",OH,49692,39035,Metro,Central,In Metro,1,1970,71552,48920,-21860,-0.30551207513416817,Town,Raw Decline
+3988000,"Youngstown city, Ohio",OH,60068,39099,Metro,Central,In Metro,2,1930,170002,66982,-109934,-0.6466629804355243,City,Relative Decline
+4055150,"Okmulgee city, Oklahoma",OK,11322,40111,Metro,Outlying,In Metro,1,1950,18317,12321,-6995,-0.3818856799694273,Town,Both
+4080550,"Wewoka city, Oklahoma",OK,3133,40133,Non-Core,--,Non-Adjacent,7,1930,10401,3430,-7268,-0.6987789635611961,Small Town,Both
+4103150,"Astoria city, Oregon",OR,10181,41007,Micro,Central,Adjacent,4,1920,14027,9477,-3846,-0.2741854993940258,Small Town,Both
+4235424,"Homestead borough, Pennsylvania",PA,2884,42003,Metro,Central,In Metro,1,1920,20452,3165,-17568,-0.8589868961470761,Small Town,Relative Decline
+4238288,"Johnstown city, Pennsylvania",PA,18411,42021,Metro,Central,In Metro,3,1920,67327,20978,-48916,-0.7265435857828212,Town,Both
+4269000,"Scranton city, Pennsylvania",PA,76328,42069,Metro,Central,In Metro,2,1930,143433,76089,-67105,-0.4678491002767843,City,Both
+4270056,"Shenandoah borough, Pennsylvania",PA,4243,42107,Micro,Central,Adjacent,4,1910,25774,5071,-21531,-0.8353767362458291,Small Town,Raw Decline
+4449960,"Newport city, Rhode Island",RI,25163,44005,Metro,Central,In Metro,1,1960,47049,24672,-21886,-0.46517460519883524,Town,Both
+4454640,"Pawtucket city, Rhode Island",RI,75604,44007,Metro,Central,In Metro,1,1950,81436,71148,-5832,-0.07161451937717962,City,Both
+4501360,"Anderson city, South Carolina",SC,28106,45007,Metro,Outlying,In Metro,2,1960,41316,26686,-13210,-0.3197308548746248,Town,Both
+4528870,"Georgetown city, South Carolina",SC,8403,45043,Micro,Central,Adjacent,4,1960,12261,9163,-3858,-0.3146562270614142,Small Town,Both
+4631060,"Huron city, South Dakota",SD,14263,46005,Micro,Central,Non-Adjacent,7,1970,14299,12592,-36,-0.0025176585775229035,Town,Both
+4636220,"Lead city, South Dakota",SD,2982,46081,Micro,Central,Adjacent,6,1910,8392,3124,-5410,-0.6446615824594852,Small Town,Both
+4732520,"Harriman city, Tennessee",TN,5892,47145,Metro,Outlying,In Metro,2,1970,8734,6350,-2842,-0.3253950080146554,Small Town,Both
+4748000,"Memphis city, Tennessee",TN,633104,47157,Metro,Central,In Metro,1,2000,650100,646889,-16996,-0.02614367020458391,Large City,Both
+4749060,"Millington city, Tennessee",TN,10582,47157,Metro,Central,In Metro,1,1970,21177,10176,-10595,-0.5003069367710252,Town,Both
+4809556,"Borger city, Texas",TX,12551,48233,Micro,Central,Adjacent,6,1960,20911,13251,-8360,-0.3997895844292478,Town,Relative Decline
+4822132,"Eastland city, Texas",TX,3609,48133,Non-Core,--,Adjacent,8,1920,9368,3960,-5759,-0.6147523484201537,Small Town,Raw Decline
+4822984,"Electra city, Texas",TX,2292,48485,Metro,Central,In Metro,3,1930,6712,2791,-4420,-0.6585220500595947,Small Town,Relative Decline
+4828068,"Galveston city, Texas",TX,53695,48167,Metro,Outlying,In Metro,1,1960,67175,47743,-13480,-0.2006698920729438,Town,Raw Decline
+4858820,"Port Arthur city, Texas",TX,56039,48245,Metro,Central,In Metro,2,1960,66676,53818,-10637,-0.15953266542684025,City,Both
+4974480,"Sunset city, Utah",UT,5475,49011,Metro,Central,In Metro,2,1970,6268,5122,-793,-0.1265156349712827,Small Town,Both
+5003175,"Barre city, Vermont",VT,8491,50023,Micro,Central,Adjacent,4,1930,11307,9052,-2816,-0.24904926151941276,Small Town,Raw Decline
+5004225,"Bellows Falls village, Vermont",VT,2747,50025,Micro,Central,Non-Adjacent,7,1910,4883,3148,-2136,-0.43743600245750563,Small Town,Relative Decline
+5061225,"Rutland city, Vermont",VT,15807,50021,Micro,Central,Non-Adjacent,7,1970,19293,16495,-3486,-0.18068729591043384,Town,Both
+5119728,"Covington city, Virginia",VA,5737,51580,Non-Core,--,Adjacent,6,1960,11062,5961,-5325,-0.48137768938709097,Small Town,Both
+5121344,"Danville city, Virginia",VA,42590,51590,Micro,Central,Adjacent,4,1990,53056,43055,-10466,-0.19726326899879373,Town,Raw Decline
+5149784,"Martinsville city, Virginia",VA,13485,51690,Micro,Central,Adjacent,4,1970,19653,13821,-6168,-0.3138452144710731,Town,Relative Decline
+5157000,"Norfolk city, Virginia",VA,238005,51710,Metro,Central,In Metro,1,1970,307951,242803,-69946,-0.22713353747836507,City,Both
+5300100,"Aberdeen city, Washington",WA,17013,53027,Micro,Central,Adjacent,4,1930,21723,16896,-4710,-0.21682088109377157,Town,Both
+5332300,"Hoquiam city, Washington",WA,8776,53027,Micro,Central,Adjacent,4,1930,12766,8726,-3990,-0.31254895817013945,Small Town,Both
+5439460,"Huntington city, West Virginia",WV,46842,54011,Metro,Central,In Metro,2,1950,86353,49138,-39511,-0.4575521406320568,Town,Raw Decline
+5486452,"Wheeling city, West Virginia",WV,27052,54069,Metro,Central,In Metro,3,1930,61659,28486,-34607,-0.5612643734085859,Town,Relative Decline
+5487508,"Williamson city, West Virginia",WV,3083,54059,Non-Core,--,Adjacent,8,1930,9410,3191,-6327,-0.6723698193411265,Small Town,Both
+5503225,"Ashland city, Wisconsin",WI,7908,55003,Non-Core,--,Non-Adjacent,7,1900,13074,8216,-5166,-0.39513538320330427,Small Town,Both
+5566000,"Racine city, Wisconsin",WI,77816,55101,Metro,Central,In Metro,3,1970,95162,78860,-17346,-0.18227864063386645,City,Both
+5578660,"Superior village, Wisconsin",WI,677,55031,Metro,Central,In Metro,2,1910,40384,27244,-39707,-0.9832359350237718,Town,Both
+5633740,"Green River city, Wyoming",WY,11825,56037,Micro,Central,Non-Adjacent,5,1980,12807,12515,-982,-0.07667681736550325,Town,Both
+5663900,"Rawlins city, Wyoming",WY,8221,56007,Non-Core,--,Non-Adjacent,7,1980,11547,9259,-3326,-0.2880401835974712,Small Town,Raw Decline
+5683040,"Wheatland town, Wyoming",WY,3588,56031,Non-Core,--,Adjacent,8,1980,5816,3627,-2228,-0.38308115543328747,Small Town,Relative Decline

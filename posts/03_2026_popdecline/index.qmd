@@ -1,0 +1,267 @@
+---
+title: "Cities and Counties with the Sharpest Population Decline in Each State"
+author: "Andrew J. Van Leuven"
+date: "2026-03-31"
+categories: [map]
+draft: true
+format:
+  html:
+    theme: cosmo
+    embed-resources: false
+---
+
+Lately I've been working with historical population data on a few different projects. Historical population data at the county level isn't too hard to find (if you know [where to look](https://doi.org/10.7910/DVN/WLS5GF)), but *place-level* data---cities, towns, boroughs, and other municipalities---is another story. The maps below identify the city and county in each state that lost the most population from its historical peak to 2020, drawing on a remarkable dataset that was quietly assembled on Wikipedia more than a decade ago, long before modern data infrastructure made that kind of work easy.[^1]
+
+As this is primarily a data visualization exercise rather than a full analysis, the commentary below is limited to what catches my eye. The maps are interactive, so explore and enjoy!
+
+```{r}
+#| include: false
+library(tidyverse)
+library(tigris)
+library(janitor)
+library(sf)
+library(scales)
+library(mapgl)
+options(tigris_use_cache = TRUE)
+
+# df_city <- read_csv('posts/03_2026_popdecline/city_declines.csv')
+# df_cnty <- read_csv('posts/03_2026_popdecline/county_declines.csv')
+df_city <- read_csv('city_declines.csv')
+df_cnty <- read_csv('county_declines.csv')
+
+usa <- counties(cb = T, resolution = '20m') |>
+  filter(STATEFP < 60) |>
+  select(cty_fips = GEOID, st = STUSPS) |> 
+  left_join(df_cnty)
+
+usa_city <- places(cb = T) |> 
+  select(city_fips = GEOID) |> 
+  inner_join(df_city) |> 
+  st_centroid()
+
+# State outlines for map overlays
+us <- summarise(group_by(usa, st))
+
+# Lower-48 state sf for mapgl bounds
+us48 <- filter(us, !st %in% c('AK','HI')) |>
+  st_transform(4326)
+
+# Color palettes: brew_pal1 for % decline, brew_pal2 for raw decline
+brew_pal1 <- "YlOrBr"
+brew_pal2 <- "YlOrRd"
+
+usa <- usa |>
+  mutate(
+    pct_decline_100 = pct_decline * 100,
+    tooltip_html = ifelse(
+      !is.na(cty),
+      paste0(
+        "<b>", cty, "</b><br>",
+        "<i>", ifelse(metro == 1, "Metropolitan", "Nonmetropolitan"), "</i><br>",
+        "County Seat: ", cty_seat, "<br>",
+        "2020 Population: ", scales::comma(pop_2020), "<br>",
+        "Peak Population: ", scales::comma(peak_pop), " (", as.integer(peak_year), ")<br>",
+        "Change from Peak: ", scales::comma(decline), "<br>",
+        "% Change from Peak: ", scales::percent(pct_decline, accuracy = 0.1)
+      ),
+      NA_character_
+    )
+  )
+
+usa_city <- usa_city |>
+  mutate(
+    pct_decline_100 = pct_decline * 100,
+    tooltip_html = paste0(
+      "<b>", city_name, "</b><br>",
+      "<i>", type, "</i><br>",
+      "2020 Population: ", scales::comma(pop_20), "<br>",
+      "Peak Population: ", scales::comma(peak_pop), " (", as.integer(peak_year), ")<br>",
+      "Change from Peak: ", scales::comma(decline), "<br>",
+      "% Change from Peak: ", scales::percent(pct_decline, accuracy = 0.1)
+    )
+  )
+
+```
+
+# County-Level Interactive Maps
+
+Each map highlights up to two counties per state: the most-affected metropolitan county and the most-affected nonmetropolitan county. A rustbelt metro and a Great Plains agricultural county might appear side by side on the same map, but they represent very different stories of decline.
+
+### Percent Decline from Peak
+
+Each highlighted county is the one in its state and metro category that shed the greatest *share* of its peak population by 2020. Hover over any county to see its name, county seat, 2020 population, historical peak, and the raw and percentage changes since that peak. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+maplibre(bounds = us48, style = carto_style('voyager')) |>
+  add_fill_layer(
+    id = 'cty_pct_decline',
+    source = filter(usa, reason %in% c('Both', 'Relative Decline')),
+    fill_color = interpolate(
+      column = "pct_decline_100",
+      values = c(-90, -50, -10),
+      stops = rev(RColorBrewer::brewer.pal(3, brew_pal1)),
+      na_color = "lightgrey"
+    ),
+    fill_opacity = 0.9,
+    tooltip = "tooltip_html"
+  ) |>
+  add_line_layer(
+    id = 'cty_outlines',
+    source = usa,
+    line_color = 'black',
+    line_width = 0.01
+  ) |>
+  add_line_layer(
+    id = 'st_outlines',
+    source = us,
+    line_color = 'black',
+    line_width = 0.55
+  ) |>
+  add_continuous_legend(
+    "% Decline from Peak Population",
+    values = c('-90%', '-50%', '-10%'),
+    colors = rev(RColorBrewer::brewer.pal(3, brew_pal1)),
+    position = "bottom-left",
+    draggable = T
+  )
+```
+
+### Raw Decline from Peak
+
+The map below shows the county in each state with the largest *absolute* population loss from its peak. In some cases this is the same county as above. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+maplibre(bounds = us48, style = carto_style('voyager')) |>
+  add_fill_layer(
+    id = 'cty_raw_decline',
+    source = filter(usa, reason %in% c('Both', 'Raw Decline')),
+    fill_color = interpolate(
+      column = "decline",
+      values = c(-80000, -40000, -5000),
+      stops = rev(RColorBrewer::brewer.pal(3, brew_pal2)),
+      na_color = "lightgrey"
+    ),
+    fill_opacity = 0.9,
+    tooltip = "tooltip_html"
+  ) |>
+  add_line_layer(
+    id = 'cty_outlines',
+    source = usa,
+    line_color = 'black',
+    line_width = 0.01
+  ) |>
+  add_line_layer(
+    id = 'st_outlines',
+    source = us,
+    line_color = 'black',
+    line_width = 0.55
+  ) |>
+  add_continuous_legend(
+    "Raw Decline from Peak Population",
+    values = c(-80000, -40000, -5000),
+    colors = rev(RColorBrewer::brewer.pal(3, brew_pal2)),
+    position = "bottom-left",
+    draggable = T
+  )
+```
+
+# Place-Level Interactive Maps
+
+At the place level, the maps apply the same logic as the county maps, with one addition: a size-class dimension. Rather than selecting a single winner per state, the maps highlight the worst-performing place in each of four population categories. The result is a more complete picture, since small towns, mid-size cities, and large metros can all experience sharp decline, but their trajectories tend to look quite different.
+
+| Size Class | 2020 Population |
+|---|---|
+| Small Town | 2,500–9,999 |
+| Town | 10,000–49,999 |
+| City | 50,000–249,999 |
+| Large City | 250,000+ |
+
+### Percent Decline from Peak
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+maplibre(bounds = us48, style = carto_style('voyager')) |>
+  add_line_layer(
+    id = 'st_outlines',
+    source = us,
+    line_color = 'black',
+    line_width = 0.55
+  ) |>
+  add_circle_layer(
+    id = 'city_pct_decline',
+    source = filter(usa_city, reason %in% c('Both', 'Relative Decline')),
+    circle_color = interpolate(
+      column = "pct_decline_100",
+      values = c(-90, -50, -10),
+      stops = rev(RColorBrewer::brewer.pal(3, brew_pal1)),
+      na_color = "lightgrey"
+    ),
+    circle_stroke_color = 'black',
+    circle_stroke_width = 0.5,
+    circle_radius = 7,
+    circle_opacity = 0.9,
+    tooltip = "tooltip_html"
+  ) |>
+  add_continuous_legend(
+    "% Decline from Peak Population",
+    values = c('-90%', '-50%', '-10%'),
+    colors = rev(RColorBrewer::brewer.pal(3, brew_pal1)),
+    position = "bottom-left",
+    draggable = T
+  )
+```
+
+### Raw Decline from Peak
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+maplibre(bounds = us48, style = carto_style('voyager')) |>
+  add_line_layer(
+    id = 'st_outlines',
+    source = us,
+    line_color = 'black',
+    line_width = 0.55
+  ) |>
+  add_circle_layer(
+    id = 'city_raw_decline',
+    source = filter(usa_city, reason %in% c('Both', 'Raw Decline')),
+    circle_color = interpolate(
+      column = "decline",
+      values = c(-140000, -70000, -10000),
+      stops = rev(RColorBrewer::brewer.pal(3, brew_pal2)),
+      na_color = "lightgrey"
+    ),
+    circle_stroke_color = 'black',
+    circle_stroke_width = 0.5,
+    circle_radius = 7,
+    circle_opacity = 0.9,
+    tooltip = "tooltip_html"
+  ) |>
+  add_continuous_legend(
+    "Raw Decline from Peak Population",
+    values = c(-140000, -70000, -10000),
+    colors = rev(RColorBrewer::brewer.pal(3, brew_pal2)),
+    position = "bottom-left",
+    draggable = T
+  )
+```
+
+You can find some of the code I used to clean this data [here](decline_lists.R). The historical Wikipedia [data](wiki_hist_pops.csv) can be a bit messy to work with, but I think I managed okay. I recycled some of my code from [this repository](https://github.com/andrewvanleuven/downtown_polygons), which I'm sure will be the focus of a future post! 
+
+
+
+[^1]: The [Historical-Populations Github repository](https://github.com/CreatingData/Historical-Populations) documents the provenance of this dataset. Years ago, I stumbled onto it by digging through Wikipedia edit logs and kept seeing the name Jacob Alperin-Sheriff. I cold-emailed him---he was at NIST at the time---and he kindly wrote back. As I recall, the digitization had been a side project he'd taken on for the fun of it. Fun, indeed! I am grateful for the work of Dr. Alperin-Sheriff, as well as that of Benjamin Schmidt (creator of the Github repo). 

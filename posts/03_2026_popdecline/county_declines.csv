@@ -1,0 +1,142 @@
+cty_fips,cty,cty_seat,cbsa_type,metro,peak_year,peak_pop,state,pop_2020,decline,pct_decline,reason
+01105,"Perry County, Alabama",Marion,Non-Core,0,1900,31783,Alabama,8511,-23272,-0.7322153352421106,Relative Decline
+01131,"Wilcox County, Alabama",Camden,Non-Core,0,1900,35631,Alabama,10600,-25031,-0.7025062445623194,Raw Decline
+01085,"Lowndes County, Alabama",Hayneville,Metro,1,1900,35651,Alabama,10311,-25340,-0.7107795012762615,Both
+02016,"Aleutians West Census Area, Alaska",NA,Non-Core,0,1990,9478,Alaska,5232,-4246,-0.4479848069212914,Both
+04011,"Greenlee County, Arizona",Clifton,Non-Core,0,1920,15362,Arizona,9563,-5799,-0.37748991016794686,Both
+04003,"Cochise County, Arizona",Bisbee,Metro,1,2010,131346,Arizona,125447,-5899,-0.044911912049091715,Both
+05093,"Mississippi County, Arkansas",Blytheville,Micro,0,1950,82375,Arkansas,40685,-41690,-0.5061001517450683,Raw Decline
+05147,"Woodruff County, Arkansas",Augusta,Non-Core,0,1930,22682,Arkansas,6269,-16413,-0.7236134379684331,Relative Decline
+05025,"Cleveland County, Arkansas",Rison,Metro,1,1910,13481,Arkansas,7550,-5931,-0.4399525257770195,Relative Decline
+05069,"Jefferson County, Arkansas",Pine Bluff,Metro,1,1980,90718,Arkansas,67260,-23458,-0.25858153839370357,Raw Decline
+06035,"Lassen County, California",Susanville,Micro,0,2010,34895,California,32730,-2165,-0.06204327267516836,Raw Decline
+06091,"Sierra County, California",Downieville,Non-Core,0,1910,4098,California,3236,-862,-0.21034651049292338,Relative Decline
+06007,"Butte County, California",Oroville,Metro,1,2010,220000,California,211632,-8368,-0.03803636363636364,Both
+08071,"Las Animas County, Colorado",Trinidad,Non-Core,0,1920,38975,Colorado,14555,-24420,-0.6265554842847979,Raw Decline
+08111,"San Juan County, Colorado",Silverton,Non-Core,0,1910,3063,Colorado,705,-2358,-0.7698334965719883,Relative Decline
+08119,"Teller County, Colorado",Cripple Creek,Metro,1,1900,29002,Colorado,24710,-4292,-0.14798979380732363,Both
+09005,"Litchfield County, Connecticut",Litchfield,Micro,0,2010,189927,Connecticut,185186,-4741,-0.02496222232752584,Both
+09011,"New London County, Connecticut",Norwich,Metro,1,2010,274055,Connecticut,268555,-5500,-0.020068964258999105,Both
+12045,"Gulf County, Florida",Port Saint Joe,Non-Core,0,2010,15863,Florida,14192,-1671,-0.1053394692050684,Relative Decline
+12063,"Jackson County, Florida",Marianna,Non-Core,0,2010,49746,Florida,47319,-2427,-0.048787842238571945,Raw Decline
+12065,"Jefferson County, Florida",Monticello,Metro,1,1910,17210,Florida,14510,-2700,-0.1568855316676351,Both
+13093,"Dooly County, Georgia",Vienna,Non-Core,0,1900,26567,Georgia,11208,-15359,-0.5781232355930289,Raw Decline
+13265,"Taliaferro County, Georgia",Crawfordville,Non-Core,0,1920,8841,Georgia,1559,-7282,-0.8236624816197263,Relative Decline
+13053,"Chattahoochee County, Georgia",Cusseta,Metro,1,1970,25813,Georgia,9565,-16248,-0.6294502769922132,Raw Decline
+13259,"Stewart County, Georgia",Lumpkin,Metro,1,1900,15856,Georgia,5314,-10542,-0.6648587285570131,Relative Decline
+15005,"Kalawao County, Hawaii",NA,Non-Core,0,1900,1177,Hawaii,82,-1095,-0.9303313508920985,Both
+16043,"Fremont County, Idaho",Saint Anthony,Micro,0,1910,24606,Idaho,13388,-11218,-0.4559050638055759,Raw Decline
+16071,"Oneida County, Idaho",Malad City,Non-Core,0,1910,15170,Idaho,4564,-10606,-0.6991430454845089,Relative Decline
+16023,"Butte County, Idaho",Arco,Metro,1,1960,3498,Idaho,2574,-924,-0.2641509433962264,Both
+17055,"Franklin County, Illinois",Benton,Non-Core,0,1930,59442,Illinois,37804,-21638,-0.3640187073113287,Raw Decline
+17151,"Pope County, Illinois",Golconda,Non-Core,0,1900,13585,Illinois,3763,-9822,-0.7230033124769967,Relative Decline
+17003,"Alexander County, Illinois",Cairo,Metro,1,1940,25496,Illinois,5240,-20256,-0.7944775651082523,Relative Decline
+17031,"Cook County, Illinois",Chicago,Metro,1,1970,5492369,Illinois,5275541,-216828,-0.039478046722643725,Raw Decline
+18053,"Grant County, Indiana",Marion,Micro,0,1970,83955,Indiana,66674,-17281,-0.2058364600083378,Raw Decline
+18125,"Pike County, Indiana",Petersburg,Micro,0,1900,20486,Indiana,12250,-8236,-0.4020306550815191,Relative Decline
+18089,"Lake County, Indiana",Crown Point,Metro,1,1970,546253,Indiana,498700,-47553,-0.08705306881609803,Raw Decline
+18165,"Vermillion County, Indiana",Newport,Metro,1,1920,27625,Indiana,15439,-12186,-0.44112217194570136,Relative Decline
+19003,"Adams County, Iowa",Corning,Non-Core,0,1900,13601,Iowa,3704,-9897,-0.7276670833026984,Relative Decline
+19007,"Appanoose County, Iowa",Centerville,Non-Core,0,1920,30535,Iowa,12317,-18218,-0.5966268216800393,Raw Decline
+19077,"Guthrie County, Iowa",Guthrie Center,Metro,1,1900,18729,Iowa,10623,-8106,-0.4328047413102675,Relative Decline
+19085,"Harrison County, Iowa",Logan,Metro,1,1900,25597,Iowa,14582,-11015,-0.430323866078056,Raw Decline
+20021,"Cherokee County, Kansas",Columbus,Non-Core,0,1900,42694,Kansas,19362,-23332,-0.5464936525038647,Raw Decline
+20089,"Jewell County, Kansas",Mankato,Non-Core,0,1900,19420,Kansas,2932,-16488,-0.8490216271884655,Relative Decline
+20043,"Doniphan County, Kansas",Troy,Metro,1,1900,15079,Kansas,7510,-7569,-0.5019563631540553,Relative Decline
+20209,"Wyandotte County, Kansas",Kansas City,Metro,1,1970,186845,Kansas,169245,-17600,-0.09419572372822393,Raw Decline
+21095,"Harlan County, Kentucky",Harlan,Non-Core,0,1940,75275,Kentucky,26831,-48444,-0.643560278977084,Both
+21019,"Boyd County, Kentucky",Catlettsburg,Metro,1,1980,55513,Kentucky,48261,-7252,-0.13063606722749627,Raw Decline
+21149,"McLean County, Kentucky",Calhoun,Metro,1,1910,13241,Kentucky,9152,-4089,-0.30881353372101805,Relative Decline
+22027,"Claiborne Parish, Louisiana",Homer,Non-Core,0,1930,32285,Louisiana,14170,-18115,-0.5610964844354963,Raw Decline
+22107,"Tensas Parish, Louisiana",Saint Joseph,Non-Core,0,1900,19070,Louisiana,4147,-14923,-0.7825380178290509,Relative Decline
+22023,"Cameron Parish, Louisiana",Cameron,Metro,1,2000,9991,Louisiana,5617,-4374,-0.4377940146131518,Relative Decline
+22071,"Orleans Parish, Louisiana",New Orleans,Metro,1,1960,627525,Louisiana,383997,-243528,-0.38807696904505795,Raw Decline
+23003,"Aroostook County, Maine",Houlton,Non-Core,0,1960,106064,Maine,67105,-38959,-0.3673159601749887,Both
+23019,"Penobscot County, Maine",Bangor,Metro,1,2010,153923,Maine,152199,-1724,-0.011200405397503947,Both
+24023,"Garrett County, Maryland",Oakland,Non-Core,0,2010,30097,Maryland,28806,-1291,-0.04289464066185999,Raw Decline
+24029,"Kent County, Maryland",Chestertown,Non-Core,0,2010,20197,Maryland,19198,-999,-0.049462791503688666,Relative Decline
+24510,"Baltimore city, Maryland",Baltimore,Metro,1,1950,949708,Maryland,585708,-364000,-0.3832757015840658,Both
+25003,"Berkshire County, Massachusetts",Pittsfield,Metro,1,1970,149402,Massachusetts,129026,-20376,-0.13638371641611224,Relative Decline
+25025,"Suffolk County, Massachusetts",Boston,Metro,1,1950,896615,Massachusetts,797936,-98679,-0.110057270957992,Raw Decline
+26061,"Houghton County, Michigan",Houghton,Micro,0,1910,88098,Michigan,37361,-50737,-0.5759154577856478,Raw Decline
+26083,"Keweenaw County, Michigan",Eagle River,Micro,0,1910,7156,Michigan,2046,-5110,-0.7140860816098379,Relative Decline
+26163,"Wayne County, Michigan",Detroit,Metro,1,1970,2666751,Michigan,1793561,-873190,-0.3274358948398257,Both
+27089,"Marshall County, Minnesota",Warren,Non-Core,0,1920,19443,Minnesota,9040,-10403,-0.53505117523016,Raw Decline
+27125,"Red Lake County, Minnesota",Red Lake Falls,Non-Core,0,1900,12195,Minnesota,3935,-8260,-0.6773267732677327,Relative Decline
+27045,"Fillmore County, Minnesota",Preston,Metro,1,1900,28238,Minnesota,21228,-7010,-0.2482470429917133,Relative Decline
+27137,"St. Louis County, Minnesota",Duluth,Metro,1,1960,231588,Minnesota,200231,-31357,-0.13539993436620204,Raw Decline
+28055,"Issaquena County, Mississippi",Mayersville,Non-Core,0,1910,10560,Mississippi,1338,-9222,-0.8732954545454545,Relative Decline
+28133,"Sunflower County, Mississippi",Indianola,Micro,0,1930,66364,Mississippi,25971,-40393,-0.6086583087215961,Raw Decline
+28049,"Hinds County, Mississippi",Raymond,Metro,1,1990,254441,Mississippi,227742,-26699,-0.10493198816228516,Raw Decline
+28051,"Holmes County, Mississippi",Lexington,Metro,1,1940,39710,Mississippi,17000,-22710,-0.5718962477965248,Relative Decline
+29155,"Pemiscot County, Missouri",Caruthersville,Non-Core,0,1940,46857,Missouri,15661,-31196,-0.6657703224704954,Raw Decline
+29227,"Worth County, Missouri",Grant City,Non-Core,0,1900,9832,Missouri,1973,-7859,-0.7993287225386493,Relative Decline
+29510,"St. Louis city, Missouri",Saint Louis,Metro,1,1950,856796,Missouri,301578,-555218,-0.6480165640362466,Both
+30033,"Garfield County, Montana",Jordan,Non-Core,0,1920,5368,Montana,1173,-4195,-0.7814828614008942,Relative Decline
+30093,"Silver Bow County, Montana",Butte,Micro,0,1920,60313,Montana,35133,-25180,-0.4174887669325021,Raw Decline
+30009,"Carbon County, Montana",Red Lodge,Metro,1,1920,15279,Montana,10473,-4806,-0.3145493815040251,Both
+31041,"Custer County, Nebraska",Broken Bow,Non-Core,0,1920,26407,Nebraska,10545,-15862,-0.6006740636952324,Raw Decline
+31117,"McPherson County, Nebraska",Tryon,Micro,0,1910,2470,Nebraska,399,-2071,-0.8384615384615385,Relative Decline
+31051,"Dixon County, Nebraska",Ponca,Metro,1,1920,11815,Nebraska,5606,-6209,-0.5255184088023699,Both
+32009,"Esmeralda County, Nevada",Goldfield,Non-Core,0,1910,9369,Nevada,729,-8640,-0.9221902017291066,Both
+33007,"Coos County, New Hampshire",Lancaster,Micro,0,1940,39274,New Hampshire,31268,-8006,-0.20384987523552478,Both
+34013,"Essex County, New Jersey",Newark,Metro,1,1970,929986,New Jersey,863728,-66258,-0.07124623381427247,Both
+35021,"Harding County, New Mexico",Mosquero,Non-Core,0,1930,4421,New Mexico,657,-3764,-0.8513910879891428,Relative Decline
+35059,"Union County, New Mexico",Clayton,Non-Core,0,1920,16680,New Mexico,4079,-12601,-0.7554556354916068,Raw Decline
+35045,"San Juan County, New Mexico",Aztec,Metro,1,2010,130044,New Mexico,121661,-8383,-0.06446279720709913,Raw Decline
+35057,"Torrance County, New Mexico",Estancia,Metro,1,2000,16911,New Mexico,15045,-1866,-0.11034238069895334,Relative Decline
+36013,"Chautauqua County, New York",Mayville,Micro,0,1970,147305,New York,127657,-19648,-0.13338311666270664,Raw Decline
+36057,"Montgomery County, New York",Fonda,Micro,0,1930,60076,New York,49532,-10544,-0.17551101937545777,Relative Decline
+36061,"New York County, New York",New York,Metro,1,1910,2762522,New York,1694251,-1068271,-0.38670135477654116,Both
+37095,"Hyde County, North Carolina",Swanquarter,Non-Core,0,1900,9278,North Carolina,4589,-4689,-0.505389092476827,Relative Decline
+37155,"Robeson County, North Carolina",Lumberton,Micro,0,2010,134168,North Carolina,116530,-17638,-0.13146204758213584,Raw Decline
+37007,"Anson County, North Carolina",Wadesboro,Metro,1,1930,29349,North Carolina,22055,-7294,-0.2485263552420866,Relative Decline
+37065,"Edgecombe County, North Carolina",Tarboro,Metro,1,1990,56558,North Carolina,48900,-7658,-0.13540082746914672,Raw Decline
+38007,"Billings County, North Dakota",Medora,Micro,0,1910,10186,North Dakota,945,-9241,-0.9072256037698803,Relative Decline
+38049,"McHenry County, North Dakota",Towner,Micro,0,1910,17627,North Dakota,5345,-12282,-0.6967719975038293,Raw Decline
+38065,"Oliver County, North Dakota",Center,Metro,1,1920,4425,North Dakota,1877,-2548,-0.575819209039548,Both
+39111,"Monroe County, Ohio",Woodsfield,Non-Core,0,1900,27031,Ohio,13385,-13646,-0.5048277903148237,Both
+39035,"Cuyahoga County, Ohio",Cleveland,Metro,1,1970,1721300,Ohio,1264817,-456483,-0.265196653691977,Raw Decline
+39081,"Jefferson County, Ohio",Steubenville,Metro,1,1960,99201,Ohio,65249,-33952,-0.3422546143688068,Relative Decline
+40057,"Harmon County, Oklahoma",Hollis,Non-Core,0,1930,13834,Oklahoma,2488,-11346,-0.8201532456267168,Relative Decline
+40133,"Seminole County, Oklahoma",Wewoka,Non-Core,0,1930,79621,Oklahoma,23556,-56065,-0.7041484030594943,Raw Decline
+40033,"Cotton County, Oklahoma",Walters,Metro,1,1920,16679,Oklahoma,5527,-11152,-0.668625217339169,Relative Decline
+40111,"Okmulgee County, Oklahoma",Okmulgee,Metro,1,1930,56558,Oklahoma,36706,-19852,-0.3510025106969836,Raw Decline
+41063,"Wallowa County, Oregon",Enterprise,Non-Core,0,1920,9778,Oregon,7391,-2387,-0.2441194518306402,Raw Decline
+41069,"Wheeler County, Oregon",Fossil,Non-Core,0,1950,3313,Oregon,1451,-1862,-0.5620283730757621,Relative Decline
+42107,"Schuylkill County, Pennsylvania",Pottsville,Micro,0,1930,235505,Pennsylvania,143049,-92456,-0.3925861446678415,Raw Decline
+42113,"Sullivan County, Pennsylvania",Laporte,Non-Core,0,1900,12134,Pennsylvania,5840,-6294,-0.5187077633097082,Relative Decline
+42021,"Cambria County, Pennsylvania",Ebensburg,Metro,1,1940,213459,Pennsylvania,133472,-79987,-0.37471832998374394,Relative Decline
+42101,"Philadelphia County, Pennsylvania",Philadelphia,Metro,1,1950,2071605,Pennsylvania,1603797,-467808,-0.22581911126879883,Raw Decline
+44005,"Newport County, Rhode Island",Newport,Metro,1,1970,94559,Rhode Island,85643,-8916,-0.09429033724975941,Both
+45005,"Allendale County, South Carolina",Allendale,Non-Core,0,1920,16098,South Carolina,8039,-8059,-0.5006211951795254,Relative Decline
+45011,"Barnwell County, South Carolina",Barnwell,Non-Core,0,1900,35504,South Carolina,20589,-14915,-0.420093510590356,Raw Decline
+45039,"Fairfield County, South Carolina",Winnsboro,Metro,1,1910,29442,South Carolina,20948,-8494,-0.2884994225935738,Both
+46117,"Stanley County, South Dakota",Fort Pierre,Micro,0,1910,14975,South Dakota,2980,-11995,-0.8010016694490818,Both
+46087,"McCook County, South Dakota",Salem,Metro,1,1930,10316,South Dakota,5682,-4634,-0.4492051182628926,Relative Decline
+46125,"Turner County, South Dakota",Parker,Metro,1,1930,14891,South Dakota,8673,-6218,-0.4175676583171043,Raw Decline
+47067,"Hancock County, Tennessee",Sneedville,Non-Core,0,1940,11231,Tennessee,6662,-4569,-0.40682040779983974,Relative Decline
+47075,"Haywood County, Tennessee",Brownsville,Micro,0,1940,27699,Tennessee,17864,-9835,-0.35506696992671216,Raw Decline
+47033,"Crockett County, Tennessee",Alamo,Metro,1,1920,17438,Tennessee,13911,-3527,-0.2022594334212639,Both
+48101,"Cottle County, Texas",Paducah,Non-Core,0,1930,9395,Texas,1380,-8015,-0.85311335816923894,Relative Decline
+48133,"Eastland County, Texas",Eastland,Non-Core,0,1920,58505,Texas,17725,-40780,-0.6970344415007265,Raw Decline
+48145,"Falls County, Texas",Marlin,Metro,1,1930,38771,Texas,16968,-21803,-0.5623533053055119,Both
+49007,"Carbon County, Utah",Price,Micro,0,1950,24901,Utah,20412,-4489,-0.18027388458294846,Raw Decline
+49031,"Piute County, Utah",Junction,Non-Core,0,1920,2770,Utah,1438,-1332,-0.4808664259927798,Relative Decline
+50009,"Essex County, Vermont",Guildhall,Non-Core,0,1900,8056,Vermont,5920,-2136,-0.26514399205561073,Relative Decline
+50021,"Rutland County, Vermont",Rutland,Micro,0,2000,63400,Vermont,60572,-2828,-0.04460567823343849,Raw Decline
+51091,"Highland County, Virginia",Monterey,Non-Core,0,1900,5647,Virginia,2232,-3415,-0.6047458827696122,Relative Decline
+51195,"Wise County, Virginia",Wise,Micro,0,1950,56336,Virginia,36130,-20206,-0.35866941209883557,Raw Decline
+51710,"Norfolk city, Virginia",Norfolk,Metro,1,1970,307951,Virginia,238005,-69946,-0.22713353747836507,Raw Decline
+51175,"Southampton County, Virginia",Courtland,Metro,1,1920,27555,Virginia,17996,-9559,-0.3469061876247505,Relative Decline
+53023,"Garfield County, Washington",Pomeroy,Non-Core,0,1910,4199,Washington,2286,-1913,-0.45558466301500355,Relative Decline
+53043,"Lincoln County, Washington",Davenport,Non-Core,0,1910,17539,Washington,10876,-6663,-0.3798962312560579,Raw Decline
+54047,"McDowell County, West Virginia",Welch,Non-Core,0,1950,98887,West Virginia,19111,-79776,-0.8067390051270642,Both
+54019,"Fayette County, West Virginia",Fayetteville,Metro,1,1950,82443,West Virginia,40488,-41955,-0.5088970561478839,Relative Decline
+54039,"Kanawha County, West Virginia",Charleston,Metro,1,1960,252925,West Virginia,180745,-72180,-0.2853810418108135,Raw Decline
+55003,"Ashland County, Wisconsin",Ashland,Non-Core,0,1920,24538,Wisconsin,16027,-8511,-0.34684978400847666,Raw Decline
+55051,"Iron County, Wisconsin",Hurley,Non-Core,0,1920,10261,Wisconsin,6137,-4124,-0.4019101452100185,Relative Decline
+55031,"Douglas County, Wisconsin",Superior,Metro,1,1920,49771,Wisconsin,44295,-5476,-0.11002390950553535,Relative Decline
+55079,"Milwaukee County, Wisconsin",Milwaukee,Metro,1,1970,1054063,Wisconsin,939489,-114574,-0.10869748772132216,Raw Decline
+56007,"Carbon County, Wyoming",Rawlins,Non-Core,0,1980,21896,Wyoming,14537,-7359,-0.3360887833394227,Raw Decline
+56027,"Niobrara County, Wyoming",Lusk,Non-Core,0,1920,6321,Wyoming,2467,-3854,-0.6097136529030217,Relative Decline
