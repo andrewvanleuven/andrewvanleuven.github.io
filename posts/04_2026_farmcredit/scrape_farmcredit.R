@@ -351,3 +351,37 @@ maplibre(bounds = us48, style = carto_style('voyager')) |>
     position = "bottom-left",
     interactive = TRUE
   )
+
+
+# Static map -------------------------------------------------------------
+
+usa <- counties(cb = T, resolution = '20m') |>
+  shift_geometry() |> 
+  filter(STATEFP < 60, !STUSPS %in% c('AK','HI')) |>
+  select(cty_fips = GEOID, st = STUSPS)
+us <- usa |> group_by(st) |> summarise()
+df <- sf::st_read("posts/04_2026_farmcredit/farmcredit_locations.geojson") |> 
+  filter(st != 'HI')
+
+
+ggplot() +
+  geom_sf(data = us,  color = 'black', fill = 'grey95', linewidth = 0.2) +
+  geom_sf(data = df,  color = 'black', stroke = 0.2, alpha = .8,
+          aes(fill = office_type), shape = 21) +
+  scale_fill_manual(
+    values = c("#5b8dd9", "#e34a33"), name = ''
+  ) +
+  theme_void(base_family = 'Goldman Sans', base_size = 16) +
+  theme(
+    plot.title    = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5, color = "grey40", size = 12),
+    plot.caption  = element_text(color = "grey50", size = 9),
+    legend.title  = element_text(face = "bold", hjust = 0.5),
+    legend.position = 'bottom'
+  ) +
+  labs(
+    title   = 'Farm Credit Headquarter and Branch Locations',
+    caption = '\nSource: FarmCredit.com + FCA.gov, 2026    \n'
+  )
+
+ggsave("posts/04_2026_farmcredit/map.jpg", height = 6, width = 8)
