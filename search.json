@@ -25,7 +25,7 @@
     "href": "index.html",
     "title": "MapDork Library",
     "section": "",
-    "text": "Putting Farm Credit Branches on the Map\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nApr 11, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nCities and Counties with the Sharpest Population Decline in Each State\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nMar 31, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nThe 2025 County Population Data Is Out. Here’s What It Shows.\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nMar 26, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome to MapDork\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nDec 31, 2025\n\n\nAndrew J. Van Leuven\n\n\n\n\n\nNo matching items"
+    "text": "Putting Farm Credit Branches on the Map\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nApr 11, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nThe 2025 County Population Data Is Out. Here’s What It Shows.\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nMar 26, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome to MapDork\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nDec 31, 2025\n\n\nAndrew J. Van Leuven\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/04_2026_farmcredit/index.html",
@@ -54,20 +54,6 @@
     "title": "Putting Farm Credit Branches on the Map",
     "section": "Footnotes",
     "text": "Footnotes\n\n\nHutchins, J. (2023). The US farm credit system and agricultural development: Evidence from an early expansion, 1920–1940. American Journal of Agricultural Economics, 105(1), 3-26.  Turvey, C. G., Carduner, A., & Ifft, J. (2021). Market microstructure and the historical relationship between the US farm credit system, farm service agency and commercial bank lending. Agricultural Finance Review, 81(3), 360-385.↩︎\nSubedi, D., & Giri, A. K. (2024). Debt Use by U.S. Farm Businesses, 2012–2021. Economic Information Bulletin No. EIB-273. U.S. Department of Agriculture, Economic Research Service.↩︎\nFarm Credit Administration. About FCA. U.S. Government Agency.↩︎\nBy “we” I am referring to myself, Tessa Conroy, Dayton Lambert, and Kelsey Thomas. The follow-up to our paper on bank deserts is called Bank Branch Concentration and Regional Small Business Lending and will be ready to share soon. Rounding out the trio, our final paper will take aim at causality, estimating how bank branch closures affect new business formation (or the lack thereof) in affected communities.↩︎\nHawaii’s two Farm Credit branches are included…you just have to zoom out to find them. I did not find any Alaskan branches on the Farm Credit lender directory.↩︎"
-  },
-  {
-    "objectID": "posts/03_2026_popdecline/index.html",
-    "href": "posts/03_2026_popdecline/index.html",
-    "title": "Cities and Counties with the Sharpest Population Decline in Each State",
-    "section": "",
-    "text": "Lately I’ve been working with historical population data on a few different projects. Historical population data at the county level isn’t too hard to find (if you know where to look), but place-level data—cities, towns, boroughs, and other municipalities—is another story. The maps below identify the city and county in each state that lost the most population from its historical peak to 2020, drawing on a remarkable dataset that was quietly assembled on Wikipedia more than a decade ago, long before modern data infrastructure made that kind of work easy.1\nAs this is primarily a data visualization exercise rather than a full analysis, the commentary below is limited to what catches my eye. The maps are interactive, so explore and enjoy!"
-  },
-  {
-    "objectID": "posts/03_2026_popdecline/index.html#footnotes",
-    "href": "posts/03_2026_popdecline/index.html#footnotes",
-    "title": "Cities and Counties with the Sharpest Population Decline in Each State",
-    "section": "Footnotes",
-    "text": "Footnotes\n\n\nThe Historical-Populations Github repository documents the provenance of this dataset. Years ago, I stumbled onto it by digging through Wikipedia edit logs and kept seeing the name Jacob Alperin-Sheriff. I cold-emailed him—he was at NIST at the time—and he kindly wrote back. As I recall, the digitization had been a side project he’d taken on for the fun of it. Fun, indeed! I am grateful for the work of Dr. Alperin-Sheriff, as well as that of Benjamin Schmidt (creator of the Github repo).↩︎"
   },
   {
     "objectID": "posts/welcome/index.html",
