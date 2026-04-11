@@ -2,6 +2,8 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/04_2026_farmcredit/index.html",
+      "/posts/03_2026_popdecline/index.html",
       "/posts/03_2026_popest/index.html",
       "/posts/welcome/index.html"
     ]
