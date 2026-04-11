@@ -3,6 +3,7 @@ title: "The 2025 County Population Data Is Out. Here's What It Shows."
 author: "Andrew J. Van Leuven"
 date: "2026-03-26"
 categories: [map]
+description: "Making sense of the latest county-level census data, including growth, decline, and migration."
 format:
   html:
     theme: cosmo

@@ -5,6 +5,7 @@ website:
   description: "A blog built with Quarto"
   site-url: https://andrewvanleuven.github.io
   title: "mapdork"
+  favicon: favicon.png
   navbar:
     right:
       - about.qmd

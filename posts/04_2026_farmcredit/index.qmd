@@ -4,6 +4,7 @@ author: "Andrew J. Van Leuven"
 date: "2026-04-11"
 categories: [map]
 image: splash.jpg
+description: "A look at where Farm Credit branches are located across the country."
 format:
   html:
     theme: cosmo
@@ -17,9 +18,9 @@ format:
 
 The Farm Credit System (FCS) is a nationwide network of borrower-owned lending cooperatives created by Congress in 1916 to ensure that farmers, ranchers, and rural residents have reliable access to credit.[^1] Today the FCS operates through roughly 60 regional associations, each serving a defined geographic territory, supported by a handful of banks that fund the loans. As of 2021, the system held 45 percent of all U.S. farm sector debt, more than any other lender category in the country.[^2] The whole network is regulated and examined by the Farm Credit Administration (FCA), a federal agency established "to ensure that Farm Credit System institutions...are safe, sound, and dependable sources of credit."[^3]
 
-Fair warning before diving in: I am a regional economist and *not* an ag finance scholar! My interest in Farm Credit grows out of [our ongoing work on "bank deserts"](https://www.sciencedirect.com/science/article/pii/S0143622824000067) and the downstream economic consequences that follow. In that research, we have tried to incorporate credit unions and Farm Credit associations alongside FDIC-regulated branches. The problem is that unlike [FDIC](https://banks.data.fdic.gov/bankfind-suite/SOD) and [NCUA](https://ncua.gov/analysis/credit-union-corporate-call-report-data) data, which are freely available and well-structured, the geographic locations of Farm Credit branches and headquarters are surprisingly difficult to pin down. 
+Fair warning before diving in: I am a regional economist and *not* an ag finance scholar! My interest in Farm Credit grows out of some [ongoing work on "bank deserts"](https://www.sciencedirect.com/science/article/pii/S0143622824000067) and the downstream economic consequences that follow. In that research, we have tried to incorporate credit unions and Farm Credit associations alongside FDIC-regulated branches. The problem is that unlike [FDIC](https://banks.data.fdic.gov/bankfind-suite/SOD) and [NCUA](https://ncua.gov/analysis/credit-union-corporate-call-report-data) data, which are freely available and well-structured, the geographic locations of Farm Credit branches and headquarters are surprisingly difficult to pin down. 
 
-Back in 2022, I cobbled together a time-consuming method to collect Farm Credit branch addresses, state by state. That approach worked out alright, but it isn't something I would care to repeat. As we continue building out our research on brick-and-mortar lending access,[^4] I wanted a cleaner, more reproducible pipeline. And with the assistance of Claude Code, I built one!
+Back in 2022, I cobbled together a time-consuming method to collect Farm Credit branch addresses, state by state. That approach worked out okay, but it isn't something I would care to repeat. As we continue building out our research on brick-and-mortar lending access,[^4] I wanted a cleaner, more reproducible pipeline. And with the assistance of Claude Code, I built one!
 
 
 ## Mapping the Farm Credit System
@@ -177,9 +178,9 @@ tagList(
       organization = colDef(name = "Organization", minWidth = 180, sticky = "left"),
       address      = colDef(name = "Address",      minWidth = 160),
       city         = colDef(name = "City",         minWidth = 110),
-      st           = colDef(name = "State",        maxWidth =  90),
+      st           = colDef(name = "State",        maxWidth =  120),
       zip          = colDef(name = "ZIP",          maxWidth =  70),
-      office_type  = colDef(name = "Office Type",  maxWidth = 130),
+      office_type  = colDef(name = "Office Type",  maxWidth = 110),
       tooltip      = colDef(show = FALSE),
       type_color   = colDef(show = FALSE),
       lng          = colDef(show = FALSE),
@@ -253,9 +254,9 @@ tagList(
       organization = colDef(name = "Organization", minWidth = 180, sticky = "left"),
       address      = colDef(name = "Address",      minWidth = 160),
       city         = colDef(name = "City",         minWidth = 110),
-      st           = colDef(name = "State",        maxWidth =  90),
+      st           = colDef(name = "State",        maxWidth =  120),
       zip          = colDef(name = "ZIP",          maxWidth =  70),
-      office_type  = colDef(name = "Office Type",  maxWidth = 130),
+      office_type  = colDef(name = "Office Type",  maxWidth = 110),
       tooltip      = colDef(show = FALSE),
       type_color   = colDef(show = FALSE),
       lng          = colDef(show = FALSE),
@@ -301,4 +302,4 @@ Farm Credit Administration. [*About FCA*](https://www.fca.gov/about/about-fca). 
 By "we" I am referring to myself, [Tessa Conroy](https://aae.wisc.edu/faculty/tconroy2/), [Dayton Lambert](https://experts.okstate.edu/dayton.lambert), and [Kelsey Thomas](https://www.ers.usda.gov/authors/ers-staff-directory/kelsey-l-thomas-conley). The follow-up to our paper on bank deserts is called *Bank Branch Concentration and Regional Small Business Lending* and will be ready to share soon. Rounding out the trio, our final paper will take aim at causality, estimating how bank branch closures affect new business formation (or the lack thereof) in affected communities.
 
 [^5]:
-Hawaii's two Farm Credit branches are included...you just have to zoom out to find them. I did not find any Alaskan branches on the Farm Credit lender directory.
+Hawaii's two Farm Credit branches are included...you just have to zoom out to find them. I did not find any Alaskan branches in the Farm Credit lender directory.
