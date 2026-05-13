@@ -25,32 +25,32 @@
     "href": "index.html",
     "title": "MapDork Library",
     "section": "",
-    "text": "Putting Farm Credit Branches on the Map\n\n\n\nmap\n\n\n\nA look at where Farm Credit branches are located across the country.\n\n\n\n\n\nApr 11, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nThe 2025 County Population Data Is Out. Here’s What It Shows.\n\n\n\nmap\n\n\n\nMaking sense of the latest county-level census data, including growth, decline, and migration.\n\n\n\n\n\nMar 26, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome to MapDork\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nDec 31, 2025\n\n\nAndrew J. Van Leuven\n\n\n\n\n\nNo matching items"
+    "text": "Putting Farm Credit Branches on the Map\n\n\n\nmap\n\n\n\nA look at where Farm Credit branches are located across the country.\n\n\n\n\n\nMay 13, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nThe 2025 County Population Data Is Out. Here’s What It Shows.\n\n\n\nmap\n\n\n\nMaking sense of the latest county-level census data, including growth, decline, and migration.\n\n\n\n\n\nMar 26, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome to MapDork\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nDec 31, 2025\n\n\nAndrew J. Van Leuven\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "posts/04_2026_farmcredit/index.html",
-    "href": "posts/04_2026_farmcredit/index.html",
+    "objectID": "posts/05_2026_farmcredit/index.html",
+    "href": "posts/05_2026_farmcredit/index.html",
     "title": "Putting Farm Credit Branches on the Map",
     "section": "",
     "text": "Photo by Taylor Siebert on Unsplash.\nThe Farm Credit System (FCS) is a nationwide network of borrower-owned lending cooperatives created by Congress in 1916 to ensure that farmers, ranchers, and rural residents have reliable access to credit.1 Today the FCS operates through roughly 60 regional associations, each serving a defined geographic territory, supported by a handful of banks that fund the loans. As of 2021, the system held 45 percent of all U.S. farm sector debt, more than any other lender category in the country.2 The whole network is regulated and examined by the Farm Credit Administration (FCA), a federal agency established “to ensure that Farm Credit System institutions…are safe, sound, and dependable sources of credit.”3\nFair warning before diving in: I am a regional economist and not an ag finance scholar! My interest in Farm Credit grows out of some ongoing work on “bank deserts” and the downstream economic consequences that follow. In that research, we have tried to incorporate credit unions and Farm Credit associations alongside FDIC-regulated branches. The problem is that unlike FDIC and NCUA data, which are freely available and well-structured, the geographic locations of Farm Credit branches and headquarters are surprisingly difficult to pin down.\nBack in 2022, I cobbled together a time-consuming method to collect Farm Credit branch addresses, state by state. That approach worked out okay, but it isn’t something I would care to repeat. As we continue building out our research on brick-and-mortar lending access,4 I wanted a cleaner, more reproducible pipeline. And with the assistance of Claude Code, I built one!"
   },
   {
-    "objectID": "posts/04_2026_farmcredit/index.html#mapping-the-farm-credit-system",
-    "href": "posts/04_2026_farmcredit/index.html#mapping-the-farm-credit-system",
+    "objectID": "posts/05_2026_farmcredit/index.html#mapping-the-farm-credit-system",
+    "href": "posts/05_2026_farmcredit/index.html#mapping-the-farm-credit-system",
     "title": "Putting Farm Credit Branches on the Map",
     "section": "Mapping the Farm Credit System",
     "text": "Mapping the Farm Credit System\nBranch office locations were scraped from the Farm Credit “Find a Lender” tool, which enables a county-level lender search. To get complete national coverage, I queried every county in every state and deduplicated the results. Headquarters addresses came from a separate source: the FCA Public Directory, which lists every chartered institution along with its official address. I scraped the detail page for each institution, parsed the address into its component fields, and fuzzy-joined the results to the Farm Credit organization names to produce a unified dataset of branch and headquarters locations across the country.\nThe map below plots every Farm Credit branch and headquarters location in the United States.5 Click the legend to toggle between location types (branch vs. HQ), hover over any point for name and address details, and use the buttons below to download the full dataset in CSV or GeoJSON format.\n\n\n\n\n\n\n\nDownload CSV Download GeoJSON\n\n\nMaps & Data by State\nUse the dropdown to filter by one or more states. The map, markers, and table below are all linked, so selecting a state updates everything at once. You can also draw a bounding box directly on the map using the rectangular selection tool in the upper-left corner. The sortable table lists every branch and headquarters location for the selected states, and you can download the filtered results as a CSV using the button below the table.\n\n\n\n\nSelect state(s):\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Download CSV\n\n\n\n\n\nMaps & Data by Institution Name\nUse the dropdown below to filter by institution name, letting you see the full footprint of a specific lender, compare two associations side by side, or just figure out which organization serves a county you care about. Like the state view above, the map and table stay in sync as you make selections.\n\n\n\n\nSelect organization(s):\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Download CSV"
   },
   {
-    "objectID": "posts/04_2026_farmcredit/index.html#under-the-hood",
-    "href": "posts/04_2026_farmcredit/index.html#under-the-hood",
+    "objectID": "posts/05_2026_farmcredit/index.html#under-the-hood",
+    "href": "posts/05_2026_farmcredit/index.html#under-the-hood",
     "title": "Putting Farm Credit Branches on the Map",
     "section": "Under the Hood",
     "text": "Under the Hood\nThe R script below handles everything: scraping the Farm Credit lender directory county by county, supplementing with FCA-sourced headquarters addresses, geocoding all locations via the Mapbox API, and producing the GeoJSON and CSV files used in the maps above. If you run it yourself, please leave the built-in request throttle in place; it pauses between batches to avoid overloading the servers.\n\nR Script"
   },
   {
-    "objectID": "posts/04_2026_farmcredit/index.html#footnotes",
-    "href": "posts/04_2026_farmcredit/index.html#footnotes",
+    "objectID": "posts/05_2026_farmcredit/index.html#footnotes",
+    "href": "posts/05_2026_farmcredit/index.html#footnotes",
     "title": "Putting Farm Credit Branches on the Map",
     "section": "Footnotes",
     "text": "Footnotes\n\n\nHutchins, J. (2023). The US farm credit system and agricultural development: Evidence from an early expansion, 1920–1940. American Journal of Agricultural Economics, 105(1), 3-26.  Turvey, C. G., Carduner, A., & Ifft, J. (2021). Market microstructure and the historical relationship between the US farm credit system, farm service agency and commercial bank lending. Agricultural Finance Review, 81(3), 360-385.↩︎\nSubedi, D., & Giri, A. K. (2024). Debt Use by U.S. Farm Businesses, 2012–2021. Economic Information Bulletin No. EIB-273. U.S. Department of Agriculture, Economic Research Service.↩︎\nFarm Credit Administration. About FCA. U.S. Government Agency.↩︎\nBy “we” I am referring to myself, Tessa Conroy, Dayton Lambert, and Kelsey Thomas. The follow-up to our paper on bank deserts is called Bank Branch Concentration and Regional Small Business Lending and will be ready to share soon. Rounding out the trio, our final paper will take aim at causality, estimating how bank branch closures affect new business formation (or the lack thereof) in affected communities.↩︎\nHawaii’s two Farm Credit branches are included…you just have to zoom out to find them. I did not find any Alaskan branches in the Farm Credit lender directory.↩︎"
