@@ -1,7 +1,7 @@
 ---
 title: "Putting Farm Credit Branches on the Map"
 author: "Andrew J. Van Leuven"
-date: "2026-04-11"
+date: "2026-05-13"
 categories: [map]
 image: splash.jpg
 description: "A look at where Farm Credit branches are located across the country."
@@ -16,11 +16,13 @@ format:
 <p style="font-size: 0.8em; color: #888; margin-top: 0.4em;">Photo by <a href="https://unsplash.com/@taylorsiebert?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Taylor Siebert</a> on <a href="https://unsplash.com/photos/green-car-on-brown-field-during-sunset-XuGmpWwt3xc?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>.</p>
 </div>
 
-The Farm Credit System (FCS) is a nationwide network of borrower-owned lending cooperatives created by Congress in 1916 to ensure that farmers, ranchers, and rural residents have reliable access to credit.[^1] Today the FCS operates through roughly 60 regional associations, each serving a defined geographic territory, supported by a handful of banks that fund the loans. As of 2021, the system held 45 percent of all U.S. farm sector debt, more than any other lender category in the country.[^2] The whole network is regulated and examined by the Farm Credit Administration (FCA), a federal agency established "to ensure that Farm Credit System institutions...are safe, sound, and dependable sources of credit."[^3]
+The Farm Credit System (FCS) is a nationwide network of borrower-owned lending cooperatives created by Congress in 1916 to ensure that farmers, ranchers, and rural residents have reliable access to credit.[^1] Today the FCS operates through roughly 60 regional lenders, each serving a defined geographic territory.[^6] As of 2021, the system held 45 percent of all U.S. farm sector debt, more than any other lender category in the country.[^2] The whole network is regulated and examined by the Farm Credit Administration (FCA), a federal agency established "to ensure that Farm Credit System institutions...are safe, sound, and dependable sources of credit."[^3]
 
 Fair warning before diving in: I am a regional economist and *not* an ag finance scholar! My interest in Farm Credit grows out of some [ongoing work on "bank deserts"](https://www.sciencedirect.com/science/article/pii/S0143622824000067) and the downstream economic consequences that follow. In that research, we have tried to incorporate credit unions and Farm Credit associations alongside FDIC-regulated branches. The problem is that unlike [FDIC](https://banks.data.fdic.gov/bankfind-suite/SOD) and [NCUA](https://ncua.gov/analysis/credit-union-corporate-call-report-data) data, which are freely available and well-structured, the geographic locations of Farm Credit branches and headquarters are surprisingly difficult to pin down. 
 
 Back in 2022, I cobbled together a time-consuming method to collect Farm Credit branch addresses, state by state. That approach worked out okay, but it isn't something I would care to repeat. As we continue building out our research on brick-and-mortar lending access,[^4] I wanted a cleaner, more reproducible pipeline. And with the assistance of Claude Code, I built one!
+
+I shared an early draft of this post with Jennifer Ifft, Kevin Kim, Joe Parcell, and Alice Roach---agricultural economists who collectively know far more about the Farm Credit System than I do---and their feedback sharpened the text and directly informed the [What's Next](#whats-next) section below. I am grateful for their time and generosity.
 
 
 ## Mapping the Farm Credit System
@@ -55,6 +57,7 @@ all_locations_sft <- all_locations_sf |>
       office_type == "Headquarters" ~ "#e34a33",
       .default = "#5b8dd9"
     ),
+    radius = ifelse(office_type == "Headquarters", 4, 3),
     tooltip = glue::glue(
       "<b>{organization}</b>",
       "<hr style='margin:1px 0'>",
@@ -82,7 +85,7 @@ maplibre(bounds = us48, style = carto_style('voyager')) |>
       values = c("Branch", "HQ"),
       stops  = c("#5b8dd9", "#e34a33")
     ),
-    circle_radius       = 5,
+    circle_radius = list("get", "radius"),
     circle_stroke_color = 'white',
     circle_stroke_width = 0.5,
     circle_opacity      = 0.85,
@@ -153,7 +156,7 @@ leaflet(shared, height = 450) |>
     fillOpacity = 0.85,
     color       = "white",
     weight      = 1,
-    radius      = 6,
+    radius      = ~radius,
     popup       = ~tooltip
   ) |>
   addLegend(
@@ -229,7 +232,7 @@ leaflet(shared_org, height = 450) |>
     fillOpacity = 0.85,
     color       = "white",
     weight      = 1,
-    radius      = 6,
+    radius      = ~radius,
     popup       = ~tooltip
   ) |>
   addLegend(
@@ -280,6 +283,17 @@ tagList(
 ```
 
 
+## What's Next {#whats-next}
+
+Several directions worth exploring came out of the reviewer feedback.
+
+**County service territories.** Each Farm Credit lender has an officially designated set of counties where it is authorized to originate loans. The [FCA Public Directory](https://apps.fca.gov/FCSPublicDirectory/PubSearchInstitution.aspx) lists these territories for every institution, and mapping them would reveal something the branch-location map cannot: where multiple ACAs hold overlapping authority and compete for the same borrowers, versus where a single lender operates without competition. There is an important nuance here, though. As Joe noted, county lines are becoming a less reliable proxy for actual service area; if a borrower initiates contact, a lender can legally service that customer anywhere in the US.
+
+**Institutional complexity.** The current map treats all branches as interchangeable, but the underlying institutional landscape is more varied than it appears. Making that structure legible on a map is a genuine challenge: with roughly 55 associations, color alone cannot do the work, and even a well-designed association-level visualization would require careful handling of entities that appear independent on paper but operate as one. Farm Credit Services of America, Frontier Farm Credit, and AgCountry share a single board and leadership team; their Manhattan, KS and Fargo, ND offices function as branches in practice, even though the FCA classifies them as headquarters. A different, less consolidated arrangement exists under [AgVantis](https://agvantis.com/), which pools back-office services across six associations without yet merging governance.
+
+**Branch granularity and map density.** Jenny pointed out that not all "branches" are equivalent: in Kansas, some locations are *outposts*, open only a few days a week, which creates a different access picture than a full-service branch. It may be possible to recover this distinction from the FCA web tool. She also noted that the size of the plotted points gives an impression of a denser network than actually exists; overlaying county boundaries would help ground the map in the vast rural territories each office is meant to serve.
+
+
 ## Under the Hood
 
 The R script below handles everything: scraping the Farm Credit lender directory county by county, supplementing with FCA-sourced headquarters addresses, geocoding all locations via the Mapbox API, and producing the GeoJSON and CSV files used in the maps above. If you run it yourself, please leave the built-in request throttle in place; it pauses between batches to avoid overloading the servers.
@@ -303,3 +317,6 @@ By "we" I am referring to myself, [Tessa Conroy](https://aae.wisc.edu/faculty/tc
 
 [^5]:
 Hawaii's two Farm Credit branches are included...you just have to zoom out to find them. I did not find any Alaskan branches in the Farm Credit lender directory.
+
+[^6]:
+The system is also supported by a handful of funding banks that provide loanable funds to the associations within their districts. For a more complete primer on FCS structure, see Palange-Thomas, K., Ifft, J., Parcell, J., & Roach, A. (2024). [*America's Largest Ag Lender: A Primer on the Farm Credit System*](https://eadn-wc02-7100781.nxedge.io/wp-content/uploads/2024/02/Riff_Farm-Credit-Financing_Final_02.19.2024.pdf). Rural and Farm Finance Policy Analysis Center.
