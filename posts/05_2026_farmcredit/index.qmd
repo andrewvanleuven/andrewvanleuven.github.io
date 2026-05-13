@@ -22,7 +22,7 @@ Fair warning before diving in: I am a regional economist and *not* an ag finance
 
 Back in 2022, I cobbled together a time-consuming method to collect Farm Credit branch addresses, state by state. That approach worked out okay, but it isn't something I would care to repeat. As we continue building out our research on brick-and-mortar lending access,[^4] I wanted a cleaner, more reproducible pipeline. And with the assistance of Claude Code, I built one!
 
-I shared an early draft of this post with Jennifer Ifft, Kevin Kim, Joe Parcell, and Alice Roach---agricultural economists who collectively know far more about the Farm Credit System than I do---and their feedback sharpened the text and directly informed the [What's Next](#whats-next) section below. I am grateful for their time and generosity.
+I shared an early draft of this post with [Jennifer Ifft](https://www.ageconomics.k-state.edu/about/people/directory/faculty_directory/ifft/), [Kevin Kim](https://www.agecon.msstate.edu/people/knk222), [Joe Parcell](https://www.ageconomics.k-state.edu/about/people/directory/faculty_directory/parcell/), and [Alice Roach](https://www.ageconomics.k-state.edu/about/people/directory/staff/roach/)---agricultural economists who each know far more about the Farm Credit System than I do---and their feedback sharpened the text and directly informed the [What's Next](#whats-next) section below. I am grateful for their time and generosity.
 
 
 ## Mapping the Farm Credit System
