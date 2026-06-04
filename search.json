@@ -53,14 +53,7 @@
     "href": "aaea_webinar/index.html#types-of-maps",
     "title": "Introduction to Maps",
     "section": "Types of Maps",
-    "text": "Types of Maps\n\n\n\n\n\n\n\n\nChoropleth\n\n\n\n\n\n\n\nDot map\n\n\n\n\n\n\n\nProportional symbol\n\n\n\n\n\n\n\nReference\n\n\n\n\n\n\n\nChoropleth — areas shaded by value\nDot map — one dot per unit\nProportional symbol — symbol size = quantity\nReference — orientation / context"
-  },
-  {
-    "objectID": "aaea_webinar/index.html#the-building-blocks",
-    "href": "aaea_webinar/index.html#the-building-blocks",
-    "title": "Introduction to Maps",
-    "section": "The Building Blocks",
-    "text": "The Building Blocks\n\nlibrary(tidyverse)\nlibrary(sf)\nlibrary(tigris)\n\noptions(tigris_use_cache = TRUE)\n\n\nsf: spatial data as a data frame with a geometry column\ntigris: US Census TIGER/Line boundaries, directly into R\n\n\ntigris_use_cache saves downloaded files locally so you don’t re-download them every render."
+    "text": "Types of Maps\n\n\n\n\n\n\n\n\nChoropleth\n\n\n\n\n\n\n\nDot map\n\n\n\n\n\n\n\nProportional symbol\n\n\n\n\n\n\n\nReference\n\n\n\n\n\n\n\nChoropleth: areas shaded by value\nDot map: one dot per unit\nProportional symbol: symbol size = quantity\nReference: orientation / context\n\n\n\nOne example worth showing: censusdots.com – a national dot density map where every dot is one person, colored by race/ethnicity. Centered on Tulsa but you can pan anywhere. https://www.censusdots.com/?map=12.01263869294279,36.1714,-95.9200"
   },
   {
     "objectID": "aaea_webinar/index.html#getting-boundary-data",
@@ -74,98 +67,168 @@
     "href": "aaea_webinar/index.html#your-first-map",
     "title": "Introduction to Maps",
     "section": "Your First Map",
-    "text": "Your First Map\n\nggplot(states_sf) +\n  geom_sf()\n\n\ngeom_sf() reads the geometry column and draws the shapes. That’s all there is to it.\n\n\nBut it looks weird – flat, stretched east-west. Let’s fix that."
+    "text": "Your First Map\n\nggplot(states_sf) +\n  geom_sf()\n\n\ngeom_sf() reads the geometry column and draws the shapes. But it looks flat and weird – let’s fix that."
+  },
+  {
+    "objectID": "aaea_webinar/index.html#your-first-map-output",
+    "href": "aaea_webinar/index.html#your-first-map-output",
+    "title": "Introduction to Maps",
+    "section": "Your First Map",
+    "text": "Your First Map"
   },
   {
     "objectID": "aaea_webinar/index.html#applying-a-projection",
     "href": "aaea_webinar/index.html#applying-a-projection",
     "title": "Introduction to Maps",
     "section": "Applying a Projection",
-    "text": "Applying a Projection\n\nggplot(states_sf) +\n  geom_sf() +\n  coord_sf(crs = 5070)\n\ncoord_sf() reprojects the visualization without modifying your data.\n\nThis single line is the most impactful improvement you can make to a US national map."
+    "text": "Applying a Projection\n\nggplot(states_sf) +\n  geom_sf() +\n  coord_sf(crs = 5070)\n\n\ncoord_sf() reprojects the visualization without modifying your data. This single line is the most impactful improvement you can make to a US national map."
+  },
+  {
+    "objectID": "aaea_webinar/index.html#applying-a-projection-output",
+    "href": "aaea_webinar/index.html#applying-a-projection-output",
+    "title": "Introduction to Maps",
+    "section": "Applying a Projection",
+    "text": "Applying a Projection"
   },
   {
     "objectID": "aaea_webinar/index.html#styling",
     "href": "aaea_webinar/index.html#styling",
     "title": "Introduction to Maps",
     "section": "Styling",
-    "text": "Styling\n\nggplot(states_sf) +\n  geom_sf(\n    fill      = \"dodgerblue\",\n    color     = \"white\",\n    linewidth = 0.3\n  ) +\n  coord_sf(crs = 5070) +\n  theme_void()\n\ntheme_void() removes axes, gridlines, and background – almost always the right choice for a finished map."
+    "text": "Styling\n\nggplot(states_sf) +\n  geom_sf(fill = \"dodgerblue\", color = \"white\", linewidth = 0.3) +\n  coord_sf(crs = 5070) +\n  theme_void()\n\n\ntheme_void() removes axes, gridlines, and background – almost always the right choice for a finished map."
+  },
+  {
+    "objectID": "aaea_webinar/index.html#styling-output",
+    "href": "aaea_webinar/index.html#styling-output",
+    "title": "Introduction to Maps",
+    "section": "Styling",
+    "text": "Styling"
   },
   {
     "objectID": "aaea_webinar/index.html#real-data-lace",
     "href": "aaea_webinar/index.html#real-data-lace",
     "title": "Introduction to Maps",
     "section": "Real Data: LACE",
-    "text": "Real Data: LACE\nNew from the Census Bureau: county-level estimates of households without air conditioning.\n\nlace &lt;- read_csv('https://www2.census.gov/programs-surveys/demo/datasets/lace/2023/LACE_23_County.csv') |&gt;\n  mutate(GEOID = paste0(STATE, COUNTY))\n\nlace_map &lt;- counties_sf |&gt;\n  left_join(lace, by = \"GEOID\")\n\n\nThis is the standard workflow: get boundaries from tigris, join your data on GEOID, map it.\n\nGEOID is the 5-character FIPS code: 2-digit state + 3-digit county, always zero-padded. “17031” = Cook County (Chicago). This is the universal join key for any Census-derived county data."
+    "text": "Real Data: LACE\nNew from the Census Bureau: county-level estimates of households without air conditioning.\n\nlace &lt;- read_csv('https://www2.census.gov/programs-surveys/demo/datasets/lace/2023/LACE_23_County.csv') |&gt;\n  mutate(GEOID = paste0(STATE, COUNTY))\n\nlace_map &lt;- counties_sf |&gt;\n  left_join(lace, by = \"GEOID\")\n\nThis is the standard workflow: get boundaries from tigris, join your data on GEOID, map it.\n\nGEOID is the 5-character FIPS code: 2-digit state + 3-digit county, always zero-padded. This is the universal join key for any Census-derived county data."
   },
   {
     "objectID": "aaea_webinar/index.html#building-the-map-incrementally",
     "href": "aaea_webinar/index.html#building-the-map-incrementally",
     "title": "Introduction to Maps",
     "section": "Building the Map Incrementally",
-    "text": "Building the Map Incrementally\n\nggplot(lace_map) +\n  geom_sf(aes(fill = NO_AC_PE), color = NA) +\n  # geom_sf(data = states_sf, fill = NA, color = \"black\", linewidth = 0.1) +\n  # coord_sf(crs = 5070) +\n  # scale_fill_distiller(palette = \"YlGn\", direction = 1,\n  #                      labels = percent, name = 'Share without A/C') +\n  theme_void() +\n  # theme(legend.position = 'bottom',\n  #       plot.title = element_text(face = 'bold', hjust = .5)) +\n  labs(\n    # title = \"Households without Air Conditioning by County (2023)\"\n  )\n\n\n[Live demo.] Start with everything commented out except the bare minimum. Uncomment one argument at a time so the audience can see exactly what each piece contributes. This is a great teaching technique for ggplot."
+    "text": "Building the Map Incrementally\n\nggplot(lace_map) +\n  geom_sf(aes(fill = NO_AC_PE/100), color = NA) +\n  geom_sf(data = states_sf, fill = NA, color = \"black\", linewidth = 0.1) +\n  coord_sf(crs = 5070) +\n  scale_fill_distiller(\n    palette = \"YlGn\", direction = 1,\n    labels = percent, name = 'Share without A/C'\n  ) +\n  theme_void() +\n  theme(legend.position = 'bottom',\n        plot.title = element_text(face = 'bold', hjust = .5)) +\n  labs(title = \"Households without Air Conditioning by County (2023)\")\n\n\n\n[Live demo.] In demo_script.R, start with most of these arguments commented out. Uncomment one at a time so the audience can see what each piece contributes to the finished map."
+  },
+  {
+    "objectID": "aaea_webinar/index.html#building-the-map-incrementally-output",
+    "href": "aaea_webinar/index.html#building-the-map-incrementally-output",
+    "title": "Introduction to Maps",
+    "section": "Building the Map Incrementally",
+    "text": "Building the Map Incrementally"
   },
   {
     "objectID": "aaea_webinar/index.html#color-scale-options",
     "href": "aaea_webinar/index.html#color-scale-options",
     "title": "Introduction to Maps",
     "section": "Color Scale Options",
-    "text": "Color Scale Options\n\n# Sequential (one hue, light to dark)\nscale_fill_distiller(palette = \"YlGn\", direction = 1)\nscale_fill_viridis_c(option = \"rocket\")\n\n# Diverging (two hues meeting at a midpoint -- use when 0 means something)\nscale_fill_distiller(palette = \"RdBu\", direction = 1)\n\n# Right-skewed data: log-transform the scale\nscale_fill_viridis_c(trans = \"log10\", labels = scales::comma)\n\n\n\nAvoid rainbow palettes (rainbow(), jet). They are not perceptually uniform and create false visual boundaries in your data."
+    "text": "Color Scale Options\n\n# Sequential (one hue, light to dark)\nscale_fill_distiller(palette = \"YlGn\", direction = 1)\nscale_fill_viridis_c(option = \"rocket\")\n\n# Diverging (two hues, use when 0 means something)\nscale_fill_distiller(palette = \"RdBu\", direction = 1)\n\n# Right-skewed data: log-transform the scale\nscale_fill_viridis_c(trans = \"log10\", labels = scales::comma)\n\n\nAvoid rainbow palettes (rainbow(), jet). They are not perceptually uniform and create false visual boundaries in your data."
   },
   {
     "objectID": "aaea_webinar/index.html#tidycensus",
     "href": "aaea_webinar/index.html#tidycensus",
     "title": "Introduction to Maps",
     "section": "tidycensus",
-    "text": "tidycensus\ntidycensus pulls Census Bureau data directly into R, with geometry attached if you want it.\n\nlibrary(tidycensus)\n\n# one-time setup -- free key at api.census.gov/data/key_signup.html\ncensus_api_key(\"YOUR_KEY_HERE\", install = TRUE)\n\nCovers: Decennial Census, ACS 1-year and 5-year, and more\n\nACS data is estimated, not a headcount. The smaller the geography, the larger the margin of error. A block group SNAP estimate has a much wider confidence interval than a county-level estimate."
+    "text": "tidycensus\ntidycensus pulls Census Bureau data directly into R, with geometry attached if you want it.\n\n# one-time setup -- free key at api.census.gov/data/key_signup.html\ncensus_api_key(\"YOUR_KEY_HERE\", install = TRUE)\n\nCovers: Decennial Census, ACS 1-year and 5-year, and more\n\nACS data is estimated, not a headcount. The smaller the geography, the larger the margin of error. A block group SNAP estimate has a much wider confidence interval than a county-level estimate."
   },
   {
     "objectID": "aaea_webinar/index.html#finding-variables",
     "href": "aaea_webinar/index.html#finding-variables",
     "title": "Introduction to Maps",
     "section": "Finding Variables",
-    "text": "Finding Variables\n\nv22 &lt;- load_variables(2022, \"acs5\", cache = TRUE)\n\nv22 |&gt;\n  filter(str_detect(label, regex(\"snap|food stamp\", ignore_case = TRUE))) |&gt;\n  select(name, label, concept)\n\n\nThere are ~27,000 ACS 5-year variables. load_variables() + str_detect() is how you find what you need."
+    "text": "Finding Variables\n\nv22 &lt;- load_variables(2022, \"acs5\", cache = TRUE)\n\n\nv22 |&gt;\n  filter(str_detect(label, regex(\"snap|food stamp\", ignore_case = TRUE))) |&gt;\n  select(name, label, concept)\n\n\n\n# A tibble: 162 × 3\n   name       label                                                      concept\n   &lt;chr&gt;      &lt;chr&gt;                                                      &lt;chr&gt;  \n 1 B09010_002 Estimate!!Total:!!Living in household with Supplemental S… Receip…\n 2 B09010_003 Estimate!!Total:!!Living in household with Supplemental S… Receip…\n 3 B09010_004 Estimate!!Total:!!Living in household with Supplemental S… Receip…\n 4 B09010_005 Estimate!!Total:!!Living in household with Supplemental S… Receip…\n 5 B09010_006 Estimate!!Total:!!Living in household with Supplemental S… Receip…\n 6 B09010_007 Estimate!!Total:!!Living in household with Supplemental S… Receip…\n 7 B09010_008 Estimate!!Total:!!Living in household with no Supplementa… Receip…\n 8 B09010_009 Estimate!!Total:!!Living in household with no Supplementa… Receip…\n 9 B09010_010 Estimate!!Total:!!Living in household with no Supplementa… Receip…\n10 B09010_011 Estimate!!Total:!!Living in household with no Supplementa… Receip…\n# ℹ 152 more rows\n\n\nThere are ~27,000 ACS 5-year variables. load_variables() + str_detect() is how you find what you need."
   },
   {
     "objectID": "aaea_webinar/index.html#pulling-snap-data-with-geometry",
     "href": "aaea_webinar/index.html#pulling-snap-data-with-geometry",
     "title": "Introduction to Maps",
     "section": "Pulling SNAP Data with Geometry",
-    "text": "Pulling SNAP Data with Geometry\n\nsnap_households &lt;- get_acs(\n  geography = \"county\",\n  variables = c(snap  = \"B22003_002\",\n                total = \"B22003_001\"),\n  year      = 2022,\n  geometry  = TRUE       # returns sf object -- no joining needed\n) |&gt;\n  select(GEOID, NAME, variable, estimate) |&gt;\n  pivot_wider(names_from = variable, values_from = estimate) |&gt;\n  mutate(snap_pct = snap / total) |&gt;\n  filter(!str_starts(GEOID, \"02|15|72\"))\n\ngeometry = TRUE is the killer feature: one call returns data and boundaries together."
+    "text": "Pulling SNAP Data with Geometry\n\nsnap_households &lt;- get_acs(\n  geography = \"county\",\n  variables = c(snap  = \"B22003_002\",\n                total = \"B22003_001\"),\n  year      = 2022,\n  geometry  = TRUE\n) |&gt;\n  select(GEOID, NAME, variable, estimate) |&gt;\n  pivot_wider(names_from = variable, values_from = estimate) |&gt;\n  mutate(snap_pct = snap / total) |&gt;\n  filter(!str_starts(GEOID, \"02|15|72\"))\n\ngeometry = TRUE is the killer feature: one call returns data and boundaries together."
   },
   {
     "objectID": "aaea_webinar/index.html#snap-participation-by-county",
     "href": "aaea_webinar/index.html#snap-participation-by-county",
     "title": "Introduction to Maps",
     "section": "SNAP Participation by County",
-    "text": "SNAP Participation by County\n\nggplot(snap_households) +\n  geom_sf(aes(fill = snap_pct), color = NA) +\n  geom_sf(data = states_sf, fill = NA, color = \"white\", linewidth = 0.4) +\n  coord_sf(crs = 5070) +\n  scale_fill_viridis_c(\n    name = \"Share of households receiving SNAP\",\n    labels = percent_format(accuracy = 1),\n    option = \"rocket\", direction = 1\n  ) +\n  theme_void(base_family = 'Verdana') +\n  theme(legend.position = 'bottom',\n        legend.title = element_text(face = 'bold', hjust = .5),\n        plot.title = element_text(face = 'bold', hjust = .5)) +\n  guides(fill = guide_colourbar(barheight = 0.35, barwidth = 15, title.position = 'top')) +\n  labs(title    = \"SNAP Participation by County\",\n       subtitle = \"2018-2022 5-year ACS Estimates\")"
+    "text": "SNAP Participation by County\n\nggplot(snap_households) +\n  geom_sf(aes(fill = snap_pct), color = NA) +\n  geom_sf(data = states_sf, fill = NA, color = \"white\", linewidth = 0.4) +\n  coord_sf(crs = 5070) +\n  scale_fill_viridis_c(\n    name = \"Share of households receiving SNAP\",\n    labels = percent_format(accuracy = 1),\n    option = \"rocket\", \n    direction = -1\n  ) +\n  theme_void(base_family = 'Verdana') +\n  theme(legend.position = 'bottom',\n        legend.title = element_text(face = 'bold', hjust = .5),\n        plot.title = element_text(face = 'bold', hjust = .5),\n        plot.subtitle = element_text(hjust = .5)) +\n  guides(fill = guide_colourbar(barheight = 0.35, barwidth = 15, title.position = 'top')) +\n  labs(title = \"SNAP Participation by County\",\n       subtitle = \"2018-2022 5-year ACS Estimates\")"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#snap-participation-by-county-output",
+    "href": "aaea_webinar/index.html#snap-participation-by-county-output",
+    "title": "Introduction to Maps",
+    "section": "SNAP Participation by County",
+    "text": "SNAP Participation by County"
   },
   {
     "objectID": "aaea_webinar/index.html#going-smaller-census-tracts",
     "href": "aaea_webinar/index.html#going-smaller-census-tracts",
     "title": "Introduction to Maps",
     "section": "Going Smaller: Census Tracts",
-    "text": "Going Smaller: Census Tracts\nChange geography = \"county\" to geography = \"tract\" and add a state argument:\n\nget_acs(\n  geography = \"tract\",\n  state     = 'RI',\n  variables = c(snap = \"B22003_002\", total = \"B22003_001\"),\n  year      = 2024,\n  geometry  = TRUE\n) |&gt;\n  select(GEOID, NAME, variable, estimate) |&gt;\n  pivot_wider(names_from = variable, values_from = estimate) |&gt;\n  mutate(snap_pct = snap / total) |&gt;\n  ggplot() +\n  geom_sf(aes(fill = snap_pct), color = NA) +\n  scale_fill_viridis_c(option = \"A\", direction = -1,\n                       labels = percent_format(accuracy = 1),\n                       na.value = 'grey90') +\n  theme_void() +\n  labs(title = \"SNAP Participation by Census Tract, Rhode Island\")\n\n\nEverything is the same except geography and state. tidycensus supports county, tract, block group, place, ZCTA, and more. Block groups are the finest grain with reliable SNAP data."
+    "text": "Going Smaller: Census Tracts\nChange geography = \"county\" to geography = \"tract\" and add a state argument:\n\nget_acs(\n  geography = \"tract\", state = 'RI',\n  variables = c(snap = \"B22003_002\", total = \"B22003_001\"),\n  year = 2024, geometry = TRUE\n) |&gt;\n  select(GEOID, NAME, variable, estimate) |&gt;\n  pivot_wider(names_from = variable, values_from = estimate) |&gt;\n  mutate(snap_pct = snap / total) |&gt;\n  ggplot() +\n  geom_sf(aes(fill = snap_pct), color = NA) +\n  scale_fill_viridis_c(option = \"A\", direction = -1,\n                       labels = percent_format(accuracy = 1),\n                       na.value = 'grey90') +\n  theme_void() +\n  labs(title = \"SNAP Participation by Census Tract, Rhode Island\",\n       subtitle = \"2020-2024 5-year ACS Estimates\")\n\n\n\nEverything is the same except geography and state. tidycensus supports county, tract, block group, place, ZCTA, and more."
+  },
+  {
+    "objectID": "aaea_webinar/index.html#going-smaller-census-tracts-output",
+    "href": "aaea_webinar/index.html#going-smaller-census-tracts-output",
+    "title": "Introduction to Maps",
+    "section": "Going Smaller: Census Tracts",
+    "text": "Going Smaller: Census Tracts"
   },
   {
     "objectID": "aaea_webinar/index.html#nass-quickstats-rnassqs",
     "href": "aaea_webinar/index.html#nass-quickstats-rnassqs",
     "title": "Introduction to Maps",
     "section": "NASS QuickStats: rnassqs",
-    "text": "NASS QuickStats: rnassqs\nNASS QuickStats is USDA’s public database: crops, livestock, farm economics, farm counts, and more.\n\nlibrary(rnassqs)\n\n# one-time setup per session -- free key at quickstats.nass.usda.gov/api\nnassqs_auth(\"YOUR_API_KEY\")\n\n\nTip: prototype your query at quickstats.nass.usda.gov first to get the exact parameter names and verify your record count before calling the API."
+    "text": "NASS QuickStats: rnassqs\nNASS QuickStats is USDA’s public database: crops, livestock, farm economics, farm counts, and more.\n\n# one-time setup per session -- free key at quickstats.nass.usda.gov/api\nnassqs_auth(\"YOUR_API_KEY\")\n\nTip: prototype at quickstats.nass.usda.gov first to get exact parameter names and verify record counts before calling the API."
   },
   {
     "objectID": "aaea_webinar/index.html#querying-nass-corn-and-soybeans",
     "href": "aaea_webinar/index.html#querying-nass-corn-and-soybeans",
     "title": "Introduction to Maps",
     "section": "Querying NASS: Corn and Soybeans",
-    "text": "Querying NASS: Corn and Soybeans\n\ncorn_acres &lt;- nassqs(\n  commodity_desc = \"CORN\",\n  short_desc     = \"CORN - ACRES PLANTED\",\n  domain_desc    = \"TOTAL\",\n  agg_level_desc = \"COUNTY\",\n  year           = 2015\n) |&gt;\n  mutate(GEOID = paste0(state_fips_code, county_code)) |&gt;\n  select(GEOID, year, corn_acres_planted = Value)\n\ncorn_acres_sf &lt;- left_join(counties_sf, corn_acres)\n\nSame pattern for soybeans. Value comes back as a character with commas – handle that in the color scale or with as.numeric(str_remove_all(Value, \",\"))."
+    "text": "Querying NASS: Corn and Soybeans\n\ncorn_acres &lt;- nassqs(\n  commodity_desc = \"CORN\", short_desc = \"CORN - ACRES PLANTED\",\n  domain_desc = \"TOTAL\", agg_level_desc = \"COUNTY\", year = 2015\n) |&gt;\n  mutate(GEOID = paste0(state_fips_code, county_code)) |&gt;\n  select(GEOID, year, corn_acres_planted = Value)\n\nsoybean_acres &lt;- nassqs(\n  commodity_desc = \"SOYBEANS\", short_desc = \"SOYBEANS - ACRES PLANTED\",\n  domain_desc = \"TOTAL\", agg_level_desc = \"COUNTY\", year = 2015\n) |&gt;\n  mutate(GEOID = paste0(state_fips_code, county_code)) |&gt;\n  select(GEOID, year, soybean_acres_planted = Value)\n\ncorn_acres_sf    &lt;- left_join(counties_sf, corn_acres)\nsoybean_acres_sf &lt;- left_join(counties_sf, soybean_acres)"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#corn-acres-planted-2015",
+    "href": "aaea_webinar/index.html#corn-acres-planted-2015",
+    "title": "Introduction to Maps",
+    "section": "Corn Acres Planted, 2015",
+    "text": "Corn Acres Planted, 2015\n\nggplot(corn_acres_sf) +\n  geom_sf(aes(fill = corn_acres_planted), color = NA) +\n  geom_sf(data = states_sf, fill = NA, color = \"white\", linewidth = 0.4) +\n  coord_sf(crs = 5070) +\n  scale_fill_viridis_c(option = 'A', name = \"Corn Acres Planted\",\n                       labels = comma_format(), trans = \"log10\", na.value = \"gray90\") +\n  theme_void(base_family = 'Verdana') +\n  theme(legend.position = 'bottom',\n        legend.title = element_text(face = 'bold', hjust = .5),\n        plot.title = element_text(face = 'bold', hjust = .5)) +\n  guides(fill = guide_colourbar(barheight = 0.35, barwidth = 15, title.position = 'top')) +\n  labs(title = \"Corn Acres Planted by County, 2015\",\n       caption = \"\\nSource: USDA NASS QuickStats. Suppressed/missing counties shown in gray.\")"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#corn-acres-planted-2015-output",
+    "href": "aaea_webinar/index.html#corn-acres-planted-2015-output",
+    "title": "Introduction to Maps",
+    "section": "Corn Acres Planted, 2015",
+    "text": "Corn Acres Planted, 2015"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#soybean-acres-planted-2015",
+    "href": "aaea_webinar/index.html#soybean-acres-planted-2015",
+    "title": "Introduction to Maps",
+    "section": "Soybean Acres Planted, 2015",
+    "text": "Soybean Acres Planted, 2015\n\nggplot(soybean_acres_sf) +\n  geom_sf(aes(fill = soybean_acres_planted), color = NA) +\n  geom_sf(data = states_sf, fill = NA, color = \"white\", linewidth = 0.4) +\n  coord_sf(crs = 5070) +\n  scale_fill_viridis_c(option = 'A', name = \"Soybean Acres Planted\",\n                       labels = comma_format(), trans = \"log10\", na.value = \"gray90\") +\n  theme_void(base_family = 'Verdana') +\n  theme(legend.position = 'bottom',\n        legend.title = element_text(face = 'bold', hjust = .5),\n        plot.title = element_text(face = 'bold', hjust = .5)) +\n  guides(fill = guide_colourbar(barheight = 0.35, barwidth = 15, title.position = 'top')) +\n  labs(title = \"Soybean Acres Planted by County, 2015\",\n       caption = \"\\nSource: USDA NASS QuickStats. Suppressed/missing counties shown in gray.\")"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#soybean-acres-planted-2015-output",
+    "href": "aaea_webinar/index.html#soybean-acres-planted-2015-output",
+    "title": "Introduction to Maps",
+    "section": "Soybean Acres Planted, 2015",
+    "text": "Soybean Acres Planted, 2015"
   },
   {
     "objectID": "aaea_webinar/index.html#finding-better-breaks-jenks",
     "href": "aaea_webinar/index.html#finding-better-breaks-jenks",
     "title": "Introduction to Maps",
     "section": "Finding Better Breaks: Jenks",
-    "text": "Finding Better Breaks: Jenks\nRight-skewed ag data will look like one color if you use a linear scale. Jenks natural breaks fix that.\n\nlibrary(classInt)\n\ncorn_vals &lt;- as.numeric(str_remove_all(corn_acres_sf$corn_acres_planted, \",\"))\nsoy_vals  &lt;- as.numeric(str_remove_all(soybean_acres_sf$soybean_acres_planted, \",\"))\ncombined  &lt;- c(corn_vals, soy_vals)\n\nbrks &lt;- classIntervals(\n  combined[!is.na(combined) & combined &gt; 0],\n  n = 5, style = \"jenks\"\n)$brks |&gt; round(-3)\n\npal &lt;- RColorBrewer::brewer.pal(length(brks), \"YlGnBu\")\n\nUsing the combined distribution ensures both maps share the same color scale."
+    "text": "Finding Better Breaks: Jenks\nRight-skewed ag data looks like one color with a linear scale. Jenks natural breaks fix that.\n\ncorn_vals &lt;- as.numeric(str_remove_all(corn_acres_sf$corn_acres_planted, \",\"))\nsoy_vals  &lt;- as.numeric(str_remove_all(soybean_acres_sf$soybean_acres_planted, \",\"))\ncombined  &lt;- c(corn_vals, soy_vals)\n\nbrks &lt;- classIntervals(\n  combined[!is.na(combined) & combined &gt; 0], n = 5, style = \"jenks\"\n)$brks |&gt; round(-3)\n\npal &lt;- brewer.pal(length(brks), \"YlGnBu\")\n\nUsing the combined distribution ensures both maps share the same color scale."
   },
   {
     "objectID": "aaea_webinar/index.html#comparing-maps-with-compare",
@@ -175,53 +238,116 @@
     "text": "Comparing Maps with compare()\n\nleft_map &lt;- maplibre(bounds = states_sf, style = carto_style(\"voyager\")) |&gt;\n  add_fill_layer(id = \"corn_acres\", source = corn_acres_sf,\n    fill_color = interpolate(column = \"corn_acres_planted\",\n                             values = brks, stops = pal, na_color = \"lightgrey\"),\n    fill_opacity = 0.9, tooltip = \"corn_acres_planted\") |&gt;\n  add_line_layer(id = 'states', source = states_sf, line_width = .1) |&gt;\n  add_continuous_legend(\"Corn Acres Planted, 2015\",\n    values = brks, colors = pal, position = \"bottom-left\", draggable = TRUE)\n\nright_map &lt;- maplibre(bounds = states_sf, style = carto_style(\"voyager\")) |&gt;\n  add_fill_layer(id = \"soybean_acres\", source = soybean_acres_sf,\n    fill_color = interpolate(column = \"soybean_acres_planted\",\n                             values = brks, stops = pal, na_color = \"lightgrey\"),\n    fill_opacity = 0.9, tooltip = \"soybean_acres_planted\") |&gt;\n  add_line_layer(id = 'states', source = states_sf, line_width = .1) |&gt;\n  add_continuous_legend(\"Soybean Acres Planted, 2015\",\n    values = brks, colors = pal, position = \"bottom-left\", draggable = TRUE)\n\ncompare(left_map, right_map)"
   },
   {
+    "objectID": "aaea_webinar/index.html#comparing-maps-with-compare-output",
+    "href": "aaea_webinar/index.html#comparing-maps-with-compare-output",
+    "title": "Introduction to Maps",
+    "section": "Comparing Maps with compare()",
+    "text": "Comparing Maps with compare()"
+  },
+  {
     "objectID": "aaea_webinar/index.html#from-table-to-map",
     "href": "aaea_webinar/index.html#from-table-to-map",
     "title": "Introduction to Maps",
     "section": "From Table to Map",
-    "text": "From Table to Map\nAny table with latitude and longitude columns can become a spatial dataset.\n\nusda_inspection_estabs &lt;- read_csv('data/MPI_Directory_by_Establishment_Number.csv')\n\nglimpse(usda_inspection_estabs)\n\n\n\nusda_inspection_estabs_sf &lt;- usda_inspection_estabs |&gt;\n  mutate(across(where(is.character), ~iconv(., to = \"UTF-8\", sub = \"\"))) |&gt;\n  st_as_sf(coords = c('longitude', 'latitude'), crs = 4326, remove = FALSE) |&gt;\n  st_transform(crs = 5070)\n\nst_as_sf() turns the lat/lon columns into a geometry column. After that, it’s a normal sf object.\n\nSource: USDA FSIS Meat, Poultry & Egg Product Inspection Directory. The iconv() call strips non-UTF-8 characters – common in address data from federal databases – that would otherwise break mapgl’s JSON serialization when you try to render."
+    "text": "From Table to Map\nAny table with latitude and longitude columns can become a spatial dataset.\n\nusda_inspection_estabs &lt;- read_csv('https://andrewvanleuven.github.io/aaea_webinar/data/MPI_Directory_by_Establishment_Number.csv')\nglimpse(usda_inspection_estabs)\n\n\n\nRows: 7,185\nColumns: 21\n$ establishment_id     &lt;dbl&gt; 126740, 195, 126734, 126639, 6164012, 8204, 8193,…\n$ establishment_number &lt;chr&gt; \"G1016\", \"G1028\", \"G1105\", \"G1126A+V1126A\", \"G112…\n$ establishment_name   &lt;chr&gt; \"M.G. Waldbaum Company\", \"Papetti's Hygrade Egg P…\n$ duns_number          &lt;chr&gt; \"18076351\", \"7266158\", NA, \"72983554\", \"15396242\"…\n$ street               &lt;chr&gt; \"430 Railroad Avenue\", \"One Papetti Plaza\", \"375 …\n$ city                 &lt;chr&gt; \"Gaylord\", \"Elizabeth\", \"Blackshear\", \"Spanish Fo…\n$ state                &lt;chr&gt; \"MN\", \"NJ\", \"GA\", \"UT\", \"UT\", \"IL\", \"NJ\", \"IA\", \"…\n$ zip                  &lt;chr&gt; \"55334\", \"7206\", \"31516\", \"84660\", \"84660\", \"6283…\n$ phone                &lt;chr&gt; \"(507) 237-4600\", \"(908) 282-7900\", \"(912) 449-57…\n$ grant_date           &lt;chr&gt; \"1/28/2026\", \"12/5/2019\", \"9/22/2021\", \"1/28/2022…\n$ activities           &lt;chr&gt; \"Egg Product\", \"Egg Product\", \"Egg Product\", \"Cer…\n$ dbas                 &lt;chr&gt; \"Michael Foods Inc.\", NA, NA, NA, \"Muscle Egg\", N…\n$ district             &lt;dbl&gt; 25, 80, 85, 15, 15, 50, 80, 25, 25, 50, 60, 15, 8…\n$ circuit              &lt;chr&gt; \"2507\", \"8020\", \"8509\", \"1532\", \"1532\", \"5007\", \"…\n$ size                 &lt;chr&gt; \"N / A\", \"Small\", \"Small\", \"Small\", \"Very Small\",…\n$ latitude             &lt;dbl&gt; 44.55444, 40.65799, 31.30408, 40.11510, 40.11414,…\n$ longitude            &lt;dbl&gt; -94.20699, -74.18885, -82.23269, -111.73739, -111…\n$ county               &lt;chr&gt; \"Sibley County\", \"Union County\", \"Pierce County\",…\n$ fips_code            &lt;dbl&gt; 27143, 34039, 13229, 49049, 49049, 17051, 34039, …\n$ LatestMPIActiveDate  &lt;chr&gt; \"6/1/2026\", \"6/1/2026\", \"6/1/2026\", \"6/1/2026\", \"…\n$ est_status           &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…\n\n\n\nSource: USDA FSIS Meat, Poultry & Egg Product Inspection Directory."
+  },
+  {
+    "objectID": "aaea_webinar/index.html#st_as_sf-adding-geometry",
+    "href": "aaea_webinar/index.html#st_as_sf-adding-geometry",
+    "title": "Introduction to Maps",
+    "section": "st_as_sf(): Adding Geometry",
+    "text": "st_as_sf(): Adding Geometry\n\nusda_inspection_estabs_sf &lt;- usda_inspection_estabs |&gt;\n  mutate(across(where(is.character), ~iconv(., to = \"UTF-8\", sub = \"\"))) |&gt;\n  st_as_sf(coords = c('longitude', 'latitude'), crs = 4326, remove = FALSE) |&gt;\n  st_transform(crs = 5070)\n\nlower48_usda &lt;- st_intersection(\n  usda_inspection_estabs_sf,\n  st_transform(states_sf, 5070)\n) |&gt;\n  filter(size %in% c('Large', 'Small', 'Very Small'))\n\nst_as_sf() turns lat/lon columns into a geometry column. After that, it’s a normal sf object."
   },
   {
     "objectID": "aaea_webinar/index.html#usda-inspection-establishments",
     "href": "aaea_webinar/index.html#usda-inspection-establishments",
     "title": "Introduction to Maps",
     "section": "USDA Inspection Establishments",
-    "text": "USDA Inspection Establishments\n\nlower48_usda &lt;- st_intersection(\n  usda_inspection_estabs_sf,\n  st_transform(states_sf, 5070)\n) |&gt;\n  filter(size %in% c('Large', 'Small', 'Very Small'))\n\nggplot() +\n  geom_sf(data = st_transform(states_sf, 5070),\n          color = 'black', linewidth = .25) +\n  geom_sf(data = lower48_usda,\n          aes(color = size), size = 1, alpha = .7) +\n  scale_color_manual(values = c('#e41a1c', '#e6ab02', '#377eb8'),\n                     name = 'Size') +\n  theme_void() +\n  labs(title    = \"USDA Meat, Poultry & Egg Product Inspection\",\n       subtitle = \"Establishments by Size Class\")"
+    "text": "USDA Inspection Establishments\n\nggplot() +\n  geom_sf(data = st_transform(states_sf, 5070), color = 'black', linewidth = .25) +\n  geom_sf(data = lower48_usda, aes(color = size), size = 1, alpha = .7) +\n  scale_color_manual(values = c('#e41a1c', '#e6ab02', '#377eb8'), name = 'Size') +\n  theme_void(base_family = 'Verdana') +\n  theme(legend.position = 'bottom',\n        legend.title = element_text(face = 'bold', hjust = .5),\n        plot.subtitle = element_text(hjust = .5),\n        plot.title = element_text(face = 'bold', hjust = .5)) +\n  labs(title = \"USDA Meat, Poultry & Egg Product Inspection\",\n       subtitle = \"Establishments by Size Class\")"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#usda-inspection-establishments-output",
+    "href": "aaea_webinar/index.html#usda-inspection-establishments-output",
+    "title": "Introduction to Maps",
+    "section": "USDA Inspection Establishments",
+    "text": "USDA Inspection Establishments"
   },
   {
     "objectID": "aaea_webinar/index.html#categorical-point-maps-with-mapgl",
     "href": "aaea_webinar/index.html#categorical-point-maps-with-mapgl",
     "title": "Introduction to Maps",
     "section": "Categorical Point Maps with mapgl",
-    "text": "Categorical Point Maps with mapgl\nColor points by category using match_expr():\n\ngas_stations &lt;- read_csv('data/gas_stations.csv') |&gt;\n  st_as_sf(wkt = \"geometry_wkt\", crs = 4326) |&gt;\n  st_transform(crs = 5070)\n\nmapboxgl(style = mapbox_style(\"light\"), bounds = states_sf) |&gt;\n  add_circle_layer(\n    id = \"poi-gas\", source = gas_stations,\n    circle_color = match_expr(\n      \"name\",\n      values = c(\"Casey's General Store\", \"Cenex\", \"Kwik Trip/Kwik Star\"),\n      stops  = c(\"#F3D317\", \"#8a0000\", \"#0300ad\")\n    ),\n    circle_radius = 4, circle_stroke_color = \"#ffffff\",\n    circle_stroke_width = .4, circle_opacity = 0.7, tooltip = \"city_name\"\n  ) |&gt;\n  add_categorical_legend(\n    legend_title = \"Midwest Gas Station Chains\",\n    values = c(\"Casey's General Store\", \"Cenex\", \"Kwik Trip/Kwik Star\"),\n    colors = c(\"#F3D317\", \"#8a0000\", \"#0300ad\"),\n    patch_shape = \"circle\", position = \"bottom-left\",\n    layer_id = \"poi-gas\", interactive = TRUE\n  )"
+    "text": "Categorical Point Maps with mapgl\n\ngas_stations &lt;- read_csv('https://andrewvanleuven.github.io/aaea_webinar/data/gas_stations.csv') |&gt;\n  st_as_sf(wkt = \"geometry_wkt\", crs = 4326) |&gt;\n  st_transform(crs = 5070)\n\nmaplibre(style = carto_style(\"positron\"), bounds = states_sf) |&gt;\n  add_circle_layer(\n    id = \"poi-gas\", source = gas_stations,\n    circle_color = match_expr(\"name\",\n      values = c(\"Casey's General Store\", \"Cenex\", \"Kwik Trip/Kwik Star\"),\n      stops  = c(\"#F3D317\", \"#8a0000\", \"#0300ad\")),\n    circle_radius = 4, circle_stroke_color = \"#ffffff\",\n    circle_stroke_width = .4, circle_opacity = 0.7, tooltip = \"city_name\"\n  ) |&gt;\n  add_line_layer(id = 'states', source = states_sf, line_width = .1) |&gt;\n  add_categorical_legend(\n    legend_title = \"Midwest Gas Station Chains\",\n    values = c(\"Casey's General Store\", \"Cenex\", \"Kwik Trip/Kwik Star\"),\n    colors = c(\"#F3D317\", \"#8a0000\", \"#0300ad\"),\n    patch_shape = \"circle\", position = \"bottom-left\",\n    layer_id = \"poi-gas\", interactive = TRUE\n  )"
   },
   {
-    "objectID": "aaea_webinar/index.html#st_intersection-counting-points-in-polygons",
-    "href": "aaea_webinar/index.html#st_intersection-counting-points-in-polygons",
+    "objectID": "aaea_webinar/index.html#categorical-point-maps-with-mapgl-output",
+    "href": "aaea_webinar/index.html#categorical-point-maps-with-mapgl-output",
     "title": "Introduction to Maps",
-    "section": "st_intersection: Counting Points in Polygons",
-    "text": "st_intersection: Counting Points in Polygons\nOne of the most useful GIS operations: assign each point to the polygon it falls in, then aggregate.\n\ncounty_pop_2020 &lt;- get_decennial(geography = 'county', variables = 'P1_001N',\n                                  year = 2020, geometry = TRUE) |&gt;\n  st_transform(5070) |&gt;\n  filter(!str_starts(GEOID, \"02|15|72\")) |&gt;\n  select(cty_fips = GEOID, pop20 = value)\n\ndollar_stores_by_county &lt;- st_intersection(dollar_stores, county_pop_2020) |&gt;\n  st_drop_geometry() |&gt;\n  summarize(dollar_stores = n(), pop_2020 = first(pop20), .by = cty_fips) |&gt;\n  replace_na(list(dollar_stores = 0)) |&gt;\n  mutate(dollar_stores_per_capita = dollar_stores / pop_2020)"
+    "section": "Categorical Point Maps with mapgl",
+    "text": "Categorical Point Maps with mapgl"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#categorical-point-maps-with-mapgl-1",
+    "href": "aaea_webinar/index.html#categorical-point-maps-with-mapgl-1",
+    "title": "Introduction to Maps",
+    "section": "Categorical Point Maps with mapgl",
+    "text": "Categorical Point Maps with mapgl\n\ndollar_stores &lt;- read_csv('https://andrewvanleuven.github.io/aaea_webinar/data/dollar_stores.csv') |&gt;\n  st_as_sf(wkt = \"geometry_wkt\", crs = 4326) |&gt;\n  st_transform(crs = 5070) |&gt;\n  mutate(tooltip = glue(\"&lt;b&gt;{name}&lt;/b&gt;&lt;br&gt;{city_name}\"))\n\nmaplibre(style = carto_style(\"positron\"), bounds = states_sf) |&gt;\n  add_circle_layer(\n    id           = \"poi-dollar-store\",\n    source       = dollar_stores,\n    circle_color = match_expr(\n      \"name\",\n      values = c(\"Dollar General\", \"Dollar Tree\", \"Family Dollar\"),\n      stops  = c(\"#fff200\", \"#00954C\", \"#E81F11\")\n    ),\n    circle_radius       = 4,\n    circle_stroke_color = \"black\",\n    circle_stroke_width = .4,\n    circle_opacity      = 0.7,\n    tooltip             = \"tooltip\"\n  ) |&gt;\n  add_categorical_legend(\n    legend_title = \"Dollar Store Establishments\",\n    values       = c(\"Dollar General\", \"Dollar Tree\", \"Family Dollar\"),\n    colors       = c(\"#fff200\", \"#00954C\", \"#E81F11\"),\n    patch_shape  = \"circle\",\n    position     = \"bottom-left\",\n    layer_id     = \"poi-dollar-store\",\n    interactive  = TRUE\n  )"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#categorical-point-maps-with-mapgl-1-output",
+    "href": "aaea_webinar/index.html#categorical-point-maps-with-mapgl-1-output",
+    "title": "Introduction to Maps",
+    "section": "Categorical Point Maps with mapgl",
+    "text": "Categorical Point Maps with mapgl"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#st_intersection-points-in-polygons",
+    "href": "aaea_webinar/index.html#st_intersection-points-in-polygons",
+    "title": "Introduction to Maps",
+    "section": "st_intersection: Points in Polygons",
+    "text": "st_intersection: Points in Polygons\n\ndollar_stores &lt;- read_csv('https://andrewvanleuven.github.io/aaea_webinar/data/dollar_stores.csv') |&gt;\n  st_as_sf(wkt = \"geometry_wkt\", crs = 4326) |&gt;\n  st_transform(crs = 5070) |&gt;\n  mutate(tooltip = glue(\"&lt;b&gt;{name}&lt;/b&gt;&lt;br&gt;{city_name}\"))\n\ncounty_pop_2020 &lt;- get_decennial(geography = 'county', variables = 'P1_001N',\n  year = 2020, geometry = TRUE) |&gt;\n  st_transform(5070) |&gt;\n  filter(!str_starts(GEOID, \"02|15|72\")) |&gt;\n  select(cty_fips = GEOID, pop20 = value)\n\ndollar_store_sf &lt;- st_intersection(dollar_stores, county_pop_2020) |&gt;\n  st_drop_geometry() |&gt;\n  summarize(dollar_stores = n(), pop_2020 = first(pop20), .by = cty_fips) |&gt;\n  replace_na(list(dollar_stores = 0)) |&gt;\n  mutate(dollar_stores_per_capita = dollar_stores / pop_2020) |&gt;\n  right_join(county_pop_2020, by = \"cty_fips\") |&gt;\n  st_as_sf()"
   },
   {
     "objectID": "aaea_webinar/index.html#raw-counts-vs-per-capita",
     "href": "aaea_webinar/index.html#raw-counts-vs-per-capita",
     "title": "Introduction to Maps",
     "section": "Raw Counts vs Per Capita",
-    "text": "Raw Counts vs Per Capita\n\n\nRaw counts\n\nggplot() +\n  geom_sf(data = dollar_store_sf,\n    aes(fill = dollar_stores),\n    color = NA) +\n  scale_fill_viridis_c(\n    option = 'mako',\n    trans = \"log10\",\n    direction = -1,\n    na.value = \"gray90\"\n  ) +\n  theme_void()\n\nLarge counties always “win.”\n\nPer 10,000 residents\n\nggplot() +\n  geom_sf(data = dollar_store_sf,\n    aes(fill = dollar_stores_per_capita*10000),\n    color = NA) +\n  scale_fill_distiller(\n    palette = 'YlOrBr',\n    direction = 1,\n    na.value = \"white\"\n  ) +\n  theme_void()\n\nA more honest picture.\n\n\nThis is the classic “always normalize” lesson. Raw counts favor dense, populous counties. Rates and per-capita measures let you compare across places of very different sizes."
+    "text": "Raw Counts vs Per Capita\n\np1 &lt;- ggplot() +\n  geom_sf(data = dollar_store_sf, aes(fill = dollar_stores), color = NA) +\n  geom_sf(data = states_sf, color = 'white', linewidth = .35, fill = NA) +\n  scale_fill_viridis_c(option = 'mako', name = \"# Establishments\",\n                       trans = \"log10\", direction = -1, na.value = \"gray90\") +\n  theme_void() + theme(legend.position = 'bottom') +\n  labs(title = \"Raw counts\")\n\np2 &lt;- ggplot() +\n  geom_sf(data = dollar_store_sf,\n          aes(fill = dollar_stores_per_capita * 10000), color = NA) +\n  geom_sf(data = states_sf, color = 'black', linewidth = .15, fill = NA) +\n  scale_fill_distiller(palette = 'YlOrBr', name = \"Per 10,000 residents\",\n                       direction = 1, na.value = \"white\") +\n  theme_void() + theme(legend.position = 'bottom') +\n  labs(title = \"Per capita\")\n\nlibrary(patchwork)\np1 + p2\n\n\n\nRaw counts favor dense, populous counties. Per-capita rates let you compare across places of very different sizes. Always normalize for a choropleth unless you’re specifically making a point about total volume."
+  },
+  {
+    "objectID": "aaea_webinar/index.html#raw-counts-vs-per-capita-output",
+    "href": "aaea_webinar/index.html#raw-counts-vs-per-capita-output",
+    "title": "Introduction to Maps",
+    "section": "Raw Counts vs Per Capita",
+    "text": "Raw Counts vs Per Capita"
   },
   {
     "objectID": "aaea_webinar/index.html#buffer-analysis-st_buffer",
     "href": "aaea_webinar/index.html#buffer-analysis-st_buffer",
     "title": "Introduction to Maps",
     "section": "Buffer Analysis: st_buffer",
-    "text": "Buffer Analysis: st_buffer\nst_buffer() creates a polygon a fixed distance around each point.\n\n# CRS 6463 (Iowa State Plane North) uses U.S. feet -- so 1 mile = 5,280 feet\niowa_dollar_stores &lt;- dollar_stores |&gt;\n  filter(state == 'IA') |&gt;\n  st_transform(6463) |&gt;\n  st_buffer(10 * 5280)  # 10-mile buffer\n\nmaplibre_view(iowa_dollar_stores, interactive_legend = TRUE)\n\n\nThe buffers show which areas of Iowa are within 10 miles of a dollar store – and where the gaps are."
+    "text": "Buffer Analysis: st_buffer\n\niowa_dollar_stores &lt;- dollar_stores |&gt;\n  filter(state == 'IA') |&gt;\n  st_transform(6463) |&gt;\n  st_buffer(10 * 5280) |&gt;\n  st_transform(4326)\n\nmaplibre(bounds = filter(states_sf, STUSPS == 'IA'),\n         style = carto_style(\"positron\")) |&gt;\n  add_fill_layer(\n    id = \"buffers\", source = iowa_dollar_stores,\n    fill_color = \"#202020\", fill_opacity = 0.4\n  )\n\n\nst_buffer() creates a polygon a fixed distance around each point. CRS 6463 (Iowa State Plane) uses U.S. feet, so 1 mile = 5,280 feet."
+  },
+  {
+    "objectID": "aaea_webinar/index.html#buffer-analysis-st_buffer-output",
+    "href": "aaea_webinar/index.html#buffer-analysis-st_buffer-output",
+    "title": "Introduction to Maps",
+    "section": "Buffer Analysis: st_buffer",
+    "text": "Buffer Analysis: st_buffer"
   },
   {
     "objectID": "aaea_webinar/index.html#from-dense-points-to-heatmap",
     "href": "aaea_webinar/index.html#from-dense-points-to-heatmap",
     "title": "Introduction to Maps",
     "section": "From Dense Points to Heatmap",
-    "text": "From Dense Points to Heatmap\nWhen points overlap too much to read, a heatmap reveals density patterns more clearly.\n\niowa_pts &lt;- dollar_stores |&gt;\n  filter(state == \"IA\") |&gt;\n  st_transform(4326) |&gt;\n  st_jitter(factor = 0.0001)\n\nmaplibre(style = maptiler_style(\"openstreetmap\"),\n         bounds = filter(states_sf, STUSPS == 'IA')) |&gt;\n  add_circle_layer(\n    id = \"poi-dollar-store\", source = iowa_pts,\n    circle_color = \"red\", circle_stroke_color = \"white\",\n    circle_stroke_width = 1\n  ) |&gt;\n  add_heatmap_layer(\n    id = \"heatmap\", source = iowa_pts,\n    heatmap_radius = 25,\n    heatmap_color  = interpolate(\n      property = \"heatmap-density\",\n      values   = seq(0, 1, 0.2),\n      stops    = c(\"transparent\", viridisLite::magma(5))\n    )\n  )\n\n\nheatmap-density is a built-in MapLibre expression – you don’t create it. It’s computed from point density on the fly. The color ramp maps from transparent (no density) through the magma palette to bright yellow at peak concentration."
+    "text": "From Dense Points to Heatmap\n\niowa_pts &lt;- dollar_stores |&gt;\n  filter(state == \"IA\") |&gt;\n  st_transform(4326) |&gt;\n  st_jitter(factor = 0.0001)\n\nmaplibre(style = carto_style(\"positron\"),\n         bounds = filter(states_sf, STUSPS == 'IA')) |&gt;\n  add_circle_layer(\n    id = \"poi-dollar-store\", source = iowa_pts,\n    circle_color = \"red\", circle_stroke_color = \"white\", circle_stroke_width = 1\n  ) |&gt;\n  add_heatmap_layer(\n    id = \"heatmap\", source = iowa_pts, heatmap_radius = 25,\n    heatmap_color = interpolate(\n      property = \"heatmap-density\", values = seq(0, 1, 0.2),\n      stops = c(\"transparent\", magma(5))\n    )\n  )"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#from-dense-points-to-heatmap-output",
+    "href": "aaea_webinar/index.html#from-dense-points-to-heatmap-output",
+    "title": "Introduction to Maps",
+    "section": "From Dense Points to Heatmap",
+    "text": "From Dense Points to Heatmap"
   },
   {
     "objectID": "aaea_webinar/index.html#more-things-sf-can-do",
@@ -235,14 +361,14 @@
     "href": "aaea_webinar/index.html#what-we-covered",
     "title": "Introduction to Maps",
     "section": "What We Covered",
-    "text": "What We Covered\n\nMapping basics: vector data, coordinate reference systems, map types\nggplot2 maps: tigris, geom_sf(), projections, choropleths, LACE example\nCensus and NASS: tidycensus with geometry, census tracts, rnassqs, Jenks breaks, compare()\nPoint data and GIS: st_as_sf(), categorical maps, st_intersection(), counts vs. rates, buffers, heatmaps"
+    "text": "What We Covered\n\nMapping basics: vector data, CRS 4326 vs 5070, map types\nggplot2 maps: tigris, geom_sf(), projections, choropleths, LACE example\nCensus and NASS: tidycensus with geometry, SNAP maps, census tracts, rnassqs, Jenks breaks, compare()\nPoint data and GIS: st_as_sf(), categorical maps, st_intersection(), counts vs rates, buffers, heatmaps"
   },
   {
     "objectID": "aaea_webinar/index.html#thank-you",
     "href": "aaea_webinar/index.html#thank-you",
     "title": "Introduction to Maps",
     "section": "Thank You",
-    "text": "Thank You\nAndrew Van Leuven University of Vermont\nandrew.vanleuven@uvm.edu\nhttps://andrewvanleuven.com\n\nQuestions?\n\nThank the organizers (Zoë Plakias, Anne Byrne, and the challenge committee). Remind folks about the challenge deadline and the other two webinars (Jared Hutchins on data viz principles, Sid Bora on R data viz)."
+    "text": "Thank You\nAndrew Van Leuven University of Vermont\nBlog posts and code: andrewvanleuven.github.io/mapdork\n\nQuestions?\n\nThank the organizers (Zoë Plakias, Anne Byrne, and the challenge committee). Remind folks about the challenge deadline and the other two webinars (Jared Hutchins on data viz principles, Sid Bora on R data viz)."
   },
   {
     "objectID": "index.html",
