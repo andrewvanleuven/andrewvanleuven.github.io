@@ -6,10 +6,10 @@ date: "June 4, 2026"
 date-format: long
 format:
   revealjs:
-    theme: beige
+    theme: simple
     slide-number: true
     code-line-numbers: false
-    syntax-highlighting: ayu
+    syntax-highlighting: a11y
     footer: "Introduction to Maps | Andrew Van Leuven"
     incremental: false
     width: 1600
