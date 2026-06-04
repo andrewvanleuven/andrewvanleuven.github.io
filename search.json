@@ -32,28 +32,28 @@
     "href": "aaea_webinar/index.html#what-lives-in-an-sf-object",
     "title": "Introduction to Maps",
     "section": "What Lives in an sf Object?",
-    "text": "What Lives in an sf Object?\nAn sf data frame is just a regular data frame with one extra column: geometry\nSimple feature collection with 3,234 features\nGeometry type: MULTIPOLYGON\nCRS: NAD83 (EPSG:4269)\n\n   GEOID  NAME         STATEFP  ALAND        geometry\n1  01001  Autauga      01       1539602840   MULTIPOLYGON(...)\n2  01003  Baldwin      01       4117521611   MULTIPOLYGON(...)\n3  01005  Barbour      01       2291820706   MULTIPOLYGON(...)\n\nThe geometry column is a list of all the coordinate pairs (longitude, latitude) that define each shape. For a polygon, it’s every vertex. For a point, it’s just one.\nAll your normal dplyr verbs work on it – the geometry column comes along for the ride.\n\nThis is the key insight that makes R spatial data so ergonomic. You don’t need to learn a new data model. filter(), mutate(), left_join() all work exactly as you’d expect."
+    "text": "What Lives in an sf Object?\nAn sf data frame is just a regular data frame with one extra column: geometry\nSimple feature collection with 3,234 features\nGeometry type: MULTIPOLYGON\nCRS: NAD83 (EPSG:4269)\n\n   GEOID  NAME         STATEFP  ALAND        geometry\n1  01001  Autauga      01       1539602840   MULTIPOLYGON(...)\n2  01003  Baldwin      01       4117521611   MULTIPOLYGON(...)\n3  01005  Barbour      01       2291820706   MULTIPOLYGON(...)\n\nThe geometry column is a list of all the coordinate pairs (longitude, latitude) that define each shape. For a polygon, it’s every vertex. For a point, it’s just one.\n\nThis is the key insight that makes R spatial data so ergonomic. You don’t need to learn a new data model. filter(), mutate(), left_join() all work exactly as you’d expect."
   },
   {
     "objectID": "aaea_webinar/index.html#coordinate-reference-systems",
     "href": "aaea_webinar/index.html#coordinate-reference-systems",
     "title": "Introduction to Maps",
     "section": "Coordinate Reference Systems",
-    "text": "Coordinate Reference Systems\nThe earth is round. Maps are flat. Something has to give.\nA CRS defines how 3D coordinates get projected onto a 2D surface.\n\nTwo CRS you’ll use constantly:\n\n\n\n\n\n\n\n\nCRS\nEPSG\nWhen you’ll see it\n\n\n\n\nWGS84\n4326\nGPS coordinates, GeoJSON files, web APIs, mapgl\n\n\nAlbers Equal Area\n5070\nStatic national thematic maps in ggplot2\n\n\n\n\n\nRule of thumb: store and share data in 4326. Project to 5070 for any static map of the contiguous US.\n\nThe most common beginner mistake is mixing CRS. If your layers don’t line up, 9 times out of 10 it’s a mismatch. sf will warn you but always check. You reproject with st_transform(your_data, 5070)."
+    "text": "Coordinate Reference Systems\nThe earth is round. Maps are flat. Something has to give.\nA CRS defines how 3D coordinates get projected onto a 2D surface.\n\nTwo CRS you’ll use constantly:\n\n\n\n\n\n\n\n\nCRS\nEPSG\nWhen you’ll see it\n\n\n\n\nWGS84\n4326\nGPS coordinates, GeoJSON files, web APIs, mapgl\n\n\nAlbers Equal Area\n5070\nThematic maps in ggplot2\n\n\n\n\n\nRule of thumb: store and share data in 4326. Project to 5070 for any static map of the contiguous US.\n\nThe most common beginner mistake is mixing CRS. If your layers don’t line up, 9 times out of 10 it’s a mismatch. sf will warn you but always check. You reproject with st_transform(your_data, 5070)."
   },
   {
     "objectID": "aaea_webinar/index.html#why-projections-matter",
     "href": "aaea_webinar/index.html#why-projections-matter",
     "title": "Introduction to Maps",
     "section": "Why Projections Matter",
-    "text": "Why Projections Matter\n\n\nNo projection (WGS84 / lat-lon)\n\nStates look stretched east-west\nDistances and areas are distorted\nFine for quick checks, not for presentation\n\n\nAlbers Equal Area (EPSG 5070)\n\nShapes look familiar\nAreas are preserved (critical for choropleth maps)\nThe standard for US national maps\n\n\n\n\n“Equal area” projections are especially important for choropleths. If you don’t use one, large counties will visually dominate the map regardless of the data values."
+    "text": "Why Projections Matter\n\n\n\n\n\n\n“Comparison of tangent and secant cylindrical, conic and azimuthal map projections” by cmglee et al., CC BY-SA 4.0, via Wikimedia Commons"
   },
   {
     "objectID": "aaea_webinar/index.html#types-of-maps",
     "href": "aaea_webinar/index.html#types-of-maps",
     "title": "Introduction to Maps",
     "section": "Types of Maps",
-    "text": "Types of Maps\n\n\n\n\n\n\n\n\nChoropleth\n\n\n\n\n\n\n\nDot map\n\n\n\n\n\n\n\nProportional symbol\n\n\n\n\n\n\n\nReference\n\n\n\n\n\n\nChoropleth — areas shaded by value\nDot map — one dot per unit\nProportional symbol — symbol size = quantity\nReference — orientation / context\n\n\nOne example worth showing: censusdots.com – a national dot density map where every dot is one person, colored by race/ethnicity. Centered on Tulsa but you can pan anywhere. https://www.censusdots.com/?map=12.01263869294279,36.1714,-95.9200"
+    "text": "Types of Maps\n\n\n\n\n\n\n\n\nChoropleth\n\n\n\n\n\n\n\nDot map\n\n\n\n\n\n\n\nProportional symbol\n\n\n\n\n\n\n\nReference\n\n\n\n\n\n\n\nChoropleth — areas shaded by value\nDot map — one dot per unit\nProportional symbol — symbol size = quantity\nReference — orientation / context"
   },
   {
     "objectID": "aaea_webinar/index.html#the-building-blocks",
@@ -189,13 +189,6 @@
     "text": "USDA Inspection Establishments\n\nlower48_usda &lt;- st_intersection(\n  usda_inspection_estabs_sf,\n  st_transform(states_sf, 5070)\n) |&gt;\n  filter(size %in% c('Large', 'Small', 'Very Small'))\n\nggplot() +\n  geom_sf(data = st_transform(states_sf, 5070),\n          color = 'black', linewidth = .25) +\n  geom_sf(data = lower48_usda,\n          aes(color = size), size = 1, alpha = .7) +\n  scale_color_manual(values = c('#e41a1c', '#e6ab02', '#377eb8'),\n                     name = 'Size') +\n  theme_void() +\n  labs(title    = \"USDA Meat, Poultry & Egg Product Inspection\",\n       subtitle = \"Establishments by Size Class\")"
   },
   {
-    "objectID": "aaea_webinar/index.html#proportional-symbol-maps",
-    "href": "aaea_webinar/index.html#proportional-symbol-maps",
-    "title": "Introduction to Maps",
-    "section": "Proportional Symbol Maps",
-    "text": "Proportional Symbol Maps\nSize symbols by a count – use scale_size_area(), which maps area (not radius) to the variable.\n\nvt_counts &lt;- usda_inspection_estabs_sf |&gt;\n  filter(State == \"VT\") |&gt;\n  st_join(st_transform(counties_sf |&gt; filter(STATEFP == \"50\"), 5070)) |&gt;\n  st_drop_geometry() |&gt;\n  count(GEOID)\n\nvt_centroids &lt;- counties_sf |&gt;\n  filter(STATEFP == \"50\") |&gt;\n  left_join(vt_counts, by = \"GEOID\") |&gt;\n  st_centroid()\n\nggplot() +\n  geom_sf(data = filter(counties_sf, STATEFP == \"50\"),\n          fill = \"gray95\", color = \"black\", linewidth = 0.15) +\n  geom_sf(data = vt_centroids, aes(size = n),\n          shape = 21, fill = \"steelblue\", color = \"white\", alpha = 0.8) +\n  scale_size_area(max_size = 14, name = \"Inspected Establishments\") +\n  coord_sf(crs = 6589) +\n  theme_void()"
-  },
-  {
     "objectID": "aaea_webinar/index.html#categorical-point-maps-with-mapgl",
     "href": "aaea_webinar/index.html#categorical-point-maps-with-mapgl",
     "title": "Introduction to Maps",
@@ -242,21 +235,14 @@
     "href": "aaea_webinar/index.html#what-we-covered",
     "title": "Introduction to Maps",
     "section": "What We Covered",
-    "text": "What We Covered\n\nMapping basics: vector data, CRS 4326 vs 5070, map types\nggplot2 maps: tigris, geom_sf(), projections, choropleths, LACE example\nCensus and NASS: tidycensus with geometry, SNAP maps, census tracts, rnassqs, Jenks breaks, compare()\nPoint data and GIS: st_as_sf(), categorical maps, st_intersection(), counts vs rates, buffers, heatmaps"
-  },
-  {
-    "objectID": "aaea_webinar/index.html#resources",
-    "href": "aaea_webinar/index.html#resources",
-    "title": "Introduction to Maps",
-    "section": "Resources",
-    "text": "Resources\nBooks and documentation\n\nGeocomputation with R: the definitive free book on spatial R\nAnalyzing US Census Data: tidycensus deep dive by Kyle Walker\nmapgl documentation: package reference and examples\n\nQuick references\n\nNASS QuickStats: API key + query builder\nCensus API key signup\nsf cheat sheet\nEPSG.io: look up any CRS"
+    "text": "What We Covered\n\nMapping basics: vector data, coordinate reference systems, map types\nggplot2 maps: tigris, geom_sf(), projections, choropleths, LACE example\nCensus and NASS: tidycensus with geometry, census tracts, rnassqs, Jenks breaks, compare()\nPoint data and GIS: st_as_sf(), categorical maps, st_intersection(), counts vs. rates, buffers, heatmaps"
   },
   {
     "objectID": "aaea_webinar/index.html#thank-you",
     "href": "aaea_webinar/index.html#thank-you",
     "title": "Introduction to Maps",
     "section": "Thank You",
-    "text": "Thank You\nAndrew Van Leuven University of Vermont\nBlog posts and code: andrewvanleuven.github.io/mapdork\n\nQuestions?\n\nThank the organizers (Zoë Plakias, Anne Byrne, and the challenge committee). Remind folks about the challenge deadline and the other two webinars (Jared Hutchins on data viz principles, Sid Bora on R data viz)."
+    "text": "Thank You\nAndrew Van Leuven University of Vermont\nandrew.vanleuven@uvm.edu\nhttps://andrewvanleuven.com\n\nQuestions?\n\nThank the organizers (Zoë Plakias, Anne Byrne, and the challenge committee). Remind folks about the challenge deadline and the other two webinars (Jared Hutchins on data viz principles, Sid Bora on R data viz)."
   },
   {
     "objectID": "index.html",

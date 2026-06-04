@@ -339,7 +339,6 @@ CRS: NAD83 (EPSG:4269)
 3  01005  Barbour      01       2291820706   MULTIPOLYGON(...)</code></pre>
 <div class="fragment">
 <p>The <code>geometry</code> column is a list of all the coordinate pairs (longitude, latitude) that define each shape. For a polygon, it’s every vertex. For a point, it’s just one.</p>
-<p>All your normal <code>dplyr</code> verbs work on it – the geometry column comes along for the ride.</p>
 <aside class="notes">
 <p>This is the key insight that makes R spatial data so ergonomic. You don’t need to learn a new data model. filter(), mutate(), left_join() all work exactly as you’d expect.</p>
 <style type="text/css">
@@ -363,9 +362,9 @@ CRS: NAD83 (EPSG:4269)
 <p><strong>Two CRS you’ll use constantly:</strong></p>
 <table class="caption-top">
 <colgroup>
-<col style="width: 16%">
-<col style="width: 19%">
-<col style="width: 64%">
+<col style="width: 30%">
+<col style="width: 12%">
+<col style="width: 57%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -383,7 +382,7 @@ CRS: NAD83 (EPSG:4269)
 <tr class="even">
 <td>Albers Equal Area</td>
 <td><strong>5070</strong></td>
-<td>Static national thematic maps in ggplot2</td>
+<td>Thematic maps in ggplot2</td>
 </tr>
 </tbody>
 </table>
@@ -407,26 +406,13 @@ CRS: NAD83 (EPSG:4269)
 </section>
 <section id="why-projections-matter" class="slide level2">
 <h2>Why Projections Matter</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p><strong>No projection (WGS84 / lat-lon)</strong></p>
-<ul>
-<li>States look stretched east-west</li>
-<li>Distances and areas are distorted</li>
-<li>Fine for quick checks, not for presentation</li>
-</ul>
-</div><div class="column" style="width:50%;">
-<p><strong>Albers Equal Area (EPSG 5070)</strong></p>
-<ul>
-<li>Shapes look familiar</li>
-<li>Areas are preserved (critical for choropleth maps)</li>
-<li>The standard for US national maps</li>
-</ul>
-</div></div>
-<div class="fragment">
-<blockquote>
-<p>“Equal area” projections are especially important for choropleths. If you don’t use one, large counties will visually dominate the map regardless of the data values.</p>
-</blockquote>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Comparison_of_cartography_surface_development.svg/960px-Comparison_of_cartography_surface_development.svg.png" class="quarto-figure quarto-figure-center" height="430"></p>
+</figure>
+</div>
+<div style="font-size: 0.45em; color: #888; text-align: center; margin-top: 0.2em;">
+<p>“Comparison of tangent and secant cylindrical, conic and azimuthal map projections” by cmglee et al., <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, via Wikimedia Commons</p>
 </div>
 </section>
 <section id="types-of-maps" class="slide level2">
@@ -470,30 +456,13 @@ CRS: NAD83 (EPSG:4269)
 </div>
 </div>
 </div><div class="column" style="width:28%;">
+<div style="font-size: 0.75em;">
 <p><strong>Choropleth</strong> — areas shaded by value</p>
 <p><strong>Dot map</strong> — one dot per unit</p>
 <p><strong>Proportional symbol</strong> — symbol size = quantity</p>
 <p><strong>Reference</strong> — orientation / context</p>
+</div>
 </div></div>
-<aside class="notes">
-<p>One example worth showing: censusdots.com – a national dot density map where every dot is one person, colored by race/ethnicity. Centered on Tulsa but you can pan anywhere. https://www.censusdots.com/?map=12.01263869294279,36.1714,-95.9200</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section class="slide level2">
-
-<h3 id="a-note-on-dot-maps">A note on dot maps</h3>
-<p><a href="https://www.censusdots.com/?map=12.01263869294279,36.1714,-95.9200">censusdots.com</a> — every dot is one person, colored by race/ethnicity</p>
-<p>One of the most powerful examples of what spatial data can show that a table never could.</p>
 </section></section>
 <section>
 <section id="part-2-mapping-in-ggplot2" class="title-slide slide level1 center" data-background-color="#2c5f2e" color="white">
@@ -916,74 +885,49 @@ CRS: NAD83 (EPSG:4269)
 <span id="cb22-16"><a aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Establishments by Size Class"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="proportional-symbol-maps" class="slide level2">
-<h2>Proportional Symbol Maps</h2>
-<p>Size symbols by a count – use <code>scale_size_area()</code>, which maps area (not radius) to the variable.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a aria-hidden="true" tabindex="-1"></a>vt_counts <span class="ot">&lt;-</span> usda_inspection_estabs_sf <span class="sc">|&gt;</span></span>
-<span id="cb23-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(State <span class="sc">==</span> <span class="st">"VT"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_join</span>(<span class="fu">st_transform</span>(counties_sf <span class="sc">|&gt;</span> <span class="fu">filter</span>(STATEFP <span class="sc">==</span> <span class="st">"50"</span>), <span class="dv">5070</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb23-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span></span>
-<span id="cb23-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(GEOID)</span>
-<span id="cb23-6"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-7"><a aria-hidden="true" tabindex="-1"></a>vt_centroids <span class="ot">&lt;-</span> counties_sf <span class="sc">|&gt;</span></span>
-<span id="cb23-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(STATEFP <span class="sc">==</span> <span class="st">"50"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(vt_counts, <span class="at">by =</span> <span class="st">"GEOID"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_centroid</span>()</span>
-<span id="cb23-11"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-12"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb23-13"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> <span class="fu">filter</span>(counties_sf, STATEFP <span class="sc">==</span> <span class="st">"50"</span>),</span>
-<span id="cb23-14"><a aria-hidden="true" tabindex="-1"></a>          <span class="at">fill =</span> <span class="st">"gray95"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
-<span id="cb23-15"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> vt_centroids, <span class="fu">aes</span>(<span class="at">size =</span> n),</span>
-<span id="cb23-16"><a aria-hidden="true" tabindex="-1"></a>          <span class="at">shape =</span> <span class="dv">21</span>, <span class="at">fill =</span> <span class="st">"steelblue"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
-<span id="cb23-17"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_area</span>(<span class="at">max_size =</span> <span class="dv">14</span>, <span class="at">name =</span> <span class="st">"Inspected Establishments"</span>) <span class="sc">+</span></span>
-<span id="cb23-18"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">crs =</span> <span class="dv">6589</span>) <span class="sc">+</span></span>
-<span id="cb23-19"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</section>
 <section id="categorical-point-maps-with-mapgl" class="slide level2">
 <h2>Categorical Point Maps with <code>mapgl</code></h2>
 <p>Color points by category using <code>match_expr()</code>:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a aria-hidden="true" tabindex="-1"></a>gas_stations <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">'data/gas_stations.csv'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb24-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">wkt =</span> <span class="st">"geometry_wkt"</span>, <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">|&gt;</span></span>
-<span id="cb24-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">5070</span>)</span>
-<span id="cb24-4"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mapboxgl</span>(<span class="at">style =</span> <span class="fu">mapbox_style</span>(<span class="st">"light"</span>), <span class="at">bounds =</span> states_sf) <span class="sc">|&gt;</span></span>
-<span id="cb24-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_circle_layer</span>(</span>
-<span id="cb24-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="st">"poi-gas"</span>, <span class="at">source =</span> gas_stations,</span>
-<span id="cb24-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">circle_color =</span> <span class="fu">match_expr</span>(</span>
-<span id="cb24-9"><a aria-hidden="true" tabindex="-1"></a>      <span class="st">"name"</span>,</span>
-<span id="cb24-10"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Casey's General Store"</span>, <span class="st">"Cenex"</span>, <span class="st">"Kwik Trip/Kwik Star"</span>),</span>
-<span id="cb24-11"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">stops  =</span> <span class="fu">c</span>(<span class="st">"#F3D317"</span>, <span class="st">"#8a0000"</span>, <span class="st">"#0300ad"</span>)</span>
-<span id="cb24-12"><a aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb24-13"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">circle_radius =</span> <span class="dv">4</span>, <span class="at">circle_stroke_color =</span> <span class="st">"#ffffff"</span>,</span>
-<span id="cb24-14"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">circle_stroke_width =</span> .<span class="dv">4</span>, <span class="at">circle_opacity =</span> <span class="fl">0.7</span>, <span class="at">tooltip =</span> <span class="st">"city_name"</span></span>
-<span id="cb24-15"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb24-16"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_categorical_legend</span>(</span>
-<span id="cb24-17"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">legend_title =</span> <span class="st">"Midwest Gas Station Chains"</span>,</span>
-<span id="cb24-18"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Casey's General Store"</span>, <span class="st">"Cenex"</span>, <span class="st">"Kwik Trip/Kwik Star"</span>),</span>
-<span id="cb24-19"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"#F3D317"</span>, <span class="st">"#8a0000"</span>, <span class="st">"#0300ad"</span>),</span>
-<span id="cb24-20"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">patch_shape =</span> <span class="st">"circle"</span>, <span class="at">position =</span> <span class="st">"bottom-left"</span>,</span>
-<span id="cb24-21"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">layer_id =</span> <span class="st">"poi-gas"</span>, <span class="at">interactive =</span> <span class="cn">TRUE</span></span>
-<span id="cb24-22"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a aria-hidden="true" tabindex="-1"></a>gas_stations <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">'data/gas_stations.csv'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">wkt =</span> <span class="st">"geometry_wkt"</span>, <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">5070</span>)</span>
+<span id="cb23-4"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mapboxgl</span>(<span class="at">style =</span> <span class="fu">mapbox_style</span>(<span class="st">"light"</span>), <span class="at">bounds =</span> states_sf) <span class="sc">|&gt;</span></span>
+<span id="cb23-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_circle_layer</span>(</span>
+<span id="cb23-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="st">"poi-gas"</span>, <span class="at">source =</span> gas_stations,</span>
+<span id="cb23-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">circle_color =</span> <span class="fu">match_expr</span>(</span>
+<span id="cb23-9"><a aria-hidden="true" tabindex="-1"></a>      <span class="st">"name"</span>,</span>
+<span id="cb23-10"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Casey's General Store"</span>, <span class="st">"Cenex"</span>, <span class="st">"Kwik Trip/Kwik Star"</span>),</span>
+<span id="cb23-11"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">stops  =</span> <span class="fu">c</span>(<span class="st">"#F3D317"</span>, <span class="st">"#8a0000"</span>, <span class="st">"#0300ad"</span>)</span>
+<span id="cb23-12"><a aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb23-13"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">circle_radius =</span> <span class="dv">4</span>, <span class="at">circle_stroke_color =</span> <span class="st">"#ffffff"</span>,</span>
+<span id="cb23-14"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">circle_stroke_width =</span> .<span class="dv">4</span>, <span class="at">circle_opacity =</span> <span class="fl">0.7</span>, <span class="at">tooltip =</span> <span class="st">"city_name"</span></span>
+<span id="cb23-15"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb23-16"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_categorical_legend</span>(</span>
+<span id="cb23-17"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">legend_title =</span> <span class="st">"Midwest Gas Station Chains"</span>,</span>
+<span id="cb23-18"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Casey's General Store"</span>, <span class="st">"Cenex"</span>, <span class="st">"Kwik Trip/Kwik Star"</span>),</span>
+<span id="cb23-19"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">colors =</span> <span class="fu">c</span>(<span class="st">"#F3D317"</span>, <span class="st">"#8a0000"</span>, <span class="st">"#0300ad"</span>),</span>
+<span id="cb23-20"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">patch_shape =</span> <span class="st">"circle"</span>, <span class="at">position =</span> <span class="st">"bottom-left"</span>,</span>
+<span id="cb23-21"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">layer_id =</span> <span class="st">"poi-gas"</span>, <span class="at">interactive =</span> <span class="cn">TRUE</span></span>
+<span id="cb23-22"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="st_intersection-counting-points-in-polygons" class="slide level2">
 <h2><code>st_intersection</code>: Counting Points in Polygons</h2>
 <p>One of the most useful GIS operations: assign each point to the polygon it falls in, then aggregate.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a aria-hidden="true" tabindex="-1"></a>county_pop_2020 <span class="ot">&lt;-</span> <span class="fu">get_decennial</span>(<span class="at">geography =</span> <span class="st">'county'</span>, <span class="at">variables =</span> <span class="st">'P1_001N'</span>,</span>
-<span id="cb25-2"><a aria-hidden="true" tabindex="-1"></a>                                  <span class="at">year =</span> <span class="dv">2020</span>, <span class="at">geometry =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb25-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">5070</span>) <span class="sc">|&gt;</span></span>
-<span id="cb25-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_starts</span>(GEOID, <span class="st">"02|15|72"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb25-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">cty_fips =</span> GEOID, <span class="at">pop20 =</span> value)</span>
-<span id="cb25-6"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-7"><a aria-hidden="true" tabindex="-1"></a>dollar_stores_by_county <span class="ot">&lt;-</span> <span class="fu">st_intersection</span>(dollar_stores, county_pop_2020) <span class="sc">|&gt;</span></span>
-<span id="cb25-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span></span>
-<span id="cb25-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">dollar_stores =</span> <span class="fu">n</span>(), <span class="at">pop_2020 =</span> <span class="fu">first</span>(pop20), <span class="at">.by =</span> cty_fips) <span class="sc">|&gt;</span></span>
-<span id="cb25-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">replace_na</span>(<span class="fu">list</span>(<span class="at">dollar_stores =</span> <span class="dv">0</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb25-11"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dollar_stores_per_capita =</span> dollar_stores <span class="sc">/</span> pop_2020)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a aria-hidden="true" tabindex="-1"></a>county_pop_2020 <span class="ot">&lt;-</span> <span class="fu">get_decennial</span>(<span class="at">geography =</span> <span class="st">'county'</span>, <span class="at">variables =</span> <span class="st">'P1_001N'</span>,</span>
+<span id="cb24-2"><a aria-hidden="true" tabindex="-1"></a>                                  <span class="at">year =</span> <span class="dv">2020</span>, <span class="at">geometry =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">5070</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_starts</span>(GEOID, <span class="st">"02|15|72"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb24-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="at">cty_fips =</span> GEOID, <span class="at">pop20 =</span> value)</span>
+<span id="cb24-6"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a aria-hidden="true" tabindex="-1"></a>dollar_stores_by_county <span class="ot">&lt;-</span> <span class="fu">st_intersection</span>(dollar_stores, county_pop_2020) <span class="sc">|&gt;</span></span>
+<span id="cb24-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span></span>
+<span id="cb24-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">dollar_stores =</span> <span class="fu">n</span>(), <span class="at">pop_2020 =</span> <span class="fu">first</span>(pop20), <span class="at">.by =</span> cty_fips) <span class="sc">|&gt;</span></span>
+<span id="cb24-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">replace_na</span>(<span class="fu">list</span>(<span class="at">dollar_stores =</span> <span class="dv">0</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb24-11"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dollar_stores_per_capita =</span> dollar_stores <span class="sc">/</span> pop_2020)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="raw-counts-vs-per-capita" class="slide level2">
@@ -992,32 +936,32 @@ CRS: NAD83 (EPSG:4269)
 <div class="column" style="width:50%;">
 <p><strong>Raw counts</strong></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb26-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> dollar_store_sf,</span>
-<span id="cb26-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">fill =</span> dollar_stores),</span>
-<span id="cb26-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
-<span id="cb26-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(</span>
-<span id="cb26-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">option =</span> <span class="st">'mako'</span>,</span>
-<span id="cb26-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">trans =</span> <span class="st">"log10"</span>,</span>
-<span id="cb26-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
-<span id="cb26-9"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">na.value =</span> <span class="st">"gray90"</span></span>
-<span id="cb26-10"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb26-11"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb25-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> dollar_store_sf,</span>
+<span id="cb25-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">fill =</span> dollar_stores),</span>
+<span id="cb25-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb25-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(</span>
+<span id="cb25-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">option =</span> <span class="st">'mako'</span>,</span>
+<span id="cb25-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">trans =</span> <span class="st">"log10"</span>,</span>
+<span id="cb25-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb25-9"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">na.value =</span> <span class="st">"gray90"</span></span>
+<span id="cb25-10"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb25-11"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Large counties always “win.”</p>
 </div><div class="column" style="width:50%;">
 <p><strong>Per 10,000 residents</strong></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb27-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> dollar_store_sf,</span>
-<span id="cb27-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">fill =</span> dollar_stores_per_capita<span class="sc">*</span><span class="dv">10000</span>),</span>
-<span id="cb27-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
-<span id="cb27-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_distiller</span>(</span>
-<span id="cb27-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">'YlOrBr'</span>,</span>
-<span id="cb27-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">direction =</span> <span class="dv">1</span>,</span>
-<span id="cb27-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">na.value =</span> <span class="st">"white"</span></span>
-<span id="cb27-9"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb27-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb26-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> dollar_store_sf,</span>
+<span id="cb26-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">fill =</span> dollar_stores_per_capita<span class="sc">*</span><span class="dv">10000</span>),</span>
+<span id="cb26-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb26-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_distiller</span>(</span>
+<span id="cb26-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">palette =</span> <span class="st">'YlOrBr'</span>,</span>
+<span id="cb26-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">direction =</span> <span class="dv">1</span>,</span>
+<span id="cb26-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">na.value =</span> <span class="st">"white"</span></span>
+<span id="cb26-9"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb26-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>A more honest picture.</p>
 </div></div>
@@ -1039,13 +983,13 @@ CRS: NAD83 (EPSG:4269)
 <h2>Buffer Analysis: <code>st_buffer</code></h2>
 <p><code>st_buffer()</code> creates a polygon a fixed distance around each point.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># CRS 6463 (Iowa State Plane North) uses U.S. feet -- so 1 mile = 5,280 feet</span></span>
-<span id="cb28-2"><a aria-hidden="true" tabindex="-1"></a>iowa_dollar_stores <span class="ot">&lt;-</span> dollar_stores <span class="sc">|&gt;</span></span>
-<span id="cb28-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(state <span class="sc">==</span> <span class="st">'IA'</span>) <span class="sc">|&gt;</span></span>
-<span id="cb28-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">6463</span>) <span class="sc">|&gt;</span></span>
-<span id="cb28-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_buffer</span>(<span class="dv">10</span> <span class="sc">*</span> <span class="dv">5280</span>)  <span class="co"># 10-mile buffer</span></span>
-<span id="cb28-6"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">maplibre_view</span>(iowa_dollar_stores, <span class="at">interactive_legend =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># CRS 6463 (Iowa State Plane North) uses U.S. feet -- so 1 mile = 5,280 feet</span></span>
+<span id="cb27-2"><a aria-hidden="true" tabindex="-1"></a>iowa_dollar_stores <span class="ot">&lt;-</span> dollar_stores <span class="sc">|&gt;</span></span>
+<span id="cb27-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(state <span class="sc">==</span> <span class="st">'IA'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb27-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">6463</span>) <span class="sc">|&gt;</span></span>
+<span id="cb27-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_buffer</span>(<span class="dv">10</span> <span class="sc">*</span> <span class="dv">5280</span>)  <span class="co"># 10-mile buffer</span></span>
+<span id="cb27-6"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">maplibre_view</span>(iowa_dollar_stores, <span class="at">interactive_legend =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
 <p>The buffers show which areas of Iowa are within 10 miles of a dollar store – and where the gaps are.</p>
@@ -1055,27 +999,27 @@ CRS: NAD83 (EPSG:4269)
 <h2>From Dense Points to Heatmap</h2>
 <p>When points overlap too much to read, a heatmap reveals density patterns more clearly.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a>iowa_pts <span class="ot">&lt;-</span> dollar_stores <span class="sc">|&gt;</span></span>
-<span id="cb29-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(state <span class="sc">==</span> <span class="st">"IA"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb29-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">4326</span>) <span class="sc">|&gt;</span></span>
-<span id="cb29-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_jitter</span>(<span class="at">factor =</span> <span class="fl">0.0001</span>)</span>
-<span id="cb29-5"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">maplibre</span>(<span class="at">style =</span> <span class="fu">maptiler_style</span>(<span class="st">"openstreetmap"</span>),</span>
-<span id="cb29-7"><a aria-hidden="true" tabindex="-1"></a>         <span class="at">bounds =</span> <span class="fu">filter</span>(states_sf, STUSPS <span class="sc">==</span> <span class="st">'IA'</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb29-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_circle_layer</span>(</span>
-<span id="cb29-9"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="st">"poi-dollar-store"</span>, <span class="at">source =</span> iowa_pts,</span>
-<span id="cb29-10"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">circle_color =</span> <span class="st">"red"</span>, <span class="at">circle_stroke_color =</span> <span class="st">"white"</span>,</span>
-<span id="cb29-11"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">circle_stroke_width =</span> <span class="dv">1</span></span>
-<span id="cb29-12"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb29-13"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_heatmap_layer</span>(</span>
-<span id="cb29-14"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="st">"heatmap"</span>, <span class="at">source =</span> iowa_pts,</span>
-<span id="cb29-15"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">heatmap_radius =</span> <span class="dv">25</span>,</span>
-<span id="cb29-16"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">heatmap_color  =</span> <span class="fu">interpolate</span>(</span>
-<span id="cb29-17"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">property =</span> <span class="st">"heatmap-density"</span>,</span>
-<span id="cb29-18"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">values   =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.2</span>),</span>
-<span id="cb29-19"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">stops    =</span> <span class="fu">c</span>(<span class="st">"transparent"</span>, viridisLite<span class="sc">::</span><span class="fu">magma</span>(<span class="dv">5</span>))</span>
-<span id="cb29-20"><a aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb29-21"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a aria-hidden="true" tabindex="-1"></a>iowa_pts <span class="ot">&lt;-</span> dollar_stores <span class="sc">|&gt;</span></span>
+<span id="cb28-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(state <span class="sc">==</span> <span class="st">"IA"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb28-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">4326</span>) <span class="sc">|&gt;</span></span>
+<span id="cb28-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_jitter</span>(<span class="at">factor =</span> <span class="fl">0.0001</span>)</span>
+<span id="cb28-5"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">maplibre</span>(<span class="at">style =</span> <span class="fu">maptiler_style</span>(<span class="st">"openstreetmap"</span>),</span>
+<span id="cb28-7"><a aria-hidden="true" tabindex="-1"></a>         <span class="at">bounds =</span> <span class="fu">filter</span>(states_sf, STUSPS <span class="sc">==</span> <span class="st">'IA'</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb28-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_circle_layer</span>(</span>
+<span id="cb28-9"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="st">"poi-dollar-store"</span>, <span class="at">source =</span> iowa_pts,</span>
+<span id="cb28-10"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">circle_color =</span> <span class="st">"red"</span>, <span class="at">circle_stroke_color =</span> <span class="st">"white"</span>,</span>
+<span id="cb28-11"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">circle_stroke_width =</span> <span class="dv">1</span></span>
+<span id="cb28-12"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb28-13"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_heatmap_layer</span>(</span>
+<span id="cb28-14"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="st">"heatmap"</span>, <span class="at">source =</span> iowa_pts,</span>
+<span id="cb28-15"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">heatmap_radius =</span> <span class="dv">25</span>,</span>
+<span id="cb28-16"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">heatmap_color  =</span> <span class="fu">interpolate</span>(</span>
+<span id="cb28-17"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">property =</span> <span class="st">"heatmap-density"</span>,</span>
+<span id="cb28-18"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">values   =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.2</span>),</span>
+<span id="cb28-19"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">stops    =</span> <span class="fu">c</span>(<span class="st">"transparent"</span>, viridisLite<span class="sc">::</span><span class="fu">magma</span>(<span class="dv">5</span>))</span>
+<span id="cb28-20"><a aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb28-21"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <aside class="notes">
 <p>heatmap-density is a built-in MapLibre expression – you don’t create it. It’s computed from point density on the fly. The color ramp maps from transparent (no density) through the magma palette to bright yellow at peak concentration.</p>
@@ -1093,15 +1037,15 @@ CRS: NAD83 (EPSG:4269)
 </section>
 <section id="more-things-sf-can-do" class="slide level2">
 <h2>More Things <code>sf</code> Can Do</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_distance</span>()        <span class="co"># distance between features (in CRS units)</span></span>
-<span id="cb30-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_nearest_feature</span>() <span class="co"># index of the nearest feature in another layer</span></span>
-<span id="cb30-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_centroid</span>()        <span class="co"># geometric center of a polygon</span></span>
-<span id="cb30-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_area</span>()            <span class="co"># area of a polygon (in CRS units)</span></span>
-<span id="cb30-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_union</span>()           <span class="co"># merge / dissolve geometries into one</span></span>
-<span id="cb30-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_bbox</span>()            <span class="co"># bounding box of a layer</span></span>
-<span id="cb30-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_crop</span>()            <span class="co"># clip features to a rectangular extent</span></span>
-<span id="cb30-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_within</span>()          <span class="co"># is feature A fully inside feature B?</span></span>
-<span id="cb30-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_touches</span>()         <span class="co"># do features share a boundary?</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_distance</span>()        <span class="co"># distance between features (in CRS units)</span></span>
+<span id="cb29-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_nearest_feature</span>() <span class="co"># index of the nearest feature in another layer</span></span>
+<span id="cb29-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_centroid</span>()        <span class="co"># geometric center of a polygon</span></span>
+<span id="cb29-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_area</span>()            <span class="co"># area of a polygon (in CRS units)</span></span>
+<span id="cb29-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_union</span>()           <span class="co"># merge / dissolve geometries into one</span></span>
+<span id="cb29-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_bbox</span>()            <span class="co"># bounding box of a layer</span></span>
+<span id="cb29-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_crop</span>()            <span class="co"># clip features to a rectangular extent</span></span>
+<span id="cb29-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_within</span>()          <span class="co"># is feature A fully inside feature B?</span></span>
+<span id="cb29-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">st_touches</span>()         <span class="co"># do features share a boundary?</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>sf cheat sheet: <a href="https://rstudio.github.io/cheatsheets/sf.pdf">rstudio.github.io/cheatsheets/sf.pdf</a></p>
 </section></section>
 <section>
@@ -1112,32 +1056,17 @@ CRS: NAD83 (EPSG:4269)
 <section id="what-we-covered" class="slide level2">
 <h2>What We Covered</h2>
 <ol type="1">
-<li><strong>Mapping basics</strong>: vector data, CRS 4326 vs 5070, map types</li>
+<li><strong>Mapping basics</strong>: vector data, coordinate reference systems, map types</li>
 <li><strong>ggplot2 maps</strong>: <code>tigris</code>, <code>geom_sf()</code>, projections, choropleths, LACE example</li>
-<li><strong>Census and NASS</strong>: <code>tidycensus</code> with geometry, SNAP maps, census tracts, <code>rnassqs</code>, Jenks breaks, <code>compare()</code></li>
-<li><strong>Point data and GIS</strong>: <code>st_as_sf()</code>, categorical maps, <code>st_intersection()</code>, counts vs rates, buffers, heatmaps</li>
+<li><strong>Census and NASS</strong>: <code>tidycensus</code> with geometry, census tracts, <code>rnassqs</code>, Jenks breaks, <code>compare()</code></li>
+<li><strong>Point data and GIS</strong>: <code>st_as_sf()</code>, categorical maps, <code>st_intersection()</code>, counts vs.&nbsp;rates, buffers, heatmaps</li>
 </ol>
-</section>
-<section id="resources" class="slide level2">
-<h2>Resources</h2>
-<p><strong>Books and documentation</strong></p>
-<ul>
-<li><a href="https://r.geocompx.org">Geocomputation with R</a>: the definitive free book on spatial R</li>
-<li><a href="https://walker-data.com/census-r/">Analyzing US Census Data</a>: <code>tidycensus</code> deep dive by Kyle Walker</li>
-<li><a href="https://walker-data.com/mapgl/">mapgl documentation</a>: package reference and examples</li>
-</ul>
-<p><strong>Quick references</strong></p>
-<ul>
-<li><a href="https://quickstats.nass.usda.gov/api">NASS QuickStats</a>: API key + query builder</li>
-<li><a href="https://api.census.gov/data/key_signup.html">Census API key signup</a></li>
-<li><a href="https://rstudio.github.io/cheatsheets/sf.pdf">sf cheat sheet</a></li>
-<li><a href="https://epsg.io">EPSG.io</a>: look up any CRS</li>
-</ul>
 </section>
 <section id="thank-you" class="slide level2">
 <h2>Thank You</h2>
 <p><strong>Andrew Van Leuven</strong> University of Vermont</p>
-<p>Blog posts and code: <a href="https://andrewvanleuven.github.io/mapdork">andrewvanleuven.github.io/mapdork</a></p>
+<p><a href="mailto:andrew.vanleuven@uvm.edu">andrew.vanleuven@uvm.edu</a></p>
+<p><a href="https://andrewvanleuven.com">https://andrewvanleuven.com</a></p>
 <div class="fragment">
 <p><strong>Questions?</strong></p>
 <aside class="notes">
