@@ -9,9 +9,9 @@ format:
     theme: simple
     slide-number: true
     code-line-numbers: false
-    syntax-highlighting: a11y
+    syntax-highlighting: github
     footer: "Introduction to Maps | Andrew Van Leuven"
-    incremental: false
+    incremental: true
     width: 1600
     height: 1000
     embed-resources: false
@@ -38,6 +38,8 @@ execute:
 Scan to download the R script used in today's demo:
 
 ![](img/qr_r_script.png){fig-align="center" height="600px"}
+
+**GitHub Link**: [`https://github.com/andrewvanleuven/andrewvanleuven.github.io/blob/main/aaea_webinar/demo_script.R`](https://github.com/andrewvanleuven/andrewvanleuven.github.io/blob/main/aaea_webinar/demo_script.R){style="font-size: 0.5em;"}
 
 ## Agenda
 
@@ -542,7 +544,7 @@ left_map <- maplibre(bounds = states_sf, style = carto_style("voyager")) %>%
     fill_opacity = 0.9, tooltip = "corn_acres_planted") %>%
   add_line_layer(id = "states", source = states_sf, line_width = .1) %>%
   add_continuous_legend("Corn Acres Planted, 2015",
-    values = brks, colors = pal, position = "bottom-left")
+    values = brks, colors = pal, position = "top-left")
 
 right_map <- maplibre(bounds = states_sf, style = carto_style("voyager")) %>%
   add_fill_layer(id = "soybean_acres", source = soybean_acres_sf,
@@ -551,7 +553,7 @@ right_map <- maplibre(bounds = states_sf, style = carto_style("voyager")) %>%
     fill_opacity = 0.9, tooltip = "soybean_acres_planted") %>%
   add_line_layer(id = "states", source = states_sf, line_width = .1) %>%
   add_continuous_legend("Soybean Acres Planted, 2015",
-    values = brks, colors = pal, position = "bottom-left")
+    values = brks, colors = pal, position = "top-right")
 
 compare(left_map, right_map, height = "900px")
 ```
