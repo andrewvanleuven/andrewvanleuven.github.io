@@ -527,7 +527,7 @@ brks <- classIntervals(
   combined[!is.na(combined) & combined > 0], n = 5, style = "jenks"
 )$brks %>% round(-3)
 
-pal <- brewer.pal(length(brks), "YlGnBu")
+pal <- brewer.pal(length(brks), "YlGn")
 ```
 
 Using the combined distribution ensures both maps share the same color scale.
