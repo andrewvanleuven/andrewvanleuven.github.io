@@ -4,7 +4,7 @@
     "href": "aaea_webinar/index.html#follow-along",
     "title": "Introduction to Maps",
     "section": "Follow Along",
-    "text": "Follow Along\nScan to download the R script used in today’s demo:"
+    "text": "Follow Along\nScan to download the R script used in today’s demo:\n\n\n\n\n\nhttps://github.com/andrewvanleuven/andrewvanleuven.github.io/blob/main/aaea_webinar/demo_script.R"
   },
   {
     "objectID": "aaea_webinar/index.html#agenda",
@@ -242,7 +242,7 @@
     "href": "aaea_webinar/index.html#comparing-maps-with-compare",
     "title": "Introduction to Maps",
     "section": "Comparing Maps with compare()",
-    "text": "Comparing Maps with compare()\n\nleft_map &lt;- maplibre(bounds = states_sf, style = carto_style(\"voyager\")) %&gt;%\n  add_fill_layer(id = \"corn_acres\", source = corn_acres_sf,\n    fill_color = interpolate(column = \"corn_acres_planted\",\n                             values = brks, stops = pal, na_color = \"lightgrey\"),\n    fill_opacity = 0.9, tooltip = \"corn_acres_planted\") %&gt;%\n  add_line_layer(id = \"states\", source = states_sf, line_width = .1) %&gt;%\n  add_continuous_legend(\"Corn Acres Planted, 2015\",\n    values = brks, colors = pal, position = \"bottom-left\")\n\nright_map &lt;- maplibre(bounds = states_sf, style = carto_style(\"voyager\")) %&gt;%\n  add_fill_layer(id = \"soybean_acres\", source = soybean_acres_sf,\n    fill_color = interpolate(column = \"soybean_acres_planted\",\n                             values = brks, stops = pal, na_color = \"lightgrey\"),\n    fill_opacity = 0.9, tooltip = \"soybean_acres_planted\") %&gt;%\n  add_line_layer(id = \"states\", source = states_sf, line_width = .1) %&gt;%\n  add_continuous_legend(\"Soybean Acres Planted, 2015\",\n    values = brks, colors = pal, position = \"bottom-left\")\n\ncompare(left_map, right_map, height = \"900px\")"
+    "text": "Comparing Maps with compare()\n\nleft_map &lt;- maplibre(bounds = states_sf, style = carto_style(\"voyager\")) %&gt;%\n  add_fill_layer(id = \"corn_acres\", source = corn_acres_sf,\n    fill_color = interpolate(column = \"corn_acres_planted\",\n                             values = brks, stops = pal, na_color = \"lightgrey\"),\n    fill_opacity = 0.9, tooltip = \"corn_acres_planted\") %&gt;%\n  add_line_layer(id = \"states\", source = states_sf, line_width = .1) %&gt;%\n  add_continuous_legend(\"Corn Acres Planted, 2015\",\n    values = brks, colors = pal, position = \"top-left\")\n\nright_map &lt;- maplibre(bounds = states_sf, style = carto_style(\"voyager\")) %&gt;%\n  add_fill_layer(id = \"soybean_acres\", source = soybean_acres_sf,\n    fill_color = interpolate(column = \"soybean_acres_planted\",\n                             values = brks, stops = pal, na_color = \"lightgrey\"),\n    fill_opacity = 0.9, tooltip = \"soybean_acres_planted\") %&gt;%\n  add_line_layer(id = \"states\", source = states_sf, line_width = .1) %&gt;%\n  add_continuous_legend(\"Soybean Acres Planted, 2015\",\n    values = brks, colors = pal, position = \"top-left\")\n\ncompare(left_map, right_map, height = \"900px\")"
   },
   {
     "objectID": "aaea_webinar/index.html#comparing-maps-with-compare-output",
