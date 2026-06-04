@@ -1,283 +1,269 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "My name is Andrew Van Leuven, and my day job is as an assistant professor at the University of Vermont. My research and teaching focus on regional economics and rural development efforts that strengthen and revitalize local economies.\nThis site is where I share my maps. For more about me, visit my other (more professional) website."
-  },
-  {
-    "objectID": "posts/03_2026_popest/index.html",
-    "href": "posts/03_2026_popest/index.html",
-    "title": "The 2025 County Population Data Is Out. Here’s What It Shows.",
-    "section": "",
-    "text": "Today marks the release of the latest batch of data from the U.S. Census Bureau: the 2025 County Population Totals and Components of Change. Below is a collection of a few interactive maps that visualize changes that have taken place since last year, as well as a quick guide (including code snippets) for how to load, clean, and map the data."
-  },
-  {
-    "objectID": "posts/03_2026_popest/index.html#components-of-growth-and-decline",
-    "href": "posts/03_2026_popest/index.html#components-of-growth-and-decline",
-    "title": "The 2025 County Population Data Is Out. Here’s What It Shows.",
-    "section": "Components of Growth and Decline",
-    "text": "Components of Growth and Decline\nNot all population growth looks the same. A county can be growing because it has more births than deaths, because people are moving in, or—ideally—both. Conversely, decline can stem from negative natural change (more deaths than births), outmigration, or both at once. The map below classifies every U.S. county into one of four categories based on its 2024–25 natural change and net migration:\n\n\n\n\n\n\n\n\n\nGrowth Type\nNatural Change\nNet Migration\nWhat it means\n\n\n\n\nGrowing Both Ways\nPositive\nPositive\nBirths exceed deaths and people are moving in\n\n\nMigration-Dependent\nNegative\nPositive\nMore deaths than births, but in-migration offsets the loss\n\n\nBirth-Dependent\nPositive\nNegative\nNatural increase keeps the county growing despite net outmigration\n\n\nDeclining Both Ways\nNegative\nNegative\nFewer births than deaths and net outmigration—the double squeeze\n\n\n\n\n\n\n\n\n\nPerhaps the most striking takeaway from this map is just how spatially mixed the picture is. Even in states with strong overall population growth—Texas, Florida, the Carolinas—you’ll find pockets of birth-dependent or declining counties alongside booming ones. And in states often written off as uniformly shrinking, migration is quietly propping up growth in college towns, retirement destinations, and rural amenity counties. In general, county data catches nuance that state-level summaries often miss.\nPlease feel free to share these maps with friends and colleagues. If you would like a particular map or data point, I am stretched pretty thin until the end of the semester but it’s still worth a try to email me at andrew.vanleuven@uvm.edu with any questions you might have."
-  },
-  {
-    "objectID": "posts/03_2026_popest/index.html#footnotes",
-    "href": "posts/03_2026_popest/index.html#footnotes",
-    "title": "The 2025 County Population Data Is Out. Here’s What It Shows.",
-    "section": "Footnotes",
-    "text": "Footnotes\n\n\nMuch of what makes working with U.S. Census data in R so approachable is owed to Dr. Kyle Walker. His packages—tidycensus, tigris, and mapgl—have become essential tools in the applied spatial data science community. If you work with U.S. demographic or geographic data in R, his work is worth exploring.↩︎"
-  },
-  {
-    "objectID": "posts/welcome/index.html",
-    "href": "posts/welcome/index.html",
-    "title": "Welcome to MapDork",
-    "section": "",
-    "text": "This site is for “under the hood” details on maps I publish on my substack page. Below is some further detail on my “Kountry” restaurant map."
-  },
-  {
-    "objectID": "posts/welcome/index.html#interactive-map",
-    "href": "posts/welcome/index.html#interactive-map",
-    "title": "Welcome to MapDork",
-    "section": "Interactive map",
-    "text": "Interactive map"
-  },
-  {
-    "objectID": "posts/welcome/index.html#code-for-ggplot2-map",
-    "href": "posts/welcome/index.html#code-for-ggplot2-map",
-    "title": "Welcome to MapDork",
-    "section": "Code for ggplot2 map",
-    "text": "Code for ggplot2 map\nThis code aggregates business locations into H3 hexagons at resolution 3 (approximately 4,800 square miles each), counts the number of establishments per hexagon, and clips the results to the contiguous United States. The ggplot2 visualization uses an Albers Equal Area projection and a yellow-green color scale to show the spatial distribution of businesses with “Kountry” in their name.\nI use data from the YourEconomy Time Series (YTS), which covers all U.S. business establishments from 1998 to 2025. For legal reasons—i.e., it’s their data, not mine—that data is not provided in this repository.\n\nlibrary(arrow)\nlibrary(tidyverse)\nlibrary(janitor)\nlibrary(sf)\nlibrary(h3jsr)\nlibrary(tigris)\nlibrary(mapgl)\n\n# Contiguous 48 states\nstates &lt;- states(cb = TRUE, resolution = '20m') |&gt;\n  filter(!STUSPS %in% c(\"AK\", \"HI\") & STATEFP &lt; 60)\n\nytsdb &lt;- open_dataset('data/yts')\ndf &lt;- ytsdb |&gt;\n  filter(year %in% c(2021:2025), str_detect(tolower(company), 'kountry')) |&gt;\n  collect() |&gt;\n  filter(state != 'HI' & state != 'AK')\n\n# Clean and prepare spatial data\ndsf &lt;- df |&gt;\n  mutate(longitude = ifelse(longitude &gt; 0, longitude * -1, longitude)) |&gt;\n  st_as_sf(coords = c('longitude', 'latitude'), crs = 4326, remove = FALSE) |&gt;\n  st_transform(6350) |&gt; # Transform to Albers\n  slice(1, .by = id)\n\n# H3 requires WGS84, so transform back temporarily\ndsf &lt;- dsf |&gt;\n  mutate(h3_index = point_to_cell(st_transform(geometry, 4326), res = 3))\n\n# Count occurrences per hexagon\nhex_counts &lt;- dsf |&gt;\n  st_drop_geometry() |&gt;\n  count(h3_index, name = \"count\")\n\n# Convert H3 indices to polygons\nhex_sf &lt;- hex_counts |&gt;\n  mutate(geometry = cell_to_polygon(h3_index)) |&gt;\n  st_as_sf(crs = 4326)\n\nstates &lt;- states |&gt; st_transform(6350) |&gt; select(st = STUSPS)\nhex_sf &lt;- hex_sf |&gt; st_transform(6350) |&gt; st_intersection(states)\n\nggplot() +\n  geom_sf(data = states, fill = '#FFFFE5', color = NA) +\n  geom_sf(data = hex_sf, aes(fill = count), color = NA) +\n  geom_sf(data = states, fill = NA, color = \"black\", linewidth = .15) +\n  scale_fill_distiller(\n    palette = 'YlGn',\n    direction = 1,\n    name = 'Count',\n    limits = c(0, 12)\n  ) +\n  theme_void(base_family = 'Red Hat Display', base_size = 14) +\n  labs(\n    title = \"Density of Business Establishments with 'Kountry' in the Name\",\n    subtitle = '(Each Hexagon ≈ 4,800 square miles)',\n    caption = '\\nSource: YourEconomy Time Series, 2025    \\n'\n  ) +\n  theme(\n    plot.title = element_text(face = \"bold\", hjust = 0.5),\n    plot.subtitle = element_text(face = \"italic\", hjust = 0.5),\n    legend.title = element_text(face = \"bold\", hjust = 0.5),\n    legend.position = 'bottom'\n  ) +\n  guides(\n    fill = guide_colourbar(\n      barheight = 0.5,\n      barwidth = 12,\n      title.position = \"top\"\n    )\n  )"
-  },
-  {
-    "objectID": "webinar/index.html#agenda",
-    "href": "webinar/index.html#agenda",
+    "objectID": "aaea_webinar/index.html#agenda",
+    "href": "aaea_webinar/index.html#agenda",
     "title": "Introduction to Maps",
     "section": "Agenda",
-    "text": "Agenda\n\nMapping basics\nMapping in ggplot2\nData from Census and NASS QuickStats\nInteractive maps with mapgl\n\n\nWelcome everyone. We have about 60 minutes together, so I want to move at a steady pace through all four sections. We’ll do live demos along the way, so feel free to open RStudio and follow along. Questions are welcome at the end."
+    "text": "Agenda\n\nMapping basics\nMapping in ggplot2\nData from Census and NASS QuickStats\nPoint data and basic GIS operations\n\n\nWelcome everyone. We have about 60 minutes together. We’ll do live demos along the way using demo_script.R – feel free to open it and follow along in RStudio. Questions at the end."
   },
   {
-    "objectID": "webinar/index.html#packages-well-use-today",
-    "href": "webinar/index.html#packages-well-use-today",
+    "objectID": "aaea_webinar/index.html#packages-well-use-today",
+    "href": "aaea_webinar/index.html#packages-well-use-today",
     "title": "Introduction to Maps",
     "section": "Packages We’ll Use Today",
-    "text": "Packages We’ll Use Today\ninstall.packages(c(\n  \"tidyverse\",  # data manipulation + ggplot2\n  \"sf\",         # spatial data in R\n  \"tigris\",     # US Census boundary files\n  \"tidycensus\", # Census + ACS data with geometry\n  \"rnassqs\",    # NASS QuickStats API\n  \"mapgl\"       # interactive web maps\n))\n\nIf you’re following along, go ahead and run this now. Most of these you probably already have."
+    "text": "Packages We’ll Use Today\ninstall.packages(c(\n  \"tidyverse\",   # data manipulation + ggplot2\n  \"sf\",          # spatial data in R\n  \"tigris\",      # US Census boundary files\n  \"tidycensus\",  # Census + ACS data with geometry\n  \"rnassqs\",     # NASS QuickStats API\n  \"mapgl\",       # interactive web maps\n  \"classInt\",    # natural breaks for color scales\n  \"RColorBrewer\" # color palettes\n))"
   },
   {
-    "objectID": "webinar/index.html#what-is-gis",
-    "href": "webinar/index.html#what-is-gis",
+    "objectID": "aaea_webinar/index.html#what-is-gis",
+    "href": "aaea_webinar/index.html#what-is-gis",
     "title": "Introduction to Maps",
     "section": "What Is GIS?",
     "text": "What Is GIS?\nGeographic Information Systems = data + location\n\nAny dataset with a spatial component can be put on a map\nAgriculture is inherently spatial: counties, farms, markets, watersheds, supply chains\nMaps reveal patterns that tables and charts simply cannot\n\n\nToday’s goal: get you from zero to a working map pipeline in R\n\nGIS has historically required specialized software (ArcGIS, QGIS). R has changed that dramatically. You can do most of what you’d do in ArcGIS from a .R script."
   },
   {
-    "objectID": "webinar/index.html#types-of-spatial-data",
-    "href": "webinar/index.html#types-of-spatial-data",
+    "objectID": "aaea_webinar/index.html#types-of-spatial-data",
+    "href": "aaea_webinar/index.html#types-of-spatial-data",
     "title": "Introduction to Maps",
     "section": "Types of Spatial Data",
-    "text": "Types of Spatial Data\n\n\nVector data (what we’ll use today)\n\n\n\nType\nExamples\n\n\n\n\nPoints\nfarmers markets, food hubs, farms\n\n\nLines\nroads, rivers, rail corridors\n\n\nPolygons\ncounties, states, ZIP codes\n\n\n\n\nRaster data (not today)\n\nA grid of cells, like a photo\nElevation, land cover, satellite imagery, NDVI\nHandled in R via terra / stars\n\n\n\nAlmost all the data you’ll encounter in an agricultural economics context is vector data. County-level NASS stats map to polygons. Farmer market locations map to points. You will rarely need raster data unless you’re doing remote sensing work."
+    "text": "Types of Spatial Data\n\n\nVector data (what we’ll use today)\n\n\n\nType\nExamples\n\n\n\n\nPoints\nfarmers markets, food hubs, farms\n\n\nLines\nroads, rivers, rail corridors\n\n\nPolygons\ncounties, states, ZIP codes\n\n\n\n\nRaster data (not today)\n\nA grid of cells, like a photo\nElevation, land cover, satellite imagery\nTemperature, precipitation, and other climate variables\nHandled in R via terra / stars\n\n\n\nAlmost all the data you’ll encounter in agricultural economics is vector data. County-level NASS stats map to polygons. Farmers market locations map to points. Raster data comes up in remote sensing and climate work but we won’t need it today."
   },
   {
-    "objectID": "webinar/index.html#what-lives-in-an-sf-object",
-    "href": "webinar/index.html#what-lives-in-an-sf-object",
+    "objectID": "aaea_webinar/index.html#what-lives-in-an-sf-object",
+    "href": "aaea_webinar/index.html#what-lives-in-an-sf-object",
     "title": "Introduction to Maps",
     "section": "What Lives in an sf Object?",
-    "text": "What Lives in an sf Object?\nAn sf (simple features) data frame is just a regular data frame with one extra column: geometry\nSimple feature collection with 3,234 features\nGeometry type: MULTIPOLYGON\nCRS: NAD83 (EPSG:4269)\n\n   GEOID  NAME         STATEFP  ALAND        geometry\n1  01001  Autauga      01       1539602840   MULTIPOLYGON(...)\n2  01003  Baldwin      01       4117521611   MULTIPOLYGON(...)\n3  01005  Barbour      01       2291820706   MULTIPOLYGON(...)\n\nAll your normal dplyr verbs work on it. The geometry column just comes along for the ride.\n\nThis is the key insight that makes R spatial data so ergonomic. You don’t need to learn a completely new data model. filter(), mutate(), left_join() all work exactly as you’d expect."
+    "text": "What Lives in an sf Object?\nAn sf data frame is just a regular data frame with one extra column: geometry\nSimple feature collection with 3,234 features\nGeometry type: MULTIPOLYGON\nCRS: NAD83 (EPSG:4269)\n\n   GEOID  NAME         STATEFP  ALAND        geometry\n1  01001  Autauga      01       1539602840   MULTIPOLYGON(...)\n2  01003  Baldwin      01       4117521611   MULTIPOLYGON(...)\n3  01005  Barbour      01       2291820706   MULTIPOLYGON(...)\n\nThe geometry column is a list of all the coordinate pairs (longitude, latitude) that define each shape. For a polygon, it’s every vertex. For a point, it’s just one.\nAll your normal dplyr verbs work on it – the geometry column comes along for the ride.\n\nThis is the key insight that makes R spatial data so ergonomic. You don’t need to learn a new data model. filter(), mutate(), left_join() all work exactly as you’d expect."
   },
   {
-    "objectID": "webinar/index.html#coordinate-reference-systems",
-    "href": "webinar/index.html#coordinate-reference-systems",
+    "objectID": "aaea_webinar/index.html#coordinate-reference-systems",
+    "href": "aaea_webinar/index.html#coordinate-reference-systems",
     "title": "Introduction to Maps",
     "section": "Coordinate Reference Systems",
-    "text": "Coordinate Reference Systems\nThe earth is round. Maps are flat. Something has to give.\nA CRS defines how 3D coordinates get projected onto a 2D surface.\n\nThree CRS you’ll actually encounter:\n\n\n\nCRS\nEPSG code\nWhen you’ll see it\n\n\n\n\nWGS84\n4326\nGPS coordinates, GeoJSON files, web APIs\n\n\nNAD83\n4269\nTIGER/Line files, US government data\n\n\nAlbers Equal Area\n5070\nNational-scale thematic maps\n\n\n\n\n\nRule of thumb: for any map showing the whole contiguous US, reproject to Albers (EPSG 5070).\n\nThe most common beginner mistake is mixing CRS. If your layers don’t line up, 9 times out of 10 it’s a CRS mismatch. sf will warn you, but always check. The other mistake is leaving Alaska in its native projection, which ends up way too far to the right."
+    "text": "Coordinate Reference Systems\nThe earth is round. Maps are flat. Something has to give.\nA CRS defines how 3D coordinates get projected onto a 2D surface.\n\nTwo CRS you’ll use constantly:\n\n\n\n\n\n\n\n\nCRS\nEPSG\nWhen you’ll see it\n\n\n\n\nWGS84\n4326\nGPS coordinates, GeoJSON files, web APIs, mapgl\n\n\nAlbers Equal Area\n5070\nStatic national thematic maps in ggplot2\n\n\n\n\n\nRule of thumb: store and share data in 4326. Project to 5070 for any static map of the contiguous US.\n\nThe most common beginner mistake is mixing CRS. If your layers don’t line up, 9 times out of 10 it’s a mismatch. sf will warn you but always check. You reproject with st_transform(your_data, 5070)."
   },
   {
-    "objectID": "webinar/index.html#why-projections-matter",
-    "href": "webinar/index.html#why-projections-matter",
+    "objectID": "aaea_webinar/index.html#why-projections-matter",
+    "href": "aaea_webinar/index.html#why-projections-matter",
     "title": "Introduction to Maps",
     "section": "Why Projections Matter",
     "text": "Why Projections Matter\n\n\nNo projection (WGS84 / lat-lon)\n\nStates look stretched east-west\nDistances and areas are distorted\nFine for quick checks, not for presentation\n\n\nAlbers Equal Area (EPSG 5070)\n\nShapes look familiar\nAreas are preserved (critical for choropleth maps)\nThe standard for US national maps\n\n\n\n\n“Equal area” projections are especially important for choropleths. If you don’t use one, large counties will visually dominate the map regardless of the data values."
   },
   {
-    "objectID": "webinar/index.html#types-of-maps",
-    "href": "webinar/index.html#types-of-maps",
+    "objectID": "aaea_webinar/index.html#types-of-maps",
+    "href": "aaea_webinar/index.html#types-of-maps",
     "title": "Introduction to Maps",
     "section": "Types of Maps",
-    "text": "Types of Maps\n\n\n\n\n\n\n\n\nMap type\nBest for\nWatch out for\n\n\n\n\nChoropleth\nRates, percentages, densities\nRaw counts favor large areas\n\n\nDot / point\nIndividual locations\nOverplotting at high density\n\n\nProportional symbol\nTotals, counts by location\nSymbol overlap in dense areas\n\n\nReference / base\nContext, navigation\nAdding too much detail\n\n\n\n\nFor local food data: choropleths (county-level rates/shares) and point maps (market/hub locations) will cover the majority of your needs.\n\nOne of the most common mapping mistakes I see in academic work: mapping raw counts on a choropleth. If Wyoming has 10 SNAP households, that looks tiny compared to Cook County (Chicago) with 300,000. But Wyoming also has far fewer total households. Always normalize. Show rates, shares, or densities—not raw numbers—unless you’re specifically making a point about total volume."
+    "text": "Types of Maps\n\n\n\n\n\n\n\n\nChoropleth\n\n\n\n\n\n\n\nDot map\n\n\n\n\n\n\n\nProportional symbol\n\n\n\n\n\n\n\nReference\n\n\n\n\n\n\nChoropleth — areas shaded by value\nDot map — one dot per unit\nProportional symbol — symbol size = quantity\nReference — orientation / context\n\n\nOne example worth showing: censusdots.com – a national dot density map where every dot is one person, colored by race/ethnicity. Centered on Tulsa but you can pan anywhere. https://www.censusdots.com/?map=12.01263869294279,36.1714,-95.9200"
   },
   {
-    "objectID": "webinar/index.html#the-building-blocks",
-    "href": "webinar/index.html#the-building-blocks",
+    "objectID": "aaea_webinar/index.html#the-building-blocks",
+    "href": "aaea_webinar/index.html#the-building-blocks",
     "title": "Introduction to Maps",
     "section": "The Building Blocks",
-    "text": "The Building Blocks\n\nlibrary(tidyverse)\nlibrary(sf)\nlibrary(tigris)\n\noptions(tigris_use_cache = TRUE)\n\n\ntidyverse: data manipulation + ggplot2\nsf: spatial data as data frames\ntigris: US Census TIGER/Line boundaries, straight into R\n\n\ntigris_use_cache is important: it saves files locally so you don’t re-download them every time you render."
+    "text": "The Building Blocks\n\nlibrary(tidyverse)\nlibrary(sf)\nlibrary(tigris)\n\noptions(tigris_use_cache = TRUE)\n\n\nsf: spatial data as a data frame with a geometry column\ntigris: US Census TIGER/Line boundaries, directly into R\n\n\ntigris_use_cache saves downloaded files locally so you don’t re-download them every render."
   },
   {
-    "objectID": "webinar/index.html#getting-boundary-data",
-    "href": "webinar/index.html#getting-boundary-data",
+    "objectID": "aaea_webinar/index.html#getting-boundary-data",
+    "href": "aaea_webinar/index.html#getting-boundary-data",
     "title": "Introduction to Maps",
     "section": "Getting Boundary Data",
-    "text": "Getting Boundary Data\n\n# State boundaries\nstates_sf &lt;- states(cb = TRUE, resolution = \"20m\") |&gt;\n  filter(!STUSPS %in% c(\"AK\", \"HI\", \"PR\", \"VI\", \"GU\", \"AS\", \"MP\"))\n\n# County boundaries\ncounties_sf &lt;- counties(cb = TRUE, resolution = \"20m\") |&gt;\n  filter(!STATEFP %in% c(\"02\", \"15\", \"72\", \"78\", \"66\", \"60\", \"69\"))\n\n\ncb = TRUE: simplified cartographic boundary (smaller file, better for maps)\nresolution = \"20m\": 1:20,000,000 scale (good for national maps)\nThe filter removes Alaska, Hawaii, and territories\n\n\nThere are also more detailed options: resolution = “5m” and “500k”. For a full-country map you almost never need anything finer than “20m”. Also note: tigris has many other geographies (tracts, block groups, places, school districts, congressional districts, ZIP codes, etc.)."
+    "text": "Getting Boundary Data\n\nstates_sf &lt;- states(cb = TRUE, resolution = \"20m\") |&gt;\n  filter(!STUSPS %in% c(\"AK\", \"HI\", \"PR\", \"VI\", \"GU\", \"AS\", \"MP\"))\n\ncounties_sf &lt;- counties(cb = TRUE, resolution = \"20m\") |&gt;\n  filter(!STATEFP %in% c(\"02\", \"15\", \"72\", \"78\", \"66\", \"60\", \"69\"))\n\n\ncb = TRUE: simplified cartographic boundary (better for maps)\nresolution = \"20m\": 1:20,000,000 scale (right for national maps)\nThe filter removes Alaska, Hawaii, and territories\n\n\ntigris has many other geographies too: tracts, block groups, places, school districts, congressional districts, ZIP codes, roads, water features. All come back as sf objects ready to use."
   },
   {
-    "objectID": "webinar/index.html#your-first-map",
-    "href": "webinar/index.html#your-first-map",
+    "objectID": "aaea_webinar/index.html#your-first-map",
+    "href": "aaea_webinar/index.html#your-first-map",
     "title": "Introduction to Maps",
     "section": "Your First Map",
-    "text": "Your First Map\n\nggplot(states_sf) +\n  geom_sf()\n\n\nThat’s the whole thing. geom_sf() reads the geometry column and draws the shapes.\n\n[Run this live.] Notice it looks weird: the projection is off. States look stretched. Let’s fix that next."
+    "text": "Your First Map\n\nggplot(states_sf) +\n  geom_sf()\n\n\ngeom_sf() reads the geometry column and draws the shapes. That’s all there is to it.\n\n\nBut it looks weird – flat, stretched east-west. Let’s fix that."
   },
   {
-    "objectID": "webinar/index.html#applying-a-projection",
-    "href": "webinar/index.html#applying-a-projection",
+    "objectID": "aaea_webinar/index.html#applying-a-projection",
+    "href": "aaea_webinar/index.html#applying-a-projection",
     "title": "Introduction to Maps",
     "section": "Applying a Projection",
-    "text": "Applying a Projection\n\nggplot(states_sf) +\n  geom_sf() +\n  coord_sf(crs = 5070)\n\ncoord_sf() reprojects the visualization without modifying your data.\n\nCompare: - No coord_sf() → lat-lon, states look stretched east-west - coord_sf(crs = 5070) → Albers Equal Area, looks like a US atlas\n\n[Run this live, showing before and after.] The difference is dramatic. This is the single most impactful improvement you can make to a US national map."
+    "text": "Applying a Projection\n\nggplot(states_sf) +\n  geom_sf() +\n  coord_sf(crs = 5070)\n\ncoord_sf() reprojects the visualization without modifying your data.\n\nThis single line is the most impactful improvement you can make to a US national map."
   },
   {
-    "objectID": "webinar/index.html#making-it-look-nice",
-    "href": "webinar/index.html#making-it-look-nice",
+    "objectID": "aaea_webinar/index.html#styling",
+    "href": "aaea_webinar/index.html#styling",
     "title": "Introduction to Maps",
-    "section": "Making It Look Nice",
-    "text": "Making It Look Nice\n\nggplot(states_sf) +\n  geom_sf(\n    fill  = \"white\",\n    color = \"gray40\",\n    linewidth = 0.3\n  ) +\n  coord_sf(crs = 5070) +\n  theme_void()\n\n\nfill: interior color\ncolor: border color\nlinewidth: border thickness\ntheme_void(): removes axes, gridlines, background\n\n\ntheme_void() is almost always what you want for a finished map. theme_minimal() works too if you want a subtle grid."
+    "section": "Styling",
+    "text": "Styling\n\nggplot(states_sf) +\n  geom_sf(\n    fill      = \"dodgerblue\",\n    color     = \"white\",\n    linewidth = 0.3\n  ) +\n  coord_sf(crs = 5070) +\n  theme_void()\n\ntheme_void() removes axes, gridlines, and background – almost always the right choice for a finished map."
   },
   {
-    "objectID": "webinar/index.html#adding-data-the-choropleth",
-    "href": "webinar/index.html#adding-data-the-choropleth",
+    "objectID": "aaea_webinar/index.html#real-data-lace",
+    "href": "aaea_webinar/index.html#real-data-lace",
     "title": "Introduction to Maps",
-    "section": "Adding Data: The Choropleth",
-    "text": "Adding Data: The Choropleth\n\nggplot(counties_sf) +\n  geom_sf(aes(fill = ALAND), color = NA) +\n  coord_sf(crs = 5070) +\n  scale_fill_viridis_c(name = \"Land area\") +\n  theme_void()\n\n\naes(fill = ALAND): map the land area variable to fill color\ncolor = NA: drop county borders (they clutter national maps)\nscale_fill_viridis_c(): perceptually uniform, colorblind-safe\n\n\nThe fill aesthetic works the same way as in any other ggplot.\n\n[Run this live.] ALAND is the land area column that comes with tigris counties, useful for this demo because we don’t need to load any external data. In your actual work, you’ll join your own data to counties_sf, then map one of those columns."
+    "section": "Real Data: LACE",
+    "text": "Real Data: LACE\nNew from the Census Bureau: county-level estimates of households without air conditioning.\n\nlace &lt;- read_csv('https://www2.census.gov/programs-surveys/demo/datasets/lace/2023/LACE_23_County.csv') |&gt;\n  mutate(GEOID = paste0(STATE, COUNTY))\n\nlace_map &lt;- counties_sf |&gt;\n  left_join(lace, by = \"GEOID\")\n\n\nThis is the standard workflow: get boundaries from tigris, join your data on GEOID, map it.\n\nGEOID is the 5-character FIPS code: 2-digit state + 3-digit county, always zero-padded. “17031” = Cook County (Chicago). This is the universal join key for any Census-derived county data."
   },
   {
-    "objectID": "webinar/index.html#joining-your-data-to-a-map",
-    "href": "webinar/index.html#joining-your-data-to-a-map",
+    "objectID": "aaea_webinar/index.html#building-the-map-incrementally",
+    "href": "aaea_webinar/index.html#building-the-map-incrementally",
     "title": "Introduction to Maps",
-    "section": "Joining Your Data to a Map",
-    "text": "Joining Your Data to a Map\n\nmy_data &lt;- read_csv(\"local_food_data.csv\")  # has a column called GEOID\n\ncounty_map &lt;- counties_sf |&gt;\n  left_join(my_data, by = \"GEOID\")\n\nggplot(county_map) +\n  geom_sf(aes(fill = local_food_sales_per_farm), color = NA) +\n  coord_sf(crs = 5070) +\n  scale_fill_viridis_c(labels = scales::dollar) +\n  theme_void() +\n  labs(title = \"Local Food Sales per Farm by County\")\n\nThe GEOID is a 5-character FIPS code: 2-digit state + 3-digit county.\n\nThis is the workflow you’ll use for your challenge data. Get county boundaries from tigris, join your data on GEOID, then map it. The key is making sure your GEOID column is formatted correctly: zero-padded, character type, not numeric."
+    "section": "Building the Map Incrementally",
+    "text": "Building the Map Incrementally\n\nggplot(lace_map) +\n  geom_sf(aes(fill = NO_AC_PE), color = NA) +\n  # geom_sf(data = states_sf, fill = NA, color = \"black\", linewidth = 0.1) +\n  # coord_sf(crs = 5070) +\n  # scale_fill_distiller(palette = \"YlGn\", direction = 1,\n  #                      labels = percent, name = 'Share without A/C') +\n  theme_void() +\n  # theme(legend.position = 'bottom',\n  #       plot.title = element_text(face = 'bold', hjust = .5)) +\n  labs(\n    # title = \"Households without Air Conditioning by County (2023)\"\n  )\n\n\n[Live demo.] Start with everything commented out except the bare minimum. Uncomment one argument at a time so the audience can see exactly what each piece contributes. This is a great teaching technique for ggplot."
   },
   {
-    "objectID": "webinar/index.html#choosing-a-color-scale",
-    "href": "webinar/index.html#choosing-a-color-scale",
+    "objectID": "aaea_webinar/index.html#color-scale-options",
+    "href": "aaea_webinar/index.html#color-scale-options",
     "title": "Introduction to Maps",
-    "section": "Choosing a Color Scale",
-    "text": "Choosing a Color Scale\n\n# Perceptually uniform (good default)\nscale_fill_viridis_c(option = \"magma\")\n\n# ColorBrewer sequential\nscale_fill_distiller(palette = \"YlOrRd\", direction = 1)\n\n# Diverging: good when data has a meaningful midpoint (e.g., above/below zero)\nscale_fill_distiller(palette = \"RdBu\", direction = 1)\n\n# When data is right-skewed, transform the scale\nscale_fill_viridis_c(trans = \"log10\", labels = scales::comma)\n\n\n\nAvoid rainbow palettes (rainbow(), jet). They are not perceptually uniform and can create false visual boundaries in your data.\n\n\nColorBrewer (RColorBrewer package, or built into ggplot via scale_fill_distiller) was designed specifically for maps. The palettes are proven to work across different display conditions and are accessible to colorblind viewers."
+    "section": "Color Scale Options",
+    "text": "Color Scale Options\n\n# Sequential (one hue, light to dark)\nscale_fill_distiller(palette = \"YlGn\", direction = 1)\nscale_fill_viridis_c(option = \"rocket\")\n\n# Diverging (two hues meeting at a midpoint -- use when 0 means something)\nscale_fill_distiller(palette = \"RdBu\", direction = 1)\n\n# Right-skewed data: log-transform the scale\nscale_fill_viridis_c(trans = \"log10\", labels = scales::comma)\n\n\n\nAvoid rainbow palettes (rainbow(), jet). They are not perceptually uniform and create false visual boundaries in your data."
   },
   {
-    "objectID": "webinar/index.html#adding-a-second-layer",
-    "href": "webinar/index.html#adding-a-second-layer",
-    "title": "Introduction to Maps",
-    "section": "Adding a Second Layer",
-    "text": "Adding a Second Layer\n\nggplot() +\n  geom_sf(data = county_map,\n          aes(fill = local_food_sales_per_farm),\n          color = NA) +\n  geom_sf(data = states_sf,\n          fill  = NA,\n          color = \"white\",\n          linewidth = 0.4) +\n  coord_sf(crs = 5070) +\n  scale_fill_viridis_c(labels = scales::dollar) +\n  theme_void()\n\nState outlines on top of county fill = clean, readable national map.\n\nThis two-layer trick is standard for national maps. The county choropleth is the bottom layer; the state outlines float on top in white so they’re visible but not intrusive. Notice we moved the data argument into each geom_sf() call rather than ggplot(), which lets us use different datasets per layer."
-  },
-  {
-    "objectID": "webinar/index.html#tidycensus",
-    "href": "webinar/index.html#tidycensus",
+    "objectID": "aaea_webinar/index.html#tidycensus",
+    "href": "aaea_webinar/index.html#tidycensus",
     "title": "Introduction to Maps",
     "section": "tidycensus",
-    "text": "tidycensus\ntidycensus by Kyle Walker pulls Census Bureau data directly into R, with geometry attached.\n\nlibrary(tidycensus)\n\n# One-time setup (get a free key at api.census.gov/data/key_signup.html)\ncensus_api_key(\"YOUR_KEY_HERE\", install = TRUE)\n\nCovers: - Decennial Census (2000, 2010, 2020) - American Community Survey (ACS 1-year and 5-year) - Agricultural data via the Census of Agriculture\n\nThe API key is free and instant. Go to api.census.gov, fill out the form, get an email. You only need to install it once; it saves to your .Renviron file."
+    "text": "tidycensus\ntidycensus pulls Census Bureau data directly into R, with geometry attached if you want it.\n\nlibrary(tidycensus)\n\n# one-time setup -- free key at api.census.gov/data/key_signup.html\ncensus_api_key(\"YOUR_KEY_HERE\", install = TRUE)\n\nCovers: Decennial Census, ACS 1-year and 5-year, and more\n\nACS data is estimated, not a headcount. The smaller the geography, the larger the margin of error. A block group SNAP estimate has a much wider confidence interval than a county-level estimate."
   },
   {
-    "objectID": "webinar/index.html#finding-the-right-variable",
-    "href": "webinar/index.html#finding-the-right-variable",
+    "objectID": "aaea_webinar/index.html#finding-variables",
+    "href": "aaea_webinar/index.html#finding-variables",
     "title": "Introduction to Maps",
-    "section": "Finding the Right Variable",
-    "text": "Finding the Right Variable\n\n# Browse available variables\nv22 &lt;- load_variables(2022, \"acs5\", cache = TRUE)\n\n# Search for what you want\nv22 |&gt;\n  filter(str_detect(label, regex(\"snap|food stamp\", ignore_case = TRUE))) |&gt;\n  select(name, label, concept)\n\n\nThere are ~27,000 ACS 5-year variables. load_variables() + filter() is how you find what you need.\n\nThe Census variable naming is… not intuitive. B22003_002 means something if you know the codebook, but you’d never guess it. load_variables() gives you a searchable table. I usually do str_detect() searches on the label column."
+    "section": "Finding Variables",
+    "text": "Finding Variables\n\nv22 &lt;- load_variables(2022, \"acs5\", cache = TRUE)\n\nv22 |&gt;\n  filter(str_detect(label, regex(\"snap|food stamp\", ignore_case = TRUE))) |&gt;\n  select(name, label, concept)\n\n\nThere are ~27,000 ACS 5-year variables. load_variables() + str_detect() is how you find what you need."
   },
   {
-    "objectID": "webinar/index.html#pulling-data-with-geometry",
-    "href": "webinar/index.html#pulling-data-with-geometry",
+    "objectID": "aaea_webinar/index.html#pulling-snap-data-with-geometry",
+    "href": "aaea_webinar/index.html#pulling-snap-data-with-geometry",
     "title": "Introduction to Maps",
-    "section": "Pulling Data with Geometry",
-    "text": "Pulling Data with Geometry\n\nsnap_households &lt;- get_acs(\n  geography = \"county\",\n  variables  = c(snap = \"B22003_002\",   # households receiving SNAP\n                 total = \"B22003_001\"),  # total households\n  year       = 2022,\n  geometry   = TRUE                     # returns sf object, no joining needed\n)\n\n\n\nsnap_rate &lt;- snap_households |&gt;\n  select(GEOID, NAME, variable, estimate) |&gt;\n  pivot_wider(names_from = variable, values_from = estimate) |&gt;\n  mutate(snap_pct = snap / total) |&gt;\n  filter(!str_starts(GEOID, \"02|15|72\"))  # drop AK, HI, PR\n\n\ngeometry = TRUE is the killer feature. The sf object comes back ready to map. No shapefile download, no join. It’s all in one call. The pivot_wider step is standard when you pull multiple variables at once; tidycensus returns long-format data by default."
+    "section": "Pulling SNAP Data with Geometry",
+    "text": "Pulling SNAP Data with Geometry\n\nsnap_households &lt;- get_acs(\n  geography = \"county\",\n  variables = c(snap  = \"B22003_002\",\n                total = \"B22003_001\"),\n  year      = 2022,\n  geometry  = TRUE       # returns sf object -- no joining needed\n) |&gt;\n  select(GEOID, NAME, variable, estimate) |&gt;\n  pivot_wider(names_from = variable, values_from = estimate) |&gt;\n  mutate(snap_pct = snap / total) |&gt;\n  filter(!str_starts(GEOID, \"02|15|72\"))\n\ngeometry = TRUE is the killer feature: one call returns data and boundaries together."
   },
   {
-    "objectID": "webinar/index.html#mapping-the-result",
-    "href": "webinar/index.html#mapping-the-result",
+    "objectID": "aaea_webinar/index.html#snap-participation-by-county",
+    "href": "aaea_webinar/index.html#snap-participation-by-county",
     "title": "Introduction to Maps",
-    "section": "Mapping the Result",
-    "text": "Mapping the Result\n\nggplot(snap_rate) +\n  geom_sf(aes(fill = snap_pct), color = NA) +\n  geom_sf(data = states_sf, fill = NA,\n          color = \"white\", linewidth = 0.4) +\n  coord_sf(crs = 5070) +\n  scale_fill_viridis_c(\n    name   = \"Share of households\\nreceiving SNAP\",\n    labels = scales::percent_format(accuracy = 1),\n    option = \"magma\"\n  ) +\n  theme_void() +\n  labs(title = \"SNAP Participation by County (2022 ACS)\")\n\n\n[Run this live.] This is a complete, publication-ready map in about 20 lines of code including the data pull. Note how we normalize: we’re showing the SNAP rate, not the raw count. This is essential for a choropleth of counties that vary dramatically in population."
+    "section": "SNAP Participation by County",
+    "text": "SNAP Participation by County\n\nggplot(snap_households) +\n  geom_sf(aes(fill = snap_pct), color = NA) +\n  geom_sf(data = states_sf, fill = NA, color = \"white\", linewidth = 0.4) +\n  coord_sf(crs = 5070) +\n  scale_fill_viridis_c(\n    name = \"Share of households receiving SNAP\",\n    labels = percent_format(accuracy = 1),\n    option = \"rocket\", direction = 1\n  ) +\n  theme_void(base_family = 'Verdana') +\n  theme(legend.position = 'bottom',\n        legend.title = element_text(face = 'bold', hjust = .5),\n        plot.title = element_text(face = 'bold', hjust = .5)) +\n  guides(fill = guide_colourbar(barheight = 0.35, barwidth = 15, title.position = 'top')) +\n  labs(title    = \"SNAP Participation by County\",\n       subtitle = \"2018-2022 5-year ACS Estimates\")"
   },
   {
-    "objectID": "webinar/index.html#nass-quickstats-rnassqs",
-    "href": "webinar/index.html#nass-quickstats-rnassqs",
+    "objectID": "aaea_webinar/index.html#going-smaller-census-tracts",
+    "href": "aaea_webinar/index.html#going-smaller-census-tracts",
+    "title": "Introduction to Maps",
+    "section": "Going Smaller: Census Tracts",
+    "text": "Going Smaller: Census Tracts\nChange geography = \"county\" to geography = \"tract\" and add a state argument:\n\nget_acs(\n  geography = \"tract\",\n  state     = 'RI',\n  variables = c(snap = \"B22003_002\", total = \"B22003_001\"),\n  year      = 2024,\n  geometry  = TRUE\n) |&gt;\n  select(GEOID, NAME, variable, estimate) |&gt;\n  pivot_wider(names_from = variable, values_from = estimate) |&gt;\n  mutate(snap_pct = snap / total) |&gt;\n  ggplot() +\n  geom_sf(aes(fill = snap_pct), color = NA) +\n  scale_fill_viridis_c(option = \"A\", direction = -1,\n                       labels = percent_format(accuracy = 1),\n                       na.value = 'grey90') +\n  theme_void() +\n  labs(title = \"SNAP Participation by Census Tract, Rhode Island\")\n\n\nEverything is the same except geography and state. tidycensus supports county, tract, block group, place, ZCTA, and more. Block groups are the finest grain with reliable SNAP data."
+  },
+  {
+    "objectID": "aaea_webinar/index.html#nass-quickstats-rnassqs",
+    "href": "aaea_webinar/index.html#nass-quickstats-rnassqs",
     "title": "Introduction to Maps",
     "section": "NASS QuickStats: rnassqs",
-    "text": "NASS QuickStats: rnassqs\nNASS QuickStats is the USDA’s public database for agricultural statistics: crops, livestock, farm economics, farm counts, and more.\n\nlibrary(rnassqs)\n\n# One-time setup per session (get a free key at quickstats.nass.usda.gov/api)\nnassqs_auth(\"YOUR_API_KEY\")\n\n\nCovers: most Census of Agriculture tables + annual/quarterly survey data\nGeographic levels: national, state, district, county, watershed\n\nNASS QuickStats is the programmatic interface to the same data you’d find on the NASS website. For the challenge, you’re probably already familiar with some of these datasets. rnassqs wraps the API and returns clean data frames."
+    "text": "NASS QuickStats: rnassqs\nNASS QuickStats is USDA’s public database: crops, livestock, farm economics, farm counts, and more.\n\nlibrary(rnassqs)\n\n# one-time setup per session -- free key at quickstats.nass.usda.gov/api\nnassqs_auth(\"YOUR_API_KEY\")\n\n\nTip: prototype your query at quickstats.nass.usda.gov first to get the exact parameter names and verify your record count before calling the API."
   },
   {
-    "objectID": "webinar/index.html#querying-nass-data",
-    "href": "webinar/index.html#querying-nass-data",
+    "objectID": "aaea_webinar/index.html#querying-nass-corn-and-soybeans",
+    "href": "aaea_webinar/index.html#querying-nass-corn-and-soybeans",
     "title": "Introduction to Maps",
-    "section": "Querying NASS Data",
-    "text": "Querying NASS Data\n\nparams &lt;- list(\n  commodity_desc    = \"VEGETABLES\",\n  statisticcat_desc = \"SALES\",\n  unit_desc         = \"$\",\n  domain_desc       = \"TOTAL\",\n  agg_level_desc    = \"COUNTY\",\n  year              = 2022\n)\n\nveg_sales &lt;- nassqs(params)\n\n\nUse the QuickStats web interface to explore variables and build your query, then translate it to rnassqs parameters.\n\nThe parameter names map directly to the column names in the QuickStats web interface. I always prototype queries on the website first, then translate them to code. The website also shows you how many records your query will return (the API has a 50,000-row limit per call)."
+    "section": "Querying NASS: Corn and Soybeans",
+    "text": "Querying NASS: Corn and Soybeans\n\ncorn_acres &lt;- nassqs(\n  commodity_desc = \"CORN\",\n  short_desc     = \"CORN - ACRES PLANTED\",\n  domain_desc    = \"TOTAL\",\n  agg_level_desc = \"COUNTY\",\n  year           = 2015\n) |&gt;\n  mutate(GEOID = paste0(state_fips_code, county_code)) |&gt;\n  select(GEOID, year, corn_acres_planted = Value)\n\ncorn_acres_sf &lt;- left_join(counties_sf, corn_acres)\n\nSame pattern for soybeans. Value comes back as a character with commas – handle that in the color scale or with as.numeric(str_remove_all(Value, \",\"))."
   },
   {
-    "objectID": "webinar/index.html#joining-nass-data-to-a-map",
-    "href": "webinar/index.html#joining-nass-data-to-a-map",
+    "objectID": "aaea_webinar/index.html#finding-better-breaks-jenks",
+    "href": "aaea_webinar/index.html#finding-better-breaks-jenks",
     "title": "Introduction to Maps",
-    "section": "Joining NASS Data to a Map",
-    "text": "Joining NASS Data to a Map\nNASS returns a plain data frame with no geometry. Build the GEOID and join to counties_sf:\n\ncounty_veg &lt;- counties_sf |&gt;\n  left_join(\n    veg_sales |&gt;\n      mutate(\n        GEOID = paste0(\n          str_pad(state_fips_code, 2, pad = \"0\"),\n          str_pad(county_code, 3, pad = \"0\")\n        ),\n        value_numeric = as.numeric(str_remove_all(Value, \",\"))\n      ) |&gt;\n      select(GEOID, value_numeric),\n    by = \"GEOID\"\n  )\n\n\nTwo things to watch: first, NASS suppresses values for privacy: counties with fewer than 3 farms in a category show “(D)” instead of a number. as.numeric() will coerce those to NA, which is correct behavior. Second, always zero-pad your FIPS codes. “1001” and “01001” are different strings; the join will silently fail if you don’t pad."
+    "section": "Finding Better Breaks: Jenks",
+    "text": "Finding Better Breaks: Jenks\nRight-skewed ag data will look like one color if you use a linear scale. Jenks natural breaks fix that.\n\nlibrary(classInt)\n\ncorn_vals &lt;- as.numeric(str_remove_all(corn_acres_sf$corn_acres_planted, \",\"))\nsoy_vals  &lt;- as.numeric(str_remove_all(soybean_acres_sf$soybean_acres_planted, \",\"))\ncombined  &lt;- c(corn_vals, soy_vals)\n\nbrks &lt;- classIntervals(\n  combined[!is.na(combined) & combined &gt; 0],\n  n = 5, style = \"jenks\"\n)$brks |&gt; round(-3)\n\npal &lt;- RColorBrewer::brewer.pal(length(brks), \"YlGnBu\")\n\nUsing the combined distribution ensures both maps share the same color scale."
   },
   {
-    "objectID": "webinar/index.html#mapping-the-nass-result",
-    "href": "webinar/index.html#mapping-the-nass-result",
+    "objectID": "aaea_webinar/index.html#comparing-maps-with-compare",
+    "href": "aaea_webinar/index.html#comparing-maps-with-compare",
     "title": "Introduction to Maps",
-    "section": "Mapping the NASS Result",
-    "text": "Mapping the NASS Result\n\nggplot(county_veg) +\n  geom_sf(aes(fill = value_numeric), color = NA) +\n  geom_sf(data = states_sf, fill = NA,\n          color = \"white\", linewidth = 0.4) +\n  coord_sf(crs = 5070) +\n  scale_fill_viridis_c(\n    name   = \"Vegetable sales ($)\",\n    labels = scales::dollar_format(scale = 1e-6, suffix = \"M\"),\n    trans  = \"log10\",\n    na.value = \"gray90\"\n  ) +\n  theme_void() +\n  labs(title = \"County-Level Vegetable Sales (2022 Census of Ag)\",\n       caption = \"Source: USDA NASS QuickStats. Suppressed counties shown in gray.\")\n\n\nTwo things to point out: trans = “log10” is important here because farm sales data is extremely right-skewed. Without the log transform, everything except a handful of California counties will be the same color. Also note na.value = “gray90” for suppressed counties, and acknowledging suppression in the caption."
+    "section": "Comparing Maps with compare()",
+    "text": "Comparing Maps with compare()\n\nleft_map &lt;- maplibre(bounds = states_sf, style = carto_style(\"voyager\")) |&gt;\n  add_fill_layer(id = \"corn_acres\", source = corn_acres_sf,\n    fill_color = interpolate(column = \"corn_acres_planted\",\n                             values = brks, stops = pal, na_color = \"lightgrey\"),\n    fill_opacity = 0.9, tooltip = \"corn_acres_planted\") |&gt;\n  add_line_layer(id = 'states', source = states_sf, line_width = .1) |&gt;\n  add_continuous_legend(\"Corn Acres Planted, 2015\",\n    values = brks, colors = pal, position = \"bottom-left\", draggable = TRUE)\n\nright_map &lt;- maplibre(bounds = states_sf, style = carto_style(\"voyager\")) |&gt;\n  add_fill_layer(id = \"soybean_acres\", source = soybean_acres_sf,\n    fill_color = interpolate(column = \"soybean_acres_planted\",\n                             values = brks, stops = pal, na_color = \"lightgrey\"),\n    fill_opacity = 0.9, tooltip = \"soybean_acres_planted\") |&gt;\n  add_line_layer(id = 'states', source = states_sf, line_width = .1) |&gt;\n  add_continuous_legend(\"Soybean Acres Planted, 2015\",\n    values = brks, colors = pal, position = \"bottom-left\", draggable = TRUE)\n\ncompare(left_map, right_map)"
   },
   {
-    "objectID": "webinar/index.html#why-go-interactive",
-    "href": "webinar/index.html#why-go-interactive",
+    "objectID": "aaea_webinar/index.html#from-table-to-map",
+    "href": "aaea_webinar/index.html#from-table-to-map",
     "title": "Introduction to Maps",
-    "section": "Why Go Interactive?",
-    "text": "Why Go Interactive?\nStatic maps are great for publications and reports. Interactive maps let viewers:\n\nZoom in to their own county or region\nHover to see exact values\nToggle between multiple data layers\nExplore on their own terms\n\n\nFor a data challenge or a Shiny app, interactive maps dramatically increase engagement.\n\nThe tradeoff is file size and rendering. A ggplot map is a static image: tiny, fast, universally portable. An interactive mapgl map is an HTML widget that needs to load JavaScript and tiles. For a Quarto document or webpage, that’s totally fine. For a PDF or Word doc, stick to ggplot."
+    "section": "From Table to Map",
+    "text": "From Table to Map\nAny table with latitude and longitude columns can become a spatial dataset.\n\nusda_inspection_estabs &lt;- read_csv('data/MPI_Directory_by_Establishment_Number.csv')\n\nglimpse(usda_inspection_estabs)\n\n\n\nusda_inspection_estabs_sf &lt;- usda_inspection_estabs |&gt;\n  mutate(across(where(is.character), ~iconv(., to = \"UTF-8\", sub = \"\"))) |&gt;\n  st_as_sf(coords = c('longitude', 'latitude'), crs = 4326, remove = FALSE) |&gt;\n  st_transform(crs = 5070)\n\nst_as_sf() turns the lat/lon columns into a geometry column. After that, it’s a normal sf object.\n\nSource: USDA FSIS Meat, Poultry & Egg Product Inspection Directory. The iconv() call strips non-UTF-8 characters – common in address data from federal databases – that would otherwise break mapgl’s JSON serialization when you try to render."
   },
   {
-    "objectID": "webinar/index.html#the-mapgl-package",
-    "href": "webinar/index.html#the-mapgl-package",
+    "objectID": "aaea_webinar/index.html#usda-inspection-establishments",
+    "href": "aaea_webinar/index.html#usda-inspection-establishments",
     "title": "Introduction to Maps",
-    "section": "The mapgl Package",
-    "text": "The mapgl Package\nmapgl brings MapLibre GL into R: fast, vector-tile-based interactive maps\n\nlibrary(mapgl)\n\nThe core workflow mirrors what we’ve done in ggplot:\n\n\n\nggplot2\nmapgl\n\n\n\n\nggplot()\nmaplibre()\n\n\ngeom_sf(aes(fill = ...))\nadd_fill_layer()\n\n\ngeom_sf(data = points)\nadd_circle_layer()\n\n\nscale_fill_viridis_c()\ninterpolate() inside fill_color\n\n\n\n\nmapgl was written by Kyle Walker, same author as tidycensus. It’s designed to work naturally with sf objects and tidyverse data. You can pass any sf data frame directly as the source argument."
+    "section": "USDA Inspection Establishments",
+    "text": "USDA Inspection Establishments\n\nlower48_usda &lt;- st_intersection(\n  usda_inspection_estabs_sf,\n  st_transform(states_sf, 5070)\n) |&gt;\n  filter(size %in% c('Large', 'Small', 'Very Small'))\n\nggplot() +\n  geom_sf(data = st_transform(states_sf, 5070),\n          color = 'black', linewidth = .25) +\n  geom_sf(data = lower48_usda,\n          aes(color = size), size = 1, alpha = .7) +\n  scale_color_manual(values = c('#e41a1c', '#e6ab02', '#377eb8'),\n                     name = 'Size') +\n  theme_void() +\n  labs(title    = \"USDA Meat, Poultry & Egg Product Inspection\",\n       subtitle = \"Establishments by Size Class\")"
   },
   {
-    "objectID": "webinar/index.html#an-interactive-choropleth",
-    "href": "webinar/index.html#an-interactive-choropleth",
+    "objectID": "aaea_webinar/index.html#proportional-symbol-maps",
+    "href": "aaea_webinar/index.html#proportional-symbol-maps",
     "title": "Introduction to Maps",
-    "section": "An Interactive Choropleth",
-    "text": "An Interactive Choropleth\n\nus48 &lt;- filter(states_sf, !STUSPS %in% c(\"AK\", \"HI\"))\n\nmaplibre(bounds = us48, style = carto_style(\"positron\")) |&gt;\n  add_fill_layer(\n    id     = \"snap_counties\",\n    source = snap_rate,\n    fill_color = interpolate(\n      column    = \"snap_pct\",\n      values    = c(0, 0.15, 0.40),\n      stops     = RColorBrewer::brewer.pal(3, \"YlOrRd\"),\n      na_color  = \"lightgrey\"\n    ),\n    fill_opacity = 0.85,\n    tooltip      = \"NAME\"\n  )\n\n\n[Run this live.] Notice the immediate similarity to the ggplot code. interpolate() is mapgl’s equivalent of scale_fill_viridis_c(): you provide breakpoints (values) and colors (stops). The tooltip argument names the column that shows on hover."
+    "section": "Proportional Symbol Maps",
+    "text": "Proportional Symbol Maps\nSize symbols by a count – use scale_size_area(), which maps area (not radius) to the variable.\n\nvt_counts &lt;- usda_inspection_estabs_sf |&gt;\n  filter(State == \"VT\") |&gt;\n  st_join(st_transform(counties_sf |&gt; filter(STATEFP == \"50\"), 5070)) |&gt;\n  st_drop_geometry() |&gt;\n  count(GEOID)\n\nvt_centroids &lt;- counties_sf |&gt;\n  filter(STATEFP == \"50\") |&gt;\n  left_join(vt_counts, by = \"GEOID\") |&gt;\n  st_centroid()\n\nggplot() +\n  geom_sf(data = filter(counties_sf, STATEFP == \"50\"),\n          fill = \"gray95\", color = \"black\", linewidth = 0.15) +\n  geom_sf(data = vt_centroids, aes(size = n),\n          shape = 21, fill = \"steelblue\", color = \"white\", alpha = 0.8) +\n  scale_size_area(max_size = 14, name = \"Inspected Establishments\") +\n  coord_sf(crs = 6589) +\n  theme_void()"
   },
   {
-    "objectID": "webinar/index.html#adding-point-layers",
-    "href": "webinar/index.html#adding-point-layers",
+    "objectID": "aaea_webinar/index.html#categorical-point-maps-with-mapgl",
+    "href": "aaea_webinar/index.html#categorical-point-maps-with-mapgl",
     "title": "Introduction to Maps",
-    "section": "Adding Point Layers",
-    "text": "Adding Point Layers\n\nmaplibre(bounds = us48, style = carto_style(\"positron\")) |&gt;\n  add_fill_layer(\n    id     = \"snap_counties\",\n    source = snap_rate,\n    fill_color = interpolate(\n      column   = \"snap_pct\",\n      values   = c(0, 0.15, 0.40),\n      stops    = RColorBrewer::brewer.pal(3, \"YlOrRd\"),\n      na_color = \"lightgrey\"\n    ),\n    fill_opacity = 0.7\n  ) |&gt;\n  add_circle_layer(\n    id     = \"markets\",\n    source = farmers_markets_sf,   # your point data\n    circle_color  = \"#2c5f2e\",\n    circle_radius = 5,\n    circle_stroke_color = \"white\",\n    circle_stroke_width = 1,\n    tooltip = \"market_name\"\n  )\n\n\nLayering in mapgl works the same as ggplot: pipe additional layers on top. Layers are drawn in order: the first add_ call is the bottom layer. Here we’re showing county SNAP rates as the choropleth background, with farmers market locations plotted on top."
+    "section": "Categorical Point Maps with mapgl",
+    "text": "Categorical Point Maps with mapgl\nColor points by category using match_expr():\n\ngas_stations &lt;- read_csv('data/gas_stations.csv') |&gt;\n  st_as_sf(wkt = \"geometry_wkt\", crs = 4326) |&gt;\n  st_transform(crs = 5070)\n\nmapboxgl(style = mapbox_style(\"light\"), bounds = states_sf) |&gt;\n  add_circle_layer(\n    id = \"poi-gas\", source = gas_stations,\n    circle_color = match_expr(\n      \"name\",\n      values = c(\"Casey's General Store\", \"Cenex\", \"Kwik Trip/Kwik Star\"),\n      stops  = c(\"#F3D317\", \"#8a0000\", \"#0300ad\")\n    ),\n    circle_radius = 4, circle_stroke_color = \"#ffffff\",\n    circle_stroke_width = .4, circle_opacity = 0.7, tooltip = \"city_name\"\n  ) |&gt;\n  add_categorical_legend(\n    legend_title = \"Midwest Gas Station Chains\",\n    values = c(\"Casey's General Store\", \"Cenex\", \"Kwik Trip/Kwik Star\"),\n    colors = c(\"#F3D317\", \"#8a0000\", \"#0300ad\"),\n    patch_shape = \"circle\", position = \"bottom-left\",\n    layer_id = \"poi-gas\", interactive = TRUE\n  )"
   },
   {
-    "objectID": "webinar/index.html#putting-it-all-together",
-    "href": "webinar/index.html#putting-it-all-together",
+    "objectID": "aaea_webinar/index.html#st_intersection-counting-points-in-polygons",
+    "href": "aaea_webinar/index.html#st_intersection-counting-points-in-polygons",
     "title": "Introduction to Maps",
-    "section": "Putting It All Together",
-    "text": "Putting It All Together\nA complete interactive map combining everything we’ve covered:\n\nCounty-level local food data from NASS (choropleth)\nState outlines for reference (line layer)\nFarmers market or food hub locations (point layer)\nHover tooltips on both polygon and point layers\nA legend\n\n\nThis is the kind of map that makes a data challenge submission stand out.\n\nWe’re going to build this together now. [Switch to RStudio for live demo using the challenge data.]"
+    "section": "st_intersection: Counting Points in Polygons",
+    "text": "st_intersection: Counting Points in Polygons\nOne of the most useful GIS operations: assign each point to the polygon it falls in, then aggregate.\n\ncounty_pop_2020 &lt;- get_decennial(geography = 'county', variables = 'P1_001N',\n                                  year = 2020, geometry = TRUE) |&gt;\n  st_transform(5070) |&gt;\n  filter(!str_starts(GEOID, \"02|15|72\")) |&gt;\n  select(cty_fips = GEOID, pop20 = value)\n\ndollar_stores_by_county &lt;- st_intersection(dollar_stores, county_pop_2020) |&gt;\n  st_drop_geometry() |&gt;\n  summarize(dollar_stores = n(), pop_2020 = first(pop20), .by = cty_fips) |&gt;\n  replace_na(list(dollar_stores = 0)) |&gt;\n  mutate(dollar_stores_per_capita = dollar_stores / pop_2020)"
   },
   {
-    "objectID": "webinar/index.html#what-we-covered",
-    "href": "webinar/index.html#what-we-covered",
+    "objectID": "aaea_webinar/index.html#raw-counts-vs-per-capita",
+    "href": "aaea_webinar/index.html#raw-counts-vs-per-capita",
+    "title": "Introduction to Maps",
+    "section": "Raw Counts vs Per Capita",
+    "text": "Raw Counts vs Per Capita\n\n\nRaw counts\n\nggplot() +\n  geom_sf(data = dollar_store_sf,\n    aes(fill = dollar_stores),\n    color = NA) +\n  scale_fill_viridis_c(\n    option = 'mako',\n    trans = \"log10\",\n    direction = -1,\n    na.value = \"gray90\"\n  ) +\n  theme_void()\n\nLarge counties always “win.”\n\nPer 10,000 residents\n\nggplot() +\n  geom_sf(data = dollar_store_sf,\n    aes(fill = dollar_stores_per_capita*10000),\n    color = NA) +\n  scale_fill_distiller(\n    palette = 'YlOrBr',\n    direction = 1,\n    na.value = \"white\"\n  ) +\n  theme_void()\n\nA more honest picture.\n\n\nThis is the classic “always normalize” lesson. Raw counts favor dense, populous counties. Rates and per-capita measures let you compare across places of very different sizes."
+  },
+  {
+    "objectID": "aaea_webinar/index.html#buffer-analysis-st_buffer",
+    "href": "aaea_webinar/index.html#buffer-analysis-st_buffer",
+    "title": "Introduction to Maps",
+    "section": "Buffer Analysis: st_buffer",
+    "text": "Buffer Analysis: st_buffer\nst_buffer() creates a polygon a fixed distance around each point.\n\n# CRS 6463 (Iowa State Plane North) uses U.S. feet -- so 1 mile = 5,280 feet\niowa_dollar_stores &lt;- dollar_stores |&gt;\n  filter(state == 'IA') |&gt;\n  st_transform(6463) |&gt;\n  st_buffer(10 * 5280)  # 10-mile buffer\n\nmaplibre_view(iowa_dollar_stores, interactive_legend = TRUE)\n\n\nThe buffers show which areas of Iowa are within 10 miles of a dollar store – and where the gaps are."
+  },
+  {
+    "objectID": "aaea_webinar/index.html#from-dense-points-to-heatmap",
+    "href": "aaea_webinar/index.html#from-dense-points-to-heatmap",
+    "title": "Introduction to Maps",
+    "section": "From Dense Points to Heatmap",
+    "text": "From Dense Points to Heatmap\nWhen points overlap too much to read, a heatmap reveals density patterns more clearly.\n\niowa_pts &lt;- dollar_stores |&gt;\n  filter(state == \"IA\") |&gt;\n  st_transform(4326) |&gt;\n  st_jitter(factor = 0.0001)\n\nmaplibre(style = maptiler_style(\"openstreetmap\"),\n         bounds = filter(states_sf, STUSPS == 'IA')) |&gt;\n  add_circle_layer(\n    id = \"poi-dollar-store\", source = iowa_pts,\n    circle_color = \"red\", circle_stroke_color = \"white\",\n    circle_stroke_width = 1\n  ) |&gt;\n  add_heatmap_layer(\n    id = \"heatmap\", source = iowa_pts,\n    heatmap_radius = 25,\n    heatmap_color  = interpolate(\n      property = \"heatmap-density\",\n      values   = seq(0, 1, 0.2),\n      stops    = c(\"transparent\", viridisLite::magma(5))\n    )\n  )\n\n\nheatmap-density is a built-in MapLibre expression – you don’t create it. It’s computed from point density on the fly. The color ramp maps from transparent (no density) through the magma palette to bright yellow at peak concentration."
+  },
+  {
+    "objectID": "aaea_webinar/index.html#more-things-sf-can-do",
+    "href": "aaea_webinar/index.html#more-things-sf-can-do",
+    "title": "Introduction to Maps",
+    "section": "More Things sf Can Do",
+    "text": "More Things sf Can Do\nst_distance()        # distance between features (in CRS units)\nst_nearest_feature() # index of the nearest feature in another layer\nst_centroid()        # geometric center of a polygon\nst_area()            # area of a polygon (in CRS units)\nst_union()           # merge / dissolve geometries into one\nst_bbox()            # bounding box of a layer\nst_crop()            # clip features to a rectangular extent\nst_within()          # is feature A fully inside feature B?\nst_touches()         # do features share a boundary?\nsf cheat sheet: rstudio.github.io/cheatsheets/sf.pdf"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#what-we-covered",
+    "href": "aaea_webinar/index.html#what-we-covered",
     "title": "Introduction to Maps",
     "section": "What We Covered",
-    "text": "What We Covered\n\nMapping basics: vector data types, CRS, map types, why projections matter for choropleths\nggplot2 maps: sf, tigris, geom_sf(), choropleth fill, multi-layer maps\nCensus and NASS data: tidycensus with geometry, rnassqs queries, joining on GEOID\nInteractive maps: mapgl choropleth and point layers"
+    "text": "What We Covered\n\nMapping basics: vector data, CRS 4326 vs 5070, map types\nggplot2 maps: tigris, geom_sf(), projections, choropleths, LACE example\nCensus and NASS: tidycensus with geometry, SNAP maps, census tracts, rnassqs, Jenks breaks, compare()\nPoint data and GIS: st_as_sf(), categorical maps, st_intersection(), counts vs rates, buffers, heatmaps"
   },
   {
-    "objectID": "webinar/index.html#resources",
-    "href": "webinar/index.html#resources",
+    "objectID": "aaea_webinar/index.html#resources",
+    "href": "aaea_webinar/index.html#resources",
     "title": "Introduction to Maps",
     "section": "Resources",
-    "text": "Resources\nBooks and documentation\n\nGeocomputation with R: the definitive free book on spatial R\nAnalyzing US Census Data: tidycensus deep dive by Kyle Walker\nmapgl documentation: package reference and examples\n\nQuick references\n\nNASS QuickStats API: API key + query builder\nCensus API key signup\nEPSG.io: look up any CRS by name or number"
+    "text": "Resources\nBooks and documentation\n\nGeocomputation with R: the definitive free book on spatial R\nAnalyzing US Census Data: tidycensus deep dive by Kyle Walker\nmapgl documentation: package reference and examples\n\nQuick references\n\nNASS QuickStats: API key + query builder\nCensus API key signup\nsf cheat sheet\nEPSG.io: look up any CRS"
   },
   {
-    "objectID": "webinar/index.html#thank-you",
-    "href": "webinar/index.html#thank-you",
+    "objectID": "aaea_webinar/index.html#thank-you",
+    "href": "aaea_webinar/index.html#thank-you",
     "title": "Introduction to Maps",
     "section": "Thank You",
-    "text": "Thank You\nAndrew Van Leuven University of Vermont\nSlides and blog posts: andrewvanleuven.github.io/mapdork\n\nQuestions?\n\nThank the organizers (Zoë Plakias, Anne Byrne, and the challenge committee). Remind folks about the challenge deadline and the other two webinars (principles of data viz with Jared Hutchins, and R data viz with Sid Bora)."
+    "text": "Thank You\nAndrew Van Leuven University of Vermont\nBlog posts and code: andrewvanleuven.github.io/mapdork\n\nQuestions?\n\nThank the organizers (Zoë Plakias, Anne Byrne, and the challenge committee). Remind folks about the challenge deadline and the other two webinars (Jared Hutchins on data viz principles, Sid Bora on R data viz)."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "MapDork Library",
+    "section": "",
+    "text": "Putting Farm Credit Branches on the Map\n\n\n\nmap\n\n\n\nA look at where Farm Credit branches are located across the country.\n\n\n\n\n\nMay 13, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nThe 2025 County Population Data Is Out. Here’s What It Shows.\n\n\n\nmap\n\n\n\nMaking sense of the latest county-level census data, including growth, decline, and migration.\n\n\n\n\n\nMar 26, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome to MapDork\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nDec 31, 2025\n\n\nAndrew J. Van Leuven\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/05_2026_farmcredit/index.html",
@@ -315,10 +301,52 @@
     "text": "Footnotes\n\n\nHutchins, J. (2023). The US farm credit system and agricultural development: Evidence from an early expansion, 1920–1940. American Journal of Agricultural Economics, 105(1), 3-26.  Turvey, C. G., Carduner, A., & Ifft, J. (2021). Market microstructure and the historical relationship between the US farm credit system, farm service agency and commercial bank lending. Agricultural Finance Review, 81(3), 360-385.↩︎\nThe system is also supported by a handful of funding banks that provide loanable funds to the associations within their districts. For a more complete primer on FCS structure, see Palange-Thomas, K., Ifft, J., Parcell, J., & Roach, A. (2024). America’s Largest Ag Lender: A Primer on the Farm Credit System. Rural and Farm Finance Policy Analysis Center.↩︎\nSubedi, D., & Giri, A. K. (2024). Debt Use by U.S. Farm Businesses, 2012–2021. Economic Information Bulletin No. EIB-273. U.S. Department of Agriculture, Economic Research Service.↩︎\nFarm Credit Administration. About FCA. U.S. Government Agency.↩︎\nBy “we” I am referring to myself, Tessa Conroy, Dayton Lambert, and Kelsey Thomas. The follow-up to our paper on bank deserts is called Bank Branch Concentration and Regional Small Business Lending and will be ready to share soon. Rounding out the trio, our final paper will take aim at causality, estimating how bank branch closures affect new business formation (or the lack thereof) in affected communities.↩︎\nHawaii’s two Farm Credit branches are included…you just have to zoom out to find them. I did not find any Alaskan branches in the Farm Credit lender directory.↩︎"
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "MapDork Library",
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome to MapDork",
     "section": "",
-    "text": "Putting Farm Credit Branches on the Map\n\n\n\nmap\n\n\n\nA look at where Farm Credit branches are located across the country.\n\n\n\n\n\nMay 13, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nThe 2025 County Population Data Is Out. Here’s What It Shows.\n\n\n\nmap\n\n\n\nMaking sense of the latest county-level census data, including growth, decline, and migration.\n\n\n\n\n\nMar 26, 2026\n\n\nAndrew J. Van Leuven\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome to MapDork\n\n\n\nmap\n\n\n\n\n\n\n\n\n\nDec 31, 2025\n\n\nAndrew J. Van Leuven\n\n\n\n\n\nNo matching items"
+    "text": "This site is for “under the hood” details on maps I publish on my substack page. Below is some further detail on my “Kountry” restaurant map."
+  },
+  {
+    "objectID": "posts/welcome/index.html#interactive-map",
+    "href": "posts/welcome/index.html#interactive-map",
+    "title": "Welcome to MapDork",
+    "section": "Interactive map",
+    "text": "Interactive map"
+  },
+  {
+    "objectID": "posts/welcome/index.html#code-for-ggplot2-map",
+    "href": "posts/welcome/index.html#code-for-ggplot2-map",
+    "title": "Welcome to MapDork",
+    "section": "Code for ggplot2 map",
+    "text": "Code for ggplot2 map\nThis code aggregates business locations into H3 hexagons at resolution 3 (approximately 4,800 square miles each), counts the number of establishments per hexagon, and clips the results to the contiguous United States. The ggplot2 visualization uses an Albers Equal Area projection and a yellow-green color scale to show the spatial distribution of businesses with “Kountry” in their name.\nI use data from the YourEconomy Time Series (YTS), which covers all U.S. business establishments from 1998 to 2025. For legal reasons—i.e., it’s their data, not mine—that data is not provided in this repository.\n\nlibrary(arrow)\nlibrary(tidyverse)\nlibrary(janitor)\nlibrary(sf)\nlibrary(h3jsr)\nlibrary(tigris)\nlibrary(mapgl)\n\n# Contiguous 48 states\nstates &lt;- states(cb = TRUE, resolution = '20m') |&gt;\n  filter(!STUSPS %in% c(\"AK\", \"HI\") & STATEFP &lt; 60)\n\nytsdb &lt;- open_dataset('data/yts')\ndf &lt;- ytsdb |&gt;\n  filter(year %in% c(2021:2025), str_detect(tolower(company), 'kountry')) |&gt;\n  collect() |&gt;\n  filter(state != 'HI' & state != 'AK')\n\n# Clean and prepare spatial data\ndsf &lt;- df |&gt;\n  mutate(longitude = ifelse(longitude &gt; 0, longitude * -1, longitude)) |&gt;\n  st_as_sf(coords = c('longitude', 'latitude'), crs = 4326, remove = FALSE) |&gt;\n  st_transform(6350) |&gt; # Transform to Albers\n  slice(1, .by = id)\n\n# H3 requires WGS84, so transform back temporarily\ndsf &lt;- dsf |&gt;\n  mutate(h3_index = point_to_cell(st_transform(geometry, 4326), res = 3))\n\n# Count occurrences per hexagon\nhex_counts &lt;- dsf |&gt;\n  st_drop_geometry() |&gt;\n  count(h3_index, name = \"count\")\n\n# Convert H3 indices to polygons\nhex_sf &lt;- hex_counts |&gt;\n  mutate(geometry = cell_to_polygon(h3_index)) |&gt;\n  st_as_sf(crs = 4326)\n\nstates &lt;- states |&gt; st_transform(6350) |&gt; select(st = STUSPS)\nhex_sf &lt;- hex_sf |&gt; st_transform(6350) |&gt; st_intersection(states)\n\nggplot() +\n  geom_sf(data = states, fill = '#FFFFE5', color = NA) +\n  geom_sf(data = hex_sf, aes(fill = count), color = NA) +\n  geom_sf(data = states, fill = NA, color = \"black\", linewidth = .15) +\n  scale_fill_distiller(\n    palette = 'YlGn',\n    direction = 1,\n    name = 'Count',\n    limits = c(0, 12)\n  ) +\n  theme_void(base_family = 'Red Hat Display', base_size = 14) +\n  labs(\n    title = \"Density of Business Establishments with 'Kountry' in the Name\",\n    subtitle = '(Each Hexagon ≈ 4,800 square miles)',\n    caption = '\\nSource: YourEconomy Time Series, 2025    \\n'\n  ) +\n  theme(\n    plot.title = element_text(face = \"bold\", hjust = 0.5),\n    plot.subtitle = element_text(face = \"italic\", hjust = 0.5),\n    legend.title = element_text(face = \"bold\", hjust = 0.5),\n    legend.position = 'bottom'\n  ) +\n  guides(\n    fill = guide_colourbar(\n      barheight = 0.5,\n      barwidth = 12,\n      title.position = \"top\"\n    )\n  )"
+  },
+  {
+    "objectID": "posts/03_2026_popest/index.html",
+    "href": "posts/03_2026_popest/index.html",
+    "title": "The 2025 County Population Data Is Out. Here’s What It Shows.",
+    "section": "",
+    "text": "Today marks the release of the latest batch of data from the U.S. Census Bureau: the 2025 County Population Totals and Components of Change. Below is a collection of a few interactive maps that visualize changes that have taken place since last year, as well as a quick guide (including code snippets) for how to load, clean, and map the data."
+  },
+  {
+    "objectID": "posts/03_2026_popest/index.html#components-of-growth-and-decline",
+    "href": "posts/03_2026_popest/index.html#components-of-growth-and-decline",
+    "title": "The 2025 County Population Data Is Out. Here’s What It Shows.",
+    "section": "Components of Growth and Decline",
+    "text": "Components of Growth and Decline\nNot all population growth looks the same. A county can be growing because it has more births than deaths, because people are moving in, or—ideally—both. Conversely, decline can stem from negative natural change (more deaths than births), outmigration, or both at once. The map below classifies every U.S. county into one of four categories based on its 2024–25 natural change and net migration:\n\n\n\n\n\n\n\n\n\nGrowth Type\nNatural Change\nNet Migration\nWhat it means\n\n\n\n\nGrowing Both Ways\nPositive\nPositive\nBirths exceed deaths and people are moving in\n\n\nMigration-Dependent\nNegative\nPositive\nMore deaths than births, but in-migration offsets the loss\n\n\nBirth-Dependent\nPositive\nNegative\nNatural increase keeps the county growing despite net outmigration\n\n\nDeclining Both Ways\nNegative\nNegative\nFewer births than deaths and net outmigration—the double squeeze\n\n\n\n\n\n\n\n\n\nPerhaps the most striking takeaway from this map is just how spatially mixed the picture is. Even in states with strong overall population growth—Texas, Florida, the Carolinas—you’ll find pockets of birth-dependent or declining counties alongside booming ones. And in states often written off as uniformly shrinking, migration is quietly propping up growth in college towns, retirement destinations, and rural amenity counties. In general, county data catches nuance that state-level summaries often miss.\nPlease feel free to share these maps with friends and colleagues. If you would like a particular map or data point, I am stretched pretty thin until the end of the semester but it’s still worth a try to email me at andrew.vanleuven@uvm.edu with any questions you might have."
+  },
+  {
+    "objectID": "posts/03_2026_popest/index.html#footnotes",
+    "href": "posts/03_2026_popest/index.html#footnotes",
+    "title": "The 2025 County Population Data Is Out. Here’s What It Shows.",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nMuch of what makes working with U.S. Census data in R so approachable is owed to Dr. Kyle Walker. His packages—tidycensus, tigris, and mapgl—have become essential tools in the applied spatial data science community. If you work with U.S. demographic or geographic data in R, his work is worth exploring.↩︎"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "My name is Andrew Van Leuven, and my day job is as an assistant professor at the University of Vermont. My research and teaching focus on regional economics and rural development efforts that strengthen and revitalize local economies.\nThis site is where I share my maps. For more about me, visit my other (more professional) website."
   }
 ]
