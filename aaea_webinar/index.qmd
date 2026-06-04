@@ -553,7 +553,7 @@ right_map <- maplibre(bounds = states_sf, style = carto_style("voyager")) %>%
     fill_opacity = 0.9, tooltip = "soybean_acres_planted") %>%
   add_line_layer(id = "states", source = states_sf, line_width = .1) %>%
   add_continuous_legend("Soybean Acres Planted, 2015",
-    values = brks, colors = pal, position = "top-right")
+    values = brks, colors = pal, position = "top-left")
 
 compare(left_map, right_map, height = "900px")
 ```
@@ -788,6 +788,22 @@ st_touches()         # do features share a boundary?
 ```
 
 sf cheat sheet: [rstudio.github.io/cheatsheets/sf.pdf](https://rstudio.github.io/cheatsheets/sf.pdf)
+
+## More Examples of Spatial Data Visualization in R
+
+![](img/SCR-20260604-hdqy.png){fig-align="center" height="800px"}
+
+## More Examples of Spatial Data Visualization in R
+
+![](img/SCR-20260604-heiw.png){fig-align="center" height="800px"}
+
+## More Examples of Spatial Data Visualization in R
+
+![](img/SCR-20260604-hevo.png){fig-align="center" height="800px"}
+
+## More Examples of Spatial Data Visualization in R
+
+![](img/SCR-20260604-hfgl.jpeg){fig-align="center" height="800px"}
 
 # Wrap Up {background-color="#2c5f2e" color="white"}
 
