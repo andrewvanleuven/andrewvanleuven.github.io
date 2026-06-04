@@ -6,11 +6,11 @@ date: "June 4, 2026"
 date-format: long
 format:
   revealjs:
-    theme: simple
+    theme: beige
     slide-number: true
     code-line-numbers: false
-    highlight-style: github
-    footer: "Introduction to Maps | Andrew Van Leuven | UVM"
+    syntax-highlighting: ayu
+    footer: "Introduction to Maps | Andrew Van Leuven"
     incremental: false
     width: 1600
     height: 1000
@@ -32,6 +32,12 @@ execute:
 .reveal pre code { max-height: 800px; }
 </style>
 ```
+
+## Follow Along
+
+Scan to download the R script used in today's demo:
+
+![](img/qr_r_script.png){fig-align="center" height="600px"}
 
 ## Agenda
 
@@ -211,27 +217,18 @@ The most common beginner mistake is mixing CRS. If your layers don't line up, 9 
 :::
 :::
 
-::: {.notes}
-One example worth showing: censusdots.com -- a national dot density map where every dot is one person, colored by race/ethnicity. Centered on Tulsa but you can pan anywhere. https://www.censusdots.com/?map=12.01263869294279,36.1714,-95.9200
-:::
-
----
-
-### A note on dot maps
-
-[censusdots.com](https://www.censusdots.com/?map=12.01263869294279,36.1714,-95.9200) — every dot is one person, colored by race/ethnicity
-
-One of the most powerful examples of what spatial data can show that a table never could.
-
 # Part 2: Mapping in ggplot2 {background-color="#2c5f2e" color="white"}
 
 ## Getting Boundary Data
 
+- **TIGER/Line files**: the Census Bureau's authoritative geographic boundary dataset, covering states, counties, tracts, roads, water features, and more
+- **`tigris`**: an R package that downloads TIGER/Line files directly from the Census API and returns them as `sf` objects, ready to map
+
 ```{r}
-states_sf <- states(cb = TRUE, resolution = "20m") |>
+states_sf <- states(cb = TRUE, resolution = "20m") %>%
   filter(!STUSPS %in% c("AK", "HI", "PR", "VI", "GU", "AS", "MP"))
 
-counties_sf <- counties(cb = TRUE, resolution = "20m") |>
+counties_sf <- counties(cb = TRUE, resolution = "20m") %>%
   filter(!STATEFP %in% c("02", "15", "72", "78", "66", "60", "69"))
 ```
 
@@ -281,10 +278,10 @@ ggplot(states_sf) +
 New from the Census Bureau: county-level estimates of households without air conditioning.
 
 ```{r}
-lace <- read_csv('https://www2.census.gov/programs-surveys/demo/datasets/lace/2023/LACE_23_County.csv') |>
+lace <- read_csv("https://www2.census.gov/programs-surveys/demo/datasets/lace/2023/LACE_23_County.csv") %>%
   mutate(GEOID = paste0(STATE, COUNTY))
 
-lace_map <- counties_sf |>
+lace_map <- counties_sf %>%
   left_join(lace, by = "GEOID")
 ```
 
@@ -304,11 +301,11 @@ ggplot(lace_map) +
   coord_sf(crs = 5070) +
   scale_fill_distiller(
     palette = "YlGn", direction = 1,
-    labels = percent, name = 'Share without A/C'
+    labels = percent, name = "Share without A/C"
   ) +
   theme_void() +
-  theme(legend.position = 'bottom',
-        plot.title = element_text(face = 'bold', hjust = .5)) +
+  theme(legend.position = "bottom",
+        plot.title = element_text(face = "bold", hjust = .5)) +
   labs(title = "Households without Air Conditioning by County (2023)")
 ```
 
@@ -332,6 +329,8 @@ scale_fill_viridis_c(trans = "log10", labels = scales::comma)
 ```
 
 > Avoid rainbow palettes (`rainbow()`, `jet`). They are not perceptually uniform and create false visual boundaries in your data.
+
+- **ColorBrewer** ([colorbrewer2.org](http://colorbrewer2.org/)) — designed by cartographer Cynthia Brewer, it provides rigorously tested sequential, diverging, and qualitative palettes optimized for maps. No need to reinvent the wheel; the cartographers already laid the groundwork.
 
 # Part 3: Census and NASS Data {background-color="#2c5f2e" color="white"}
 
@@ -359,8 +358,8 @@ v22 <- load_variables(2022, "acs5", cache = TRUE)
 
 ```{r}
 #| output-location: fragment
-v22 |>
-  filter(str_detect(label, regex("snap|food stamp", ignore_case = TRUE))) |>
+v22 %>%
+  filter(str_detect(label, regex("snap|food stamp", ignore_case = TRUE))) %>%
   select(name, label, concept)
 ```
 
@@ -375,10 +374,10 @@ snap_households <- get_acs(
                 total = "B22003_001"),
   year      = 2022,
   geometry  = TRUE
-) |>
-  select(GEOID, NAME, variable, estimate) |>
-  pivot_wider(names_from = variable, values_from = estimate) |>
-  mutate(snap_pct = snap / total) |>
+) %>%
+  select(GEOID, NAME, variable, estimate) %>%
+  pivot_wider(names_from = variable, values_from = estimate) %>%
+  mutate(snap_pct = snap / total) %>%
   filter(!str_starts(GEOID, "02|15|72"))
 ```
 
@@ -398,12 +397,12 @@ ggplot(snap_households) +
     option = "rocket", 
     direction = -1
   ) +
-  theme_void(base_family = 'Verdana') +
-  theme(legend.position = 'bottom',
-        legend.title = element_text(face = 'bold', hjust = .5),
-        plot.title = element_text(face = 'bold', hjust = .5),
+  theme_void(base_family = "Verdana") +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold", hjust = .5),
+        plot.title = element_text(face = "bold", hjust = .5),
         plot.subtitle = element_text(hjust = .5)) +
-  guides(fill = guide_colourbar(barheight = 0.35, barwidth = 15, title.position = 'top')) +
+  guides(fill = guide_colourbar(barheight = 0.35, barwidth = 15, title.position = "top")) +
   labs(title = "SNAP Participation by County",
        subtitle = "2018-2022 5-year ACS Estimates")
 ```
@@ -415,18 +414,18 @@ Change `geography = "county"` to `geography = "tract"` and add a `state` argumen
 ```{r}
 #| output-location: slide
 get_acs(
-  geography = "tract", state = 'RI',
+  geography = "tract", state = "RI",
   variables = c(snap = "B22003_002", total = "B22003_001"),
   year = 2024, geometry = TRUE
-) |>
-  select(GEOID, NAME, variable, estimate) |>
-  pivot_wider(names_from = variable, values_from = estimate) |>
-  mutate(snap_pct = snap / total) |>
+) %>%
+  select(GEOID, NAME, variable, estimate) %>%
+  pivot_wider(names_from = variable, values_from = estimate) %>%
+  mutate(snap_pct = snap / total) %>%
   ggplot() +
   geom_sf(aes(fill = snap_pct), color = NA) +
   scale_fill_viridis_c(option = "A", direction = -1,
                        labels = percent_format(accuracy = 1),
-                       na.value = 'grey90') +
+                       na.value = "grey90") +
   theme_void() +
   labs(title = "SNAP Participation by Census Tract, Rhode Island",
        subtitle = "2020-2024 5-year ACS Estimates")
@@ -452,7 +451,7 @@ nassqs_auth("YOUR_API_KEY")
 
 ```{r}
 #| echo: false
-nassqs_auth(key = 'EA66C6CC-BD02-3B40-9C6D-0366A79B6FD8')
+nassqs_auth(key = "EA66C6CC-BD02-3B40-9C6D-0366A79B6FD8")
 ```
 
 ```{r}
@@ -460,15 +459,15 @@ nassqs_auth(key = 'EA66C6CC-BD02-3B40-9C6D-0366A79B6FD8')
 corn_acres <- nassqs(
   commodity_desc = "CORN", short_desc = "CORN - ACRES PLANTED",
   domain_desc = "TOTAL", agg_level_desc = "COUNTY", year = 2015
-) |>
-  mutate(GEOID = paste0(state_fips_code, county_code)) |>
+) %>%
+  mutate(GEOID = paste0(state_fips_code, county_code)) %>%
   select(GEOID, year, corn_acres_planted = Value)
 
 soybean_acres <- nassqs(
   commodity_desc = "SOYBEANS", short_desc = "SOYBEANS - ACRES PLANTED",
   domain_desc = "TOTAL", agg_level_desc = "COUNTY", year = 2015
-) |>
-  mutate(GEOID = paste0(state_fips_code, county_code)) |>
+) %>%
+  mutate(GEOID = paste0(state_fips_code, county_code)) %>%
   select(GEOID, year, soybean_acres_planted = Value)
 
 corn_acres_sf    <- left_join(counties_sf, corn_acres)
@@ -483,13 +482,13 @@ ggplot(corn_acres_sf) +
   geom_sf(aes(fill = corn_acres_planted), color = NA) +
   geom_sf(data = states_sf, fill = NA, color = "white", linewidth = 0.4) +
   coord_sf(crs = 5070) +
-  scale_fill_viridis_c(option = 'A', name = "Corn Acres Planted",
+  scale_fill_viridis_c(option = "A", name = "Corn Acres Planted",
                        labels = comma_format(), trans = "log10", na.value = "gray90") +
-  theme_void(base_family = 'Verdana') +
-  theme(legend.position = 'bottom',
-        legend.title = element_text(face = 'bold', hjust = .5),
-        plot.title = element_text(face = 'bold', hjust = .5)) +
-  guides(fill = guide_colourbar(barheight = 0.35, barwidth = 15, title.position = 'top')) +
+  theme_void(base_family = "Verdana") +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold", hjust = .5),
+        plot.title = element_text(face = "bold", hjust = .5)) +
+  guides(fill = guide_colourbar(barheight = 0.35, barwidth = 15, title.position = "top")) +
   labs(title = "Corn Acres Planted by County, 2015",
        caption = "\nSource: USDA NASS QuickStats. Suppressed/missing counties shown in gray.")
 ```
@@ -502,13 +501,13 @@ ggplot(soybean_acres_sf) +
   geom_sf(aes(fill = soybean_acres_planted), color = NA) +
   geom_sf(data = states_sf, fill = NA, color = "white", linewidth = 0.4) +
   coord_sf(crs = 5070) +
-  scale_fill_viridis_c(option = 'A', name = "Soybean Acres Planted",
+  scale_fill_viridis_c(option = "A", name = "Soybean Acres Planted",
                        labels = comma_format(), trans = "log10", na.value = "gray90") +
-  theme_void(base_family = 'Verdana') +
-  theme(legend.position = 'bottom',
-        legend.title = element_text(face = 'bold', hjust = .5),
-        plot.title = element_text(face = 'bold', hjust = .5)) +
-  guides(fill = guide_colourbar(barheight = 0.35, barwidth = 15, title.position = 'top')) +
+  theme_void(base_family = "Verdana") +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold", hjust = .5),
+        plot.title = element_text(face = "bold", hjust = .5)) +
+  guides(fill = guide_colourbar(barheight = 0.35, barwidth = 15, title.position = "top")) +
   labs(title = "Soybean Acres Planted by County, 2015",
        caption = "\nSource: USDA NASS QuickStats. Suppressed/missing counties shown in gray.")
 ```
@@ -524,7 +523,7 @@ combined  <- c(corn_vals, soy_vals)
 
 brks <- classIntervals(
   combined[!is.na(combined) & combined > 0], n = 5, style = "jenks"
-)$brks |> round(-3)
+)$brks %>% round(-3)
 
 pal <- brewer.pal(length(brks), "YlGnBu")
 ```
@@ -536,25 +535,25 @@ Using the combined distribution ensures both maps share the same color scale.
 ```{r}
 #| eval: true
 #| output-location: slide
-left_map <- maplibre(bounds = states_sf, style = carto_style("voyager")) |>
+left_map <- maplibre(bounds = states_sf, style = carto_style("voyager")) %>%
   add_fill_layer(id = "corn_acres", source = corn_acres_sf,
     fill_color = interpolate(column = "corn_acres_planted",
                              values = brks, stops = pal, na_color = "lightgrey"),
-    fill_opacity = 0.9, tooltip = "corn_acres_planted") |>
-  add_line_layer(id = 'states', source = states_sf, line_width = .1) |>
+    fill_opacity = 0.9, tooltip = "corn_acres_planted") %>%
+  add_line_layer(id = "states", source = states_sf, line_width = .1) %>%
   add_continuous_legend("Corn Acres Planted, 2015",
-    values = brks, colors = pal, position = "bottom-left", draggable = TRUE)
+    values = brks, colors = pal, position = "bottom-left")
 
-right_map <- maplibre(bounds = states_sf, style = carto_style("voyager")) |>
+right_map <- maplibre(bounds = states_sf, style = carto_style("voyager")) %>%
   add_fill_layer(id = "soybean_acres", source = soybean_acres_sf,
     fill_color = interpolate(column = "soybean_acres_planted",
                              values = brks, stops = pal, na_color = "lightgrey"),
-    fill_opacity = 0.9, tooltip = "soybean_acres_planted") |>
-  add_line_layer(id = 'states', source = states_sf, line_width = .1) |>
+    fill_opacity = 0.9, tooltip = "soybean_acres_planted") %>%
+  add_line_layer(id = "states", source = states_sf, line_width = .1) %>%
   add_continuous_legend("Soybean Acres Planted, 2015",
-    values = brks, colors = pal, position = "bottom-left", draggable = TRUE)
+    values = brks, colors = pal, position = "bottom-left")
 
-compare(left_map, right_map)
+compare(left_map, right_map, height = "900px")
 ```
 
 # Part 4: Point Data and GIS {background-color="#2c5f2e" color="white"}
@@ -565,7 +564,7 @@ Any table with latitude and longitude columns can become a spatial dataset.
 
 ```{r}
 #| output-location: fragment
-usda_inspection_estabs <- read_csv('https://andrewvanleuven.github.io/aaea_webinar/data/MPI_Directory_by_Establishment_Number.csv')
+usda_inspection_estabs <- read_csv("https://andrewvanleuven.github.io/aaea_webinar/data/MPI_Directory_by_Establishment_Number.csv")
 glimpse(usda_inspection_estabs)
 ```
 
@@ -576,16 +575,16 @@ Source: USDA FSIS Meat, Poultry & Egg Product Inspection Directory.
 ## `st_as_sf()`: Adding Geometry
 
 ```{r}
-usda_inspection_estabs_sf <- usda_inspection_estabs |>
-  mutate(across(where(is.character), ~iconv(., to = "UTF-8", sub = ""))) |>
-  st_as_sf(coords = c('longitude', 'latitude'), crs = 4326, remove = FALSE) |>
+usda_inspection_estabs_sf <- usda_inspection_estabs %>%
+  mutate(across(where(is.character), ~iconv(., to = "UTF-8", sub = ""))) %>%
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326, remove = FALSE) %>%
   st_transform(crs = 5070)
 
 lower48_usda <- st_intersection(
   usda_inspection_estabs_sf,
   st_transform(states_sf, 5070)
-) |>
-  filter(size %in% c('Large', 'Small', 'Very Small'))
+) %>%
+  filter(size %in% c("Large", "Small", "Very Small"))
 ```
 
 `st_as_sf()` turns lat/lon columns into a `geometry` column. After that, it's a normal `sf` object.
@@ -595,14 +594,14 @@ lower48_usda <- st_intersection(
 ```{r}
 #| output-location: slide
 ggplot() +
-  geom_sf(data = st_transform(states_sf, 5070), color = 'black', linewidth = .25) +
+  geom_sf(data = st_transform(states_sf, 5070), color = "black", linewidth = .25) +
   geom_sf(data = lower48_usda, aes(color = size), size = 1, alpha = .7) +
-  scale_color_manual(values = c('#e41a1c', '#e6ab02', '#377eb8'), name = 'Size') +
-  theme_void(base_family = 'Verdana') +
-  theme(legend.position = 'bottom',
-        legend.title = element_text(face = 'bold', hjust = .5),
+  scale_color_manual(values = c("#e41a1c", "#e6ab02", "#377eb8"), name = "Size") +
+  theme_void(base_family = "Verdana") +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold", hjust = .5),
         plot.subtitle = element_text(hjust = .5),
-        plot.title = element_text(face = 'bold', hjust = .5)) +
+        plot.title = element_text(face = "bold", hjust = .5)) +
   labs(title = "USDA Meat, Poultry & Egg Product Inspection",
        subtitle = "Establishments by Size Class")
 ```
@@ -613,11 +612,11 @@ ggplot() +
 ```{r}
 #| eval: true
 #| output-location: slide
-gas_stations <- read_csv('https://andrewvanleuven.github.io/aaea_webinar/data/gas_stations.csv') |>
-  st_as_sf(wkt = "geometry_wkt", crs = 4326) |>
+gas_stations <- read_csv("https://andrewvanleuven.github.io/aaea_webinar/data/gas_stations.csv") %>%
+  st_as_sf(wkt = "geometry_wkt", crs = 4326) %>%
   st_transform(crs = 5070)
 
-maplibre(style = carto_style("positron"), bounds = states_sf) |>
+maplibre(style = carto_style("positron"), bounds = states_sf) %>%
   add_circle_layer(
     id = "poi-gas", source = gas_stations,
     circle_color = match_expr("name",
@@ -625,8 +624,8 @@ maplibre(style = carto_style("positron"), bounds = states_sf) |>
       stops  = c("#F3D317", "#8a0000", "#0300ad")),
     circle_radius = 4, circle_stroke_color = "#ffffff",
     circle_stroke_width = .4, circle_opacity = 0.7, tooltip = "city_name"
-  ) |>
-  add_line_layer(id = 'states', source = states_sf, line_width = .1) |>
+  ) %>%
+  add_line_layer(id = "states", source = states_sf, line_width = .1) %>%
   add_categorical_legend(
     legend_title = "Midwest Gas Station Chains",
     values = c("Casey's General Store", "Cenex", "Kwik Trip/Kwik Star"),
@@ -642,12 +641,12 @@ maplibre(style = carto_style("positron"), bounds = states_sf) |>
 ```{r}
 #| eval: true
 #| output-location: slide
-dollar_stores <- read_csv('https://andrewvanleuven.github.io/aaea_webinar/data/dollar_stores.csv') |>
-  st_as_sf(wkt = "geometry_wkt", crs = 4326) |>
-  st_transform(crs = 5070) |>
+dollar_stores <- read_csv("https://andrewvanleuven.github.io/aaea_webinar/data/dollar_stores.csv") %>%
+  st_as_sf(wkt = "geometry_wkt", crs = 4326) %>%
+  st_transform(crs = 5070) %>%
   mutate(tooltip = glue("<b>{name}</b><br>{city_name}"))
 
-maplibre(style = carto_style("positron"), bounds = states_sf) |>
+maplibre(style = carto_style("positron"), bounds = states_sf) %>%
   add_circle_layer(
     id           = "poi-dollar-store",
     source       = dollar_stores,
@@ -661,7 +660,7 @@ maplibre(style = carto_style("positron"), bounds = states_sf) |>
     circle_stroke_width = .4,
     circle_opacity      = 0.7,
     tooltip             = "tooltip"
-  ) |>
+  ) %>%
   add_categorical_legend(
     legend_title = "Dollar Store Establishments",
     values       = c("Dollar General", "Dollar Tree", "Family Dollar"),
@@ -677,23 +676,23 @@ maplibre(style = carto_style("positron"), bounds = states_sf) |>
 ## `st_intersection`: Points in Polygons
 
 ```{r}
-dollar_stores <- read_csv('https://andrewvanleuven.github.io/aaea_webinar/data/dollar_stores.csv') |>
-  st_as_sf(wkt = "geometry_wkt", crs = 4326) |>
-  st_transform(crs = 5070) |>
+dollar_stores <- read_csv("https://andrewvanleuven.github.io/aaea_webinar/data/dollar_stores.csv") %>%
+  st_as_sf(wkt = "geometry_wkt", crs = 4326) %>%
+  st_transform(crs = 5070) %>%
   mutate(tooltip = glue("<b>{name}</b><br>{city_name}"))
 
-county_pop_2020 <- get_decennial(geography = 'county', variables = 'P1_001N',
-  year = 2020, geometry = TRUE) |>
-  st_transform(5070) |>
-  filter(!str_starts(GEOID, "02|15|72")) |>
+county_pop_2020 <- get_decennial(geography = "county", variables = "P1_001N",
+  year = 2020, geometry = TRUE) %>%
+  st_transform(5070) %>%
+  filter(!str_starts(GEOID, "02|15|72")) %>%
   select(cty_fips = GEOID, pop20 = value)
 
-dollar_store_sf <- st_intersection(dollar_stores, county_pop_2020) |>
-  st_drop_geometry() |>
-  summarize(dollar_stores = n(), pop_2020 = first(pop20), .by = cty_fips) |>
-  replace_na(list(dollar_stores = 0)) |>
-  mutate(dollar_stores_per_capita = dollar_stores / pop_2020) |>
-  right_join(county_pop_2020, by = "cty_fips") |>
+dollar_store_sf <- st_intersection(dollar_stores, county_pop_2020) %>%
+  st_drop_geometry() %>%
+  summarize(dollar_stores = n(), pop_2020 = first(pop20), .by = cty_fips) %>%
+  replace_na(list(dollar_stores = 0)) %>%
+  mutate(dollar_stores_per_capita = dollar_stores / pop_2020) %>%
+  right_join(county_pop_2020, by = "cty_fips") %>%
   st_as_sf()
 ```
 
@@ -703,19 +702,19 @@ dollar_store_sf <- st_intersection(dollar_stores, county_pop_2020) |>
 #| output-location: slide
 p1 <- ggplot() +
   geom_sf(data = dollar_store_sf, aes(fill = dollar_stores), color = NA) +
-  geom_sf(data = states_sf, color = 'white', linewidth = .35, fill = NA) +
-  scale_fill_viridis_c(option = 'mako', name = "# Establishments",
+  geom_sf(data = states_sf, color = "white", linewidth = .35, fill = NA) +
+  scale_fill_viridis_c(option = "mako", name = "# Establishments",
                        trans = "log10", direction = -1, na.value = "gray90") +
-  theme_void() + theme(legend.position = 'bottom') +
+  theme_void() + theme(legend.position = "bottom") +
   labs(title = "Raw counts")
 
 p2 <- ggplot() +
   geom_sf(data = dollar_store_sf,
           aes(fill = dollar_stores_per_capita * 10000), color = NA) +
-  geom_sf(data = states_sf, color = 'black', linewidth = .15, fill = NA) +
-  scale_fill_distiller(palette = 'YlOrBr', name = "Per 10,000 residents",
+  geom_sf(data = states_sf, color = "black", linewidth = .15, fill = NA) +
+  scale_fill_distiller(palette = "YlOrBr", name = "Per 10,000 residents",
                        direction = 1, na.value = "white") +
-  theme_void() + theme(legend.position = 'bottom') +
+  theme_void() + theme(legend.position = "bottom") +
   labs(title = "Per capita")
 
 library(patchwork)
@@ -731,14 +730,14 @@ Raw counts favor dense, populous counties. Per-capita rates let you compare acro
 ```{r}
 #| eval: true
 #| output-location: slide
-iowa_dollar_stores <- dollar_stores |>
-  filter(state == 'IA') |>
-  st_transform(6463) |>
-  st_buffer(10 * 5280) |>
+iowa_dollar_stores <- dollar_stores %>%
+  filter(state == "IA") %>%
+  st_transform(6463) %>%
+  st_buffer(10 * 5280) %>%
   st_transform(4326)
 
-maplibre(bounds = filter(states_sf, STUSPS == 'IA'),
-         style = carto_style("positron")) |>
+maplibre(bounds = filter(states_sf, STUSPS == "IA"),
+         style = carto_style("positron")) %>%
   add_fill_layer(
     id = "buffers", source = iowa_dollar_stores,
     fill_color = "#202020", fill_opacity = 0.4
@@ -752,19 +751,19 @@ maplibre(bounds = filter(states_sf, STUSPS == 'IA'),
 ```{r}
 #| eval: true
 #| output-location: slide
-iowa_pts <- dollar_stores |>
-  filter(state == "IA") |>
-  st_transform(4326) |>
+iowa_pts <- dollar_stores %>%
+  filter(state == "IA") %>%
+  st_transform(4326) %>%
   st_jitter(factor = 0.0001)
 
 maplibre(style = carto_style("positron"),
-         bounds = filter(states_sf, STUSPS == 'IA')) |>
+         bounds = filter(states_sf, STUSPS == "IA")) %>%
   add_circle_layer(
     id = "poi-dollar-store", source = iowa_pts,
     circle_color = "red", circle_stroke_color = "white", circle_stroke_width = 1
-  ) |>
+  ) %>%
   add_heatmap_layer(
-    id = "heatmap", source = iowa_pts, heatmap_radius = 25,
+    id = "heatmap", source = iowa_pts, heatmap_radius = 35,
     heatmap_color = interpolate(
       property = "heatmap-density", values = seq(0, 1, 0.2),
       stops = c("transparent", magma(5))
