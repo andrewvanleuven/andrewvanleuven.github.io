@@ -235,14 +235,14 @@
     "href": "aaea_webinar/index.html#finding-better-breaks-jenks",
     "title": "Introduction to Maps",
     "section": "Finding Better Breaks: Jenks",
-    "text": "Finding Better Breaks: Jenks\nRight-skewed ag data looks like one color with a linear scale. Jenks natural breaks fix that.\n\ncorn_vals &lt;- as.numeric(str_remove_all(corn_acres_sf$corn_acres_planted, \",\"))\nsoy_vals  &lt;- as.numeric(str_remove_all(soybean_acres_sf$soybean_acres_planted, \",\"))\ncombined  &lt;- c(corn_vals, soy_vals)\n\nbrks &lt;- classIntervals(\n  combined[!is.na(combined) & combined &gt; 0], n = 5, style = \"jenks\"\n)$brks %&gt;% round(-3)\n\npal &lt;- brewer.pal(length(brks), \"YlGnBu\")\n\nUsing the combined distribution ensures both maps share the same color scale."
+    "text": "Finding Better Breaks: Jenks\nRight-skewed ag data looks like one color with a linear scale. Jenks natural breaks fix that.\n\ncorn_vals &lt;- as.numeric(str_remove_all(corn_acres_sf$corn_acres_planted, \",\"))\nsoy_vals  &lt;- as.numeric(str_remove_all(soybean_acres_sf$soybean_acres_planted, \",\"))\ncombined  &lt;- c(corn_vals, soy_vals)\n\nbrks &lt;- classIntervals(\n  combined[!is.na(combined) & combined &gt; 0], n = 5, style = \"jenks\"\n)$brks %&gt;% round(-3)\n\npal &lt;- brewer.pal(length(brks), \"YlGn\")\n\nUsing the combined distribution ensures both maps share the same color scale."
   },
   {
     "objectID": "aaea_webinar/index.html#comparing-maps-with-compare",
     "href": "aaea_webinar/index.html#comparing-maps-with-compare",
     "title": "Introduction to Maps",
     "section": "Comparing Maps with compare()",
-    "text": "Comparing Maps with compare()\n\nleft_map &lt;- maplibre(bounds = states_sf, style = carto_style(\"voyager\")) %&gt;%\n  add_fill_layer(id = \"corn_acres\", source = corn_acres_sf,\n    fill_color = interpolate(column = \"corn_acres_planted\",\n                             values = brks, stops = pal, na_color = \"lightgrey\"),\n    fill_opacity = 0.9, tooltip = \"corn_acres_planted\") %&gt;%\n  add_line_layer(id = \"states\", source = states_sf, line_width = .1) %&gt;%\n  add_continuous_legend(\"Corn Acres Planted, 2015\",\n    values = brks, colors = pal, position = \"top-left\")\n\nright_map &lt;- maplibre(bounds = states_sf, style = carto_style(\"voyager\")) %&gt;%\n  add_fill_layer(id = \"soybean_acres\", source = soybean_acres_sf,\n    fill_color = interpolate(column = \"soybean_acres_planted\",\n                             values = brks, stops = pal, na_color = \"lightgrey\"),\n    fill_opacity = 0.9, tooltip = \"soybean_acres_planted\") %&gt;%\n  add_line_layer(id = \"states\", source = states_sf, line_width = .1) %&gt;%\n  add_continuous_legend(\"Soybean Acres Planted, 2015\",\n    values = brks, colors = pal, position = \"top-right\")\n\ncompare(left_map, right_map, height = \"900px\")"
+    "text": "Comparing Maps with compare()\n\nleft_map &lt;- maplibre(bounds = states_sf, style = carto_style(\"voyager\")) %&gt;%\n  add_fill_layer(id = \"corn_acres\", source = corn_acres_sf,\n    fill_color = interpolate(column = \"corn_acres_planted\",\n                             values = brks, stops = pal, na_color = \"lightgrey\"),\n    fill_opacity = 0.9, tooltip = \"corn_acres_planted\") %&gt;%\n  add_line_layer(id = \"states\", source = states_sf, line_width = .1) %&gt;%\n  add_continuous_legend(\"Corn Acres Planted, 2015\",\n    values = brks, colors = pal, position = \"top-left\")\n\nright_map &lt;- maplibre(bounds = states_sf, style = carto_style(\"voyager\")) %&gt;%\n  add_fill_layer(id = \"soybean_acres\", source = soybean_acres_sf,\n    fill_color = interpolate(column = \"soybean_acres_planted\",\n                             values = brks, stops = pal, na_color = \"lightgrey\"),\n    fill_opacity = 0.9, tooltip = \"soybean_acres_planted\") %&gt;%\n  add_line_layer(id = \"states\", source = states_sf, line_width = .1) %&gt;%\n  add_continuous_legend(\"Soybean Acres Planted, 2015\",\n    values = brks, colors = pal, position = \"top-left\")\n\ncompare(left_map, right_map, height = \"900px\")"
   },
   {
     "objectID": "aaea_webinar/index.html#comparing-maps-with-compare-output",
@@ -362,6 +362,34 @@
     "title": "Introduction to Maps",
     "section": "More Things sf Can Do",
     "text": "More Things sf Can Do\nst_distance()        # distance between features (in CRS units)\nst_nearest_feature() # index of the nearest feature in another layer\nst_centroid()        # geometric center of a polygon\nst_area()            # area of a polygon (in CRS units)\nst_union()           # merge / dissolve geometries into one\nst_bbox()            # bounding box of a layer\nst_crop()            # clip features to a rectangular extent\nst_within()          # is feature A fully inside feature B?\nst_touches()         # do features share a boundary?\nsf cheat sheet: rstudio.github.io/cheatsheets/sf.pdf"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#more-examples-of-spatial-data-visualization-in-r",
+    "href": "aaea_webinar/index.html#more-examples-of-spatial-data-visualization-in-r",
+    "title": "Introduction to Maps",
+    "section": "More Examples of Spatial Data Visualization in R",
+    "text": "More Examples of Spatial Data Visualization in R"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#more-examples-of-spatial-data-visualization-in-r-1",
+    "href": "aaea_webinar/index.html#more-examples-of-spatial-data-visualization-in-r-1",
+    "title": "Introduction to Maps",
+    "section": "More Examples of Spatial Data Visualization in R",
+    "text": "More Examples of Spatial Data Visualization in R"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#more-examples-of-spatial-data-visualization-in-r-2",
+    "href": "aaea_webinar/index.html#more-examples-of-spatial-data-visualization-in-r-2",
+    "title": "Introduction to Maps",
+    "section": "More Examples of Spatial Data Visualization in R",
+    "text": "More Examples of Spatial Data Visualization in R"
+  },
+  {
+    "objectID": "aaea_webinar/index.html#more-examples-of-spatial-data-visualization-in-r-3",
+    "href": "aaea_webinar/index.html#more-examples-of-spatial-data-visualization-in-r-3",
+    "title": "Introduction to Maps",
+    "section": "More Examples of Spatial Data Visualization in R",
+    "text": "More Examples of Spatial Data Visualization in R"
   },
   {
     "objectID": "aaea_webinar/index.html#what-we-covered",
