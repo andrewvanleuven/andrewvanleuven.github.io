@@ -46,9 +46,7 @@ Margins of error are carried through the whole calculation, because they turn ou
 VARS <- c("B25070_001", "B25070_007", "B25070_008",
           "B25070_009", "B25070_010", "B25070_011")
 
-# Standard Census formulas for derived estimates: root-sum-square for sums
-# and differences, and the proportion formula for a share. Written out so
-# they stay vectorized over the whole data frame.
+# Standard Census formulas for derived estimates: root-sum-square for sums and differences, and the proportion formula for a share. Written out so they stay vectorized over the whole data frame.
 moe_rss <- function(...) sqrt(rowSums(cbind(...)^2))
 moe_share <- function(num, den, m_num, m_den) {
   p <- num / den
@@ -118,8 +116,7 @@ Across `r format(nrow(burden), big.mark = ",")` counties, the median change was 
 ```{r}
 #| label: map-helper
 
-# Both maps are the same diverging choropleth, differing only in the column
-# they fill by and how wide the scale runs.
+# Both maps are the same diverging choropleth, differing only in the column they fill by and how wide the scale runs.
 burden_map <- function(col, cap, title, subtitle) {
   ggplot(burden) +
     geom_sf(aes(fill = .data[[col]]), color = NA) +
@@ -166,9 +163,7 @@ Rather than blanking those counties out, shrink them. Comparing the spread of th
 ```{r}
 #| label: shrinkage
 
-# Observed change y_i = truth + sampling error, SE = MOE/1.645 (ACS MOEs are
-# 90%). Between-county variance tau^2 comes from DerSimonian-Laird, so the
-# amount of borrowing is set by the data rather than by a cutoff.
+# Observed change y_i = truth + sampling error, SE = MOE/1.645 (ACS MOEs are 90%). Between-county variance tau^2 comes from DerSimonian-Laird, so the amount of borrowing is set by the data rather than by a cutoff.
 burden <- burden |> mutate(se = change_moe / 1.645, w = 1 / pmax(se, 1e-6)^2)
 
 d      <- st_drop_geometry(burden)
@@ -227,8 +222,7 @@ A few things worth stating plainly before anyone quotes a number off these maps.
 #| label: download
 #| results: asis
 
-# Encode the tidied table straight into the page as a data URI, so the post
-# stays a single file with no data sidecars in the repo.
+# Encode the tidied table straight into the page as a data URI, so the post stays a single file with no data sidecars in the repo.
 csv <- burden |>
   st_drop_geometry() |>
   select(GEOID, county, state, renters_14, renters_24,
