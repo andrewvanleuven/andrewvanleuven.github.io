@@ -10,7 +10,16 @@
 <atom:link href="https://andrewvanleuven.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>A blog built with Quarto</description>
 <generator>quarto-1.9.38</generator>
-<lastBuildDate>Fri, 03 Jul 2026 06:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 08 Sep 2026 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>A Decade of Rent Burden</title>
+  <dc:creator>Andrew J. Van Leuven</dc:creator>
+  <link>https://andrewvanleuven.github.io/posts/09_2026_rent/</link>
+  <description><![CDATA[ How the share of rent-burdened households changed between the 2010-2014 and 2020-2024 ACS. ]]></description>
+  <category>map</category>
+  <guid>https://andrewvanleuven.github.io/posts/09_2026_rent/</guid>
+  <pubDate>Tue, 08 Sep 2026 04:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Mapping Golf Courses Across the United States</title>
   <dc:creator>Andrew J. Van Leuven</dc:creator>
@@ -19,7 +28,7 @@
   <description><![CDATA[ A first look at where the country’s golf courses are located, by count, per capita, and as point data. ]]></description>
   <category>map</category>
   <guid>https://andrewvanleuven.github.io/posts/07_2026_golf/</guid>
-  <pubDate>Fri, 03 Jul 2026 06:00:00 GMT</pubDate>
+  <pubDate>Fri, 03 Jul 2026 04:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Putting Farm Credit Branches on the Map</title>
@@ -28,7 +37,7 @@
   <description><![CDATA[ A look at where Farm Credit branches are located across the country. ]]></description>
   <category>map</category>
   <guid>https://andrewvanleuven.github.io/posts/05_2026_farmcredit/</guid>
-  <pubDate>Wed, 13 May 2026 06:00:00 GMT</pubDate>
+  <pubDate>Wed, 13 May 2026 04:00:00 GMT</pubDate>
   <media:content url="https://andrewvanleuven.github.io/posts/05_2026_farmcredit/splash.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
@@ -38,7 +47,7 @@
   <description><![CDATA[ Making sense of the latest county-level census data, including growth, decline, and migration. ]]></description>
   <category>map</category>
   <guid>https://andrewvanleuven.github.io/posts/03_2026_popest/</guid>
-  <pubDate>Thu, 26 Mar 2026 06:00:00 GMT</pubDate>
+  <pubDate>Thu, 26 Mar 2026 04:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Welcome to MapDork</title>
@@ -47,7 +56,7 @@
   <description><![CDATA[ This site is for “under the hood” details on maps I publish on my <a href="https://vanleuven.substack.com/">substack page</a>. Below is some further detail on my “Kountry” restaurant map. ]]></description>
   <category>map</category>
   <guid>https://andrewvanleuven.github.io/posts/welcome/</guid>
-  <pubDate>Wed, 31 Dec 2025 07:00:00 GMT</pubDate>
+  <pubDate>Wed, 31 Dec 2025 05:00:00 GMT</pubDate>
 </item>
 </channel>
 </rss>
