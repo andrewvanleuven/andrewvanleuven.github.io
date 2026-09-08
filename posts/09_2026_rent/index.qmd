@@ -8,10 +8,8 @@ format:
   html:
     theme: cosmo
     embed-resources: false
-    code-fold: true
-    code-summary: "Show the code"
-    code-tools: true
 execute:
+  echo: false
   warning: false
   message: false
 ---
@@ -20,7 +18,7 @@ A household is conventionally called **rent burdened** when gross rent eats up 3
 
 The short answer is that the burdened share fell almost everywhere, and that the first map you would draw of this is largely a picture of sampling error rather than of housing markets. Getting from one to the other is most of what this post is about.
 
-Everything below runs from this one file. Click "Show the code" on any block to see how it was made.
+Everything below runs from this one file. The complete script is at the bottom of the post.
 
 ```{r}
 #| label: setup
@@ -29,6 +27,7 @@ library(tidyverse)
 library(tidycensus)
 library(tigris)
 library(sf)
+library(spdep)
 library(scales)
 
 options(tigris_use_cache = TRUE)
@@ -158,27 +157,33 @@ The ACS is a sample, and in a county with a few hundred renter households the ma
 
 ## Shrinking out the noise
 
-Rather than blanking those counties out, shrink them. Comparing the spread of the estimates against their own margins of error gives an estimate of how much the true county changes actually vary; each county's value is then blended with its state's average in proportion to how precise it is. A well-measured county keeps its own number, a hopeless one defaults to its state, and every county still appears on the map.
+Rather than blanking those counties out, shrink them. Comparing the spread of the estimates against their own margins of error gives an estimate of how much the true county changes actually vary; each county's value is then blended with a prior in proportion to how precise it is. A well-measured county keeps its own number, a hopeless one leans on the prior, and every county still appears on the map.
+
+The prior matters more than the machinery. The obvious choice is the county's state average, and it is a bad one. Precision-weighting means a state's average is really just its largest metro: Clark County holds 77 percent of Nevada's weight, Maricopa 64 percent of Arizona's. Shrinking toward that paints Las Vegas across a hundred thousand square miles of rural Nevada and invents hard discontinuities at state lines. So the prior here is each county's **neighbors** instead, which is what disease mapping has done since Besag, York and Mollié. Nye County borrows from Clark because Pahrump really is a Las Vegas exurb; Eureka County, three hundred miles north, does not.
 
 ```{r}
 #| label: shrinkage
 
-# Observed change y_i = truth + sampling error, SE = MOE/1.645 (ACS MOEs are 90%). Between-county variance tau^2 comes from DerSimonian-Laird, so the amount of borrowing is set by the data rather than by a cutoff.
-burden <- burden |> mutate(se = change_moe / 1.645, w = 1 / pmax(se, 1e-6)^2)
+# Queen contiguity. The seven island counties (Nantucket, Kauai, Vieques and friends) have no land neighbors, so they borrow from their five nearest by centroid instead.
+nb  <- poly2nb(burden, queen = TRUE, snap = 1000)
+knn <- knn2nb(knearneigh(st_centroid(st_geometry(burden)), k = 5))
+for (i in which(card(nb) == 0)) nb[[i]] <- knn[[i]]
 
-d      <- st_drop_geometry(burden)
-ybar_w <- sum(d$w * d$change) / sum(d$w)
-Q      <- sum(d$w * (d$change - ybar_w)^2)
-sw     <- sum(d$w)
-tau2   <- max(0, (Q - (nrow(d) - 1)) / (sw - sum(d$w^2) / sw))
+# Observed change y_i = truth + sampling error, with SE = MOE/1.645 (ACS margins are 90%). The prior for each county is the precision-weighted mean of its neighbors' changes, so a well-measured neighbor counts for more than a noisy one.
+burden <- burden |> mutate(se = change_moe / 1.645, w = 1 / pmax(se, 1e-6)^2)
+d <- st_drop_geometry(burden)
+nbr_prior <- map_dbl(nb, \(nn) sum(d$w[nn] * d$change[nn]) / sum(d$w[nn]))
+
+# Between-county variance tau^2 by Paule-Mandel: the value that makes the chi-square residual around the prior come out at its expectation. It sets how much borrowing happens, so no cutoff is chosen by hand.
+s2 <- d$se^2
+gap <- function(t2) sum((d$change - nbr_prior)^2 / (s2 + t2)) - (nrow(d) - 1)
+tau2 <- if (gap(0) <= 0) 0 else uniroot(gap, c(0, 1e4))$root
 
 burden <- burden |>
-  group_by(state) |>
-  mutate(state_mean = sum(w * change) / sum(w)) |>
-  ungroup() |>
   mutate(
-    B           = se^2 / (se^2 + tau2),
-    change_eb   = (1 - B) * change + B * state_mean,
+    nbr_prior   = nbr_prior,
+    B           = s2 / (s2 + tau2),
+    change_eb   = (1 - B) * change + B * nbr_prior,
     reliability = 1 - B   # 0 = all borrowed, 1 = all own data
   )
 ```
@@ -193,7 +198,7 @@ The between-county standard deviation of the *true* change comes out to **`r spr
 
 burden_map("change_eb", 8,
   "Rent burden eased most in the eastern half of the country",
-  "Change in the share of renter households paying 30%+ of income, shrunk toward state means")
+  "Change in the share of renter households paying 30%+ of income, shrunk toward neighboring counties")
 ```
 
 The median county's shrunk value takes **`r sprintf("%.0f", 100*median(burden$reliability))`%** of its weight from its own data, rising to **`r sprintf("%.0f", 100*median(burden$reliability[burden$renters_24 > 20000]))`%** among the largest counties.
@@ -210,7 +215,9 @@ A few things worth stating plainly before anyone quotes a number off these maps.
 
 **Falling burden can mean displacement.** The measure conditions on who still lives in the county. If cost-burdened renters get priced out, the county's rate improves.
 
-**Shrinkage is conservative by construction.** A county that genuinely diverged from its state gets pulled back toward it, and the state means show up as faint boundary discontinuities on the second map. Nevada and Idaho are the clearest cases. That is the standard small-area-estimation bargain: a little bias bought in exchange for a map that is legible. Shrinking toward spatial neighbors or toward the county's CBSA instead would trade the crisp state edges for smoother regional structure.
+**Shrinkage is conservative by construction.** A county that genuinely diverged from its neighbors gets pulled back toward them, so real local outliers are understated. That is the standard small-area-estimation bargain: a little bias bought in exchange for a map that is legible. The technique is ordinary (the Census Bureau's own SAIPE and SAHIE programs are built on the closely related Fay-Herriot model), but the choice of prior does real work, and a neighbor prior is an assumption about geography rather than a neutral one.
+
+**The prior is treated as known.** Each county's neighbor average is itself estimated from noisy data, and the variance calculation here ignores that. The effect is to overstate tau slightly and therefore to shrink slightly less than a fully specified spatial model would.
 
 **Geography.** Connecticut is absent because it replaced its eight counties with nine planning regions in 2022, leaving no GEOID overlap between the two vintages. Alaska's Valdez-Cordova split into Chugach and Copper River, Wade Hampton became Kusilvak, and Shannon County, South Dakota became Oglala Lakota County. Puerto Rico's 78 municipios are included.
 
@@ -234,4 +241,27 @@ cat(sprintf(
   '<a href="data:text/csv;base64,%s" download="rent_burden.csv" class="btn btn-primary">Download CSV</a>',
   jsonlite::base64_enc(charToRaw(csv))
 ))
+```
+
+```{r}
+#| label: fullscript
+#| results: asis
+
+# Rebuilds the post's code as one script by reading this file back and stitching the chunks together, so the listing below can never drift out of sync with what actually ran.
+src    <- readLines("index.qmd")
+opens  <- grep("^```\\{r", src)
+closes <- grep("^```\\s*$", src)
+
+blocks <- map(opens, \(o) {
+  body  <- src[(o + 1):(closes[closes > o][1] - 1)]
+  label <- str_match(body[1], "#\\|\\s*label:\\s*(\\S+)")[, 2]
+  if (identical(label, "fullscript")) return(NULL)
+  body <- body[!str_detect(body, "^#\\|")]
+  body <- body[cumsum(body != "") > 0]
+  c(paste0("# ---- ", label, " ", strrep("-", max(0, 62 - nchar(label)))), body, "")
+})
+
+cat('::: {.callout-note collapse="true" title="Full script"}\n\n```r\n')
+cat(paste(unlist(compact(blocks)), collapse = "\n"))
+cat("\n```\n\n:::\n")
 ```
