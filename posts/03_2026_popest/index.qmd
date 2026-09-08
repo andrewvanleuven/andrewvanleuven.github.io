@@ -8,6 +8,9 @@ format:
   html:
     theme: cosmo
     embed-resources: false
+execute:
+  # Pinned. This post embeds its geometry in the mapgl widgets, so each re-execution writes a fresh multi-megabyte result into git history. Flip to auto when actually editing the post.
+  freeze: true
 ---
 
 Today marks the release of the latest batch of data from the U.S. Census Bureau: the [2025 County Population Totals and Components of Change](https://www.census.gov/data/tables/time-series/demo/popest/2020s-counties-total.html). Below is a collection of a few interactive maps that visualize changes that have taken place since last year, as well as a quick guide (including code snippets) for how to load, clean, and map the data.

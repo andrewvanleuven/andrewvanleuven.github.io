@@ -10,6 +10,9 @@ format:
   html:
     theme: cosmo
     embed-resources: false
+execute:
+  # Pinned. This post embeds its geometry in the mapgl widgets, so each re-execution writes a fresh multi-megabyte result into git history. Flip to auto when actually editing the post.
+  freeze: true
 ---
 
 *Draft shell. No editorializing yet.*
