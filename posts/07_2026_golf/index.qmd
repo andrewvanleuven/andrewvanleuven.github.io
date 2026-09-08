@@ -1,0 +1,278 @@
+---
+title: "Mapping Golf Courses Across the United States"
+author:
+  - "Andrew J. Van Leuven"
+  - "Trey Malone"
+date: "2026-07-03"
+categories: [map]
+description: "A first look at where the country's golf courses are located, by count, per capita, and as point data."
+format:
+  html:
+    theme: cosmo
+    embed-resources: false
+---
+
+*Draft shell. No editorializing yet.*
+
+This post maps golf courses across the United States. The underlying point data come from a [POI Factory](http://www.poi-factory.com/node/29395) dataset of golf-course locations, which we cleaned, geocoded to counties, and joined to 2020 Census population counts. The [`prep_golf_data.R`](prep_golf_data.R) script handles all of that and writes the two GeoJSON files used below.
+
+Every map has an **All / Public / Private** toggle in the top-left. "Public" here means publicly accessible play (daily-fee, municipal, and semi-private courses); "Private" means members-only clubs.
+
+```{r}
+#| label: setup
+#| echo: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(sf)
+library(mapgl)
+library(glue)
+
+counties_sf <- st_read("golf_counties.geojson", quiet = TRUE)
+points_sf   <- st_read("golf_points.geojson", quiet = TRUE)
+
+# Lower-48 view + dissolved state outlines for the choropleths
+lower48   <- filter(counties_sf, !st %in% c("AK", "HI", "PR"))
+us48      <- summarise(lower48)
+us_states <- lower48 |> group_by(st) |> summarise(.groups = "drop")
+
+# Category colors used throughout
+col_public  <- "#2e7d32"  # green
+col_private <- "#c1440e"  # burnt orange
+
+# Trimmed sf objects actually embedded in the maps below. Each map gets one
+# shared GeoJSON source (added once via add_source), and the All/Public/
+# Private layers read from that single source with a `filter` expression,
+# instead of embedding the dataset three times over.
+counties_map_sf <- counties_sf |>
+  select(county, courses, courses_public, courses_private,
+         pop, per_100k, per_100k_public, per_100k_private)
+
+points_map_sf <- points_sf |>
+  transmute(
+    category,
+    tooltip = glue(
+      "<b>{course}</b><br>{access} &middot; {holes} holes<br>{city_state}"
+    )
+  )
+
+public_filter  <- list("==", list("get", "category"), "Public")
+private_filter <- list("==", list("get", "category"), "Private")
+
+toggle_layers <- c("All" = "All", "Public" = "Public", "Private" = "Private")
+
+# Choropleth toggle helper: one shared source, three fill layers (All/Public/
+# Private) each reading a different column, wired to a layers control.
+# `interpolate()` clamps values above the top stop to the top color, which
+# gives us a per-capita (or per-count) ceiling for free.
+choro_toggle <- function(fill_cols, count_cols, values, stops,
+                         tick_labels, legend_title, unit_label) {
+  labels <- names(fill_cols)
+  m <- maplibre(bounds = us48, style = carto_style("positron")) |>
+    add_source(id = "counties_src", data = counties_map_sf)
+  for (i in seq_along(fill_cols)) {
+    m <- add_fill_layer(
+      m,
+      id = labels[i],
+      source = "counties_src",
+      fill_color = interpolate(
+        column = fill_cols[[i]], values = values,
+        stops = stops, na_color = "#eeeeee"
+      ),
+      fill_opacity = 0.85,
+      tooltip = concat(
+        "<b>", get_column("county"), "</b><br>",
+        get_column(count_cols[[i]]), " courses<br>",
+        "pop: ", get_column("pop")
+      ),
+      visibility = if (i == 1) "visible" else "none"
+    )
+  }
+  m |>
+    add_line_layer(id = "state_outlines", source = us_states,
+                   line_color = "white", line_width = 0.4) |>
+    add_continuous_legend(legend_title, values = tick_labels, colors = stops,
+                          position = "bottom-left") |>
+    add_layers_control(layers = setNames(labels, labels),
+                       position = "top-left", collapsible = FALSE)
+}
+```
+
+Across the full dataset there are **`r format(nrow(points_sf), big.mark = ",")`** golf courses (`r format(sum(points_sf$category == "Public"), big.mark = ",")` public, `r format(sum(points_sf$category == "Private"), big.mark = ",")` private) spread across **`r format(n_distinct(counties_sf$GEOID[counties_sf$courses > 0]), big.mark = ",")`** counties.
+
+## Count by County
+
+The raw count of golf courses in each county. The color scale tops out at 30 courses (any county above that shows the darkest shade).
+
+```{r}
+#| label: count-map
+#| echo: false
+#| warning: false
+#| message: false
+
+count_stops <- RColorBrewer::brewer.pal(3, "YlGn")
+
+choro_toggle(
+  fill_cols   = c(All = "courses", Public = "courses_public",
+                  Private = "courses_private"),
+  count_cols  = c(All = "courses", Public = "courses_public",
+                  Private = "courses_private"),
+  values      = c(0, 15, 30),
+  stops       = count_stops,
+  tick_labels = c("0", "15", "30+"),
+  legend_title = "Golf courses per county"
+)
+```
+
+## Courses per Capita
+
+Golf courses per 100,000 residents, using total population from the 2020 Census PL 94-171 redistricting file (via `tidycensus`). Rather than dropping small-population counties, the color scale is **capped at 50 courses per 100k**, so a handful of tiny counties with extreme rates don't blow out the scale.
+
+```{r}
+#| label: percapita-map
+#| echo: false
+#| warning: false
+#| message: false
+
+percap_stops <- RColorBrewer::brewer.pal(3, "PuBuGn")
+
+choro_toggle(
+  fill_cols   = c(All = "per_100k", Public = "per_100k_public",
+                  Private = "per_100k_private"),
+  count_cols  = c(All = "courses", Public = "courses_public",
+                  Private = "courses_private"),
+  values      = c(0, 25, 50),
+  stops       = percap_stops,
+  tick_labels = c("0", "25", "50+"),
+  legend_title = "Courses per 100k residents"
+)
+```
+
+## Courses as Points
+
+Following [Kyle Walker's mapgl dots post](https://walker-data.com/posts/mapgl-dots/), the same courses are shown three ways: as individual points, as clusters, and as a heatmap.
+
+### Individual points
+
+```{r}
+#| label: points-map
+#| echo: false
+#| warning: false
+#| message: false
+
+point_color <- match_expr(
+  column = "category", values = c("Public", "Private"),
+  stops = c(col_public, col_private)
+)
+
+maplibre(bounds = us48, style = carto_style("positron")) |>
+  add_source(id = "points_src", data = points_map_sf) |>
+  add_circle_layer(
+    id = "All", source = "points_src",
+    circle_color = point_color, circle_radius = 3, circle_opacity = 0.6,
+    circle_stroke_color = "white", circle_stroke_width = 0.3, tooltip = "tooltip"
+  ) |>
+  add_circle_layer(
+    id = "Public", source = "points_src", filter = public_filter, visibility = "none",
+    circle_color = col_public, circle_radius = 3, circle_opacity = 0.6,
+    circle_stroke_color = "white", circle_stroke_width = 0.3, tooltip = "tooltip"
+  ) |>
+  add_circle_layer(
+    id = "Private", source = "points_src", filter = private_filter, visibility = "none",
+    circle_color = col_private, circle_radius = 3, circle_opacity = 0.6,
+    circle_stroke_color = "white", circle_stroke_width = 0.3, tooltip = "tooltip"
+  ) |>
+  add_categorical_legend(
+    "Course type", values = c("Public", "Private"),
+    colors = c(col_public, col_private), position = "bottom-left",
+    circular_patches = TRUE
+  ) |>
+  add_layers_control(layers = toggle_layers, position = "top-left",
+                     collapsible = FALSE)
+```
+
+### Clusters
+
+```{r}
+#| label: cluster-map
+#| echo: false
+#| warning: false
+#| message: false
+
+# mapgl's cluster_options always builds a fresh source per layer (clustering
+# is a source-level property), so unlike the maps above we can't share a
+# single source here. We still keep each input as small as possible (only
+# the columns each layer actually needs).
+pts_all_c     <- points_map_sf
+pts_public_c  <- points_map_sf |> filter(category == "Public") |> select(tooltip)
+pts_private_c <- points_map_sf |> filter(category == "Private") |> select(tooltip)
+
+maplibre(bounds = us48, style = carto_style("positron")) |>
+  add_circle_layer(
+    id = "All", source = pts_all_c, tooltip = "tooltip",
+    circle_color = point_color, circle_radius = 4, circle_opacity = 0.8,
+    cluster_options = cluster_options(
+      color_stops = c("#a5d6a7", "#66bb6a", "#2e7d32"),
+      radius_stops = c(15, 25, 35), count_stops = c(0, 50, 250)
+    )
+  ) |>
+  add_circle_layer(
+    id = "Public", source = pts_public_c, visibility = "none", tooltip = "tooltip",
+    circle_color = col_public, circle_radius = 4, circle_opacity = 0.8,
+    cluster_options = cluster_options(
+      color_stops = c("#a5d6a7", "#66bb6a", "#2e7d32"),
+      radius_stops = c(15, 25, 35), count_stops = c(0, 50, 250)
+    )
+  ) |>
+  add_circle_layer(
+    id = "Private", source = pts_private_c, visibility = "none", tooltip = "tooltip",
+    circle_color = col_private, circle_radius = 4, circle_opacity = 0.8,
+    cluster_options = cluster_options(
+      color_stops = c("#f6b48c", "#e8814c", "#c1440e"),
+      radius_stops = c(15, 25, 35), count_stops = c(0, 25, 100)
+    )
+  ) |>
+  add_layers_control(layers = toggle_layers, position = "top-left",
+                     collapsible = FALSE)
+```
+
+### Heatmap
+
+```{r}
+#| label: heatmap-map
+#| echo: false
+#| warning: false
+#| message: false
+
+# Heatmap has no tooltip, so this source drops that column entirely (the
+# heaviest property on points_map_sf) and only keeps category for filtering.
+heat_map_sf <- points_map_sf |> select(category)
+
+maplibre(bounds = us48, style = carto_style("dark-matter")) |>
+  add_source(id = "heat_src", data = heat_map_sf) |>
+  add_heatmap_layer(
+    id = "All", source = "heat_src", heatmap_radius = 12, heatmap_opacity = 0.8
+  ) |>
+  add_heatmap_layer(
+    id = "Public", source = "heat_src", filter = public_filter, visibility = "none",
+    heatmap_radius = 12, heatmap_opacity = 0.8
+  ) |>
+  add_heatmap_layer(
+    id = "Private", source = "heat_src", filter = private_filter, visibility = "none",
+    heatmap_radius = 12, heatmap_opacity = 0.8
+  ) |>
+  add_layers_control(layers = toggle_layers, position = "top-left",
+                     collapsible = FALSE)
+```
+
+## Data
+
+```{r}
+#| label: download
+#| echo: false
+#| results: asis
+
+cat('<a href="golf_courses.csv" download class="btn btn-primary">Download CSV</a>\n')
+cat('<a href="golf_points.geojson" download class="btn btn-primary" style="margin-left: 4px;">Download GeoJSON</a>\n')
+```
