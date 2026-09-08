@@ -1,0 +1,243 @@
+---
+title: "A Decade of Rent Burden"
+author: "Andrew J. Van Leuven"
+date: "2026-09-08"
+categories: [map]
+description: "How the share of rent-burdened households changed between the 2010-2014 and 2020-2024 ACS."
+format:
+  html:
+    theme: cosmo
+    embed-resources: false
+    code-fold: true
+    code-summary: "Show the code"
+    code-tools: true
+execute:
+  warning: false
+  message: false
+---
+
+A household is conventionally called **rent burdened** when gross rent eats up 30 percent or more of household income, a threshold codified by the Brooke Amendment and used by HUD, the Census Bureau, and Harvard's Joint Center for Housing Studies. This post takes that measure from ACS table `B25070` at two points a decade apart, the 2010-2014 five-year estimates and the 2020-2024 five-year estimates, and maps the change.
+
+The short answer is that the burdened share fell almost everywhere, and that the first map you would draw of this is largely a picture of sampling error rather than of housing markets. Getting from one to the other is most of what this post is about.
+
+Everything below runs from this one file. Click "Show the code" on any block to see how it was made.
+
+```{r}
+#| label: setup
+
+library(tidyverse)
+library(tidycensus)
+library(tigris)
+library(sf)
+library(scales)
+
+options(tigris_use_cache = TRUE)
+```
+
+## Pulling the data
+
+`B25070` breaks renter households into bins by the share of income they spend on gross rent. Anything from `_007` up is 30 percent or more. Line `_001` is the total, but it includes `_011`, the households whose ratio could not be computed (zero or negative income, no cash rent), so that group comes out of the denominator.
+
+Margins of error are carried through the whole calculation, because they turn out to be the entire story.
+
+```{r}
+#| label: pull-acs
+
+VARS <- c("B25070_001", "B25070_007", "B25070_008",
+          "B25070_009", "B25070_010", "B25070_011")
+
+# Standard Census formulas for derived estimates: root-sum-square for sums
+# and differences, and the proportion formula for a share. Written out so
+# they stay vectorized over the whole data frame.
+moe_rss <- function(...) sqrt(rowSums(cbind(...)^2))
+moe_share <- function(num, den, m_num, m_den) {
+  p <- num / den
+  under <- m_num^2 - (p^2 * m_den^2)
+  # Negative radicand: fall back to the ratio formula, per Census guidance
+  sqrt(ifelse(under < 0, m_num^2 + (p^2 * m_den^2), under)) / den
+}
+
+pull_burden <- function(year, geometry = FALSE) {
+  get_acs(
+    geography = "county", variables = VARS, year = year, survey = "acs5",
+    output = "wide", geometry = geometry,
+    resolution = "20m",   # generalized boundaries: ~50x smaller, plots faster
+    cache_table = TRUE
+  ) |>
+    rename_with(\(x) str_replace(x, "^B25070_", "v"), starts_with("B25070_")) |>
+    mutate(
+      renters      = v001E - v011E,
+      renters      = if_else(renters > 0, renters, NA_real_),
+      renters_moe  = moe_rss(v001M, v011M),
+      burdened     = v007E + v008E + v009E + v010E,
+      burdened_moe = moe_rss(v007M, v008M, v009M, v010M),
+      pct          = 100 * burdened / renters,
+      pct_moe      = 100 * moe_share(burdened, renters, burdened_moe, renters_moe),
+      pct_severe   = 100 * v010E / renters
+    ) |>
+    select(GEOID, NAME, any_of("geometry"),
+           renters, burdened, pct, pct_moe, pct_severe)
+}
+
+b14 <- pull_burden(2014)
+b24 <- pull_burden(2024, geometry = TRUE)
+```
+
+Joining the two vintages on GEOID drops a handful of counties whose codes changed in between: Connecticut replaced its eight counties with nine planning regions in 2022, Alaska split Valdez-Cordova, and South Dakota renamed Shannon County.
+
+```{r}
+#| label: build-change
+
+burden <- b24 |>
+  select(GEOID, NAME, renters_24 = renters, burdened_24 = burdened,
+         pct_24 = pct, pct_24_moe = pct_moe, pct_severe_24 = pct_severe) |>
+  separate_wider_delim(NAME, ", ", names = c("county", "state"),
+                       too_many = "merge") |>
+  inner_join(
+    b14 |> select(GEOID, renters_14 = renters, burdened_14 = burdened,
+                  pct_14 = pct, pct_14_moe = pct_moe, pct_severe_14 = pct_severe),
+    by = "GEOID"
+  ) |>
+  st_as_sf() |>
+  mutate(
+    change     = pct_24 - pct_14,
+    change_moe = moe_rss(pct_24_moe, pct_14_moe),
+    sig        = abs(change) > change_moe,   # 90% CI excludes zero
+    change_severe = pct_severe_24 - pct_severe_14
+  ) |>
+  filter(!is.na(change)) |>
+  shift_geometry()   # AK/HI insets
+
+states_sf <- burden |> group_by(state) |> summarise(.groups = "drop")
+```
+
+Across `r format(nrow(burden), big.mark = ",")` counties, the median change was **`r sprintf("%+.1f", median(burden$change))` percentage points**. Weighting by renter households, the national burdened share went from **`r sprintf("%.1f", 100*sum(burden$burdened_14)/sum(burden$renters_14))`%** to **`r sprintf("%.1f", 100*sum(burden$burdened_24)/sum(burden$renters_24))`%**.
+
+## The raw change
+
+```{r}
+#| label: map-helper
+
+# Both maps are the same diverging choropleth, differing only in the column
+# they fill by and how wide the scale runs.
+burden_map <- function(col, cap, title, subtitle) {
+  ggplot(burden) +
+    geom_sf(aes(fill = .data[[col]]), color = NA) +
+    geom_sf(data = states_sf, fill = NA, color = "white", linewidth = 0.2) +
+    scale_fill_gradient2(
+      low = "#2166ac", mid = "#f7f7f7", high = "#b2182b", midpoint = 0,
+      limits = c(-cap, cap), oob = scales::squish,
+      labels = \(x) sprintf("%+g", x),
+      name = "Change in share of\nrenters paying 30%+\nof income (pp)",
+      guide = guide_colorbar(barheight = 10, barwidth = 0.8)
+    ) +
+    labs(title = title, subtitle = subtitle,
+         caption = "Source: ACS 5-year estimates, table B25070. AK, HI and PR shifted and rescaled; CT omitted (2022 planning-region change).") +
+    theme_void(base_size = 12) +
+    theme(
+      plot.title = element_text(face = "bold", size = 15),
+      plot.subtitle = element_text(color = "grey30", margin = margin(b = 8)),
+      plot.caption = element_text(color = "grey50", hjust = 0),
+      legend.title = element_text(size = 9, lineheight = 1.1),
+      plot.background = element_rect(fill = "white", color = NA)
+    )
+}
+```
+
+```{r}
+#| label: map-raw
+#| fig-width: 10
+#| fig-height: 6.5
+#| dpi: 120
+
+burden_map("change", 15,
+  "Rent burden fell across most of the country",
+  "Raw change in the share of renter households paying 30%+ of income, 2010-2014 to 2020-2024 ACS")
+```
+
+That map is mostly wrong, and it is worth saying why before going any further.
+
+The ACS is a sample, and in a county with a few hundred renter households the margin of error on a decade-over-decade change runs past ±18 points. Only **`r sprintf("%.0f", 100*mean(burden$sig))`%** of counties have a change a 90 percent confidence interval can tell apart from zero.
+
+## Shrinking out the noise
+
+Rather than blanking those counties out, shrink them. Comparing the spread of the estimates against their own margins of error gives an estimate of how much the true county changes actually vary; each county's value is then blended with its state's average in proportion to how precise it is. A well-measured county keeps its own number, a hopeless one defaults to its state, and every county still appears on the map.
+
+```{r}
+#| label: shrinkage
+
+# Observed change y_i = truth + sampling error, SE = MOE/1.645 (ACS MOEs are
+# 90%). Between-county variance tau^2 comes from DerSimonian-Laird, so the
+# amount of borrowing is set by the data rather than by a cutoff.
+burden <- burden |> mutate(se = change_moe / 1.645, w = 1 / pmax(se, 1e-6)^2)
+
+d      <- st_drop_geometry(burden)
+ybar_w <- sum(d$w * d$change) / sum(d$w)
+Q      <- sum(d$w * (d$change - ybar_w)^2)
+sw     <- sum(d$w)
+tau2   <- max(0, (Q - (nrow(d) - 1)) / (sw - sum(d$w^2) / sw))
+
+burden <- burden |>
+  group_by(state) |>
+  mutate(state_mean = sum(w * change) / sum(w)) |>
+  ungroup() |>
+  mutate(
+    B           = se^2 / (se^2 + tau2),
+    change_eb   = (1 - B) * change + B * state_mean,
+    reliability = 1 - B   # 0 = all borrowed, 1 = all own data
+  )
+```
+
+The between-county standard deviation of the *true* change comes out to **`r sprintf("%.1f", sqrt(tau2))` points**, against an observed spread of **`r sprintf("%.1f", sd(burden$change))`**. Roughly **`r sprintf("%.0f", 100*(1 - tau2/var(burden$change)))`%** of the variation in the first map is sampling noise. Note the narrower scale below.
+
+```{r}
+#| label: map-eb
+#| fig-width: 10
+#| fig-height: 6.5
+#| dpi: 120
+
+burden_map("change_eb", 8,
+  "Rent burden eased most in the eastern half of the country",
+  "Change in the share of renter households paying 30%+ of income, shrunk toward state means")
+```
+
+The median county's shrunk value takes **`r sprintf("%.0f", 100*median(burden$reliability))`%** of its weight from its own data, rising to **`r sprintf("%.0f", 100*median(burden$reliability[burden$renters_24 > 20000]))`%** among the largest counties.
+
+## Notes
+
+A few things worth stating plainly before anyone quotes a number off these maps.
+
+**The 30 percent threshold is a policy artifact, not a finding.** It descends from an old rule of thumb (a week's wages for a month's rent) that the Brooke Amendment codified at 25 percent in 1969, and that Congress raised to 30 percent in 1981 as a budget measure. The competing approach is residual income, which asks whether what remains after rent covers food, transportation, and health care. A ratio treats a household earning $30,000 and one earning $300,000 as equally burdened at the same percentage, which they plainly are not.
+
+**A share defined by a threshold hides intensity.** Everyone moving from 29 to 31 percent looks like a crisis. Everyone moving from 35 to 49 percent looks like nothing happened. `B25070` reports only bins, so the median rent-to-income ratio cannot be recovered from it.
+
+**The denominator moved for reasons unrelated to rent.** The 2020-2024 window covers the stimulus payments, the expanded child tax credit, supplemental unemployment insurance, and emergency rental assistance, all of which raised measured household income. The 2010-2014 window sits near the post-foreclosure peak of renter cost burden. Some of the national decline is the income side of the ratio rather than rents becoming affordable.
+
+**Falling burden can mean displacement.** The measure conditions on who still lives in the county. If cost-burdened renters get priced out, the county's rate improves.
+
+**Shrinkage is conservative by construction.** A county that genuinely diverged from its state gets pulled back toward it, and the state means show up as faint boundary discontinuities on the second map. Nevada and Idaho are the clearest cases. That is the standard small-area-estimation bargain: a little bias bought in exchange for a map that is legible. Shrinking toward spatial neighbors or toward the county's CBSA instead would trade the crisp state edges for smoother regional structure.
+
+**Geography.** Connecticut is absent because it replaced its eight counties with nine planning regions in 2022, leaving no GEOID overlap between the two vintages. Alaska's Valdez-Cordova split into Chugach and Copper River, Wade Hampton became Kusilvak, and Shannon County, South Dakota became Oglala Lakota County. Puerto Rico's 78 municipios are included.
+
+**Source.** ACS 5-year estimates, table B25070, via `tidycensus`. Geometry from `tigris` at 20m generalized resolution.
+
+## Data
+
+```{r}
+#| label: download
+#| results: asis
+
+# Encode the tidied table straight into the page as a data URI, so the post
+# stays a single file with no data sidecars in the repo.
+csv <- burden |>
+  st_drop_geometry() |>
+  select(GEOID, county, state, renters_14, renters_24,
+         pct_14, pct_24, change, change_moe, change_eb, reliability, sig) |>
+  mutate(across(where(is.numeric), \(x) round(x, 3))) |>
+  format_csv()
+
+cat(sprintf(
+  '<a href="data:text/csv;base64,%s" download="rent_burden.csv" class="btn btn-primary">Download CSV</a>',
+  jsonlite::base64_enc(charToRaw(csv))
+))
+```
