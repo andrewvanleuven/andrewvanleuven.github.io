@@ -239,7 +239,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="shrinking-out-the-noise" class="level2">
 <h2 class="anchored" data-anchor-id="shrinking-out-the-noise">Shrinking out the noise</h2>
-<p>Rather than blanking those counties out, let’s shrink them. Comparing the spread of the estimates against their own margins of error gives an estimate of how much the true county changes actually vary; each county’s value is then blended with a prior in proportion to how precise it is. A well-measured county keeps its own number, a hopeless one leans on the prior, and those somewhere in between get a blend of both. Importantly, every county still appears on the map.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>Rather than blanking those counties out, let’s shrink them. Comparing the spread of the estimates against their own margins of error yields an estimate of how much the true county changes actually vary; each county’s estimate is then blended with a prior in proportion to its own precision. A well-measured county keeps its own number, a hopeless one leans almost entirely on the prior, and those in between land somewhere in the middle. Importantly, every county still appears on the map.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
 <p>One obvious-seeming choice to remedy this problem is to rely on the county’s state average. However, because this strategy pulls smaller counties’ estimates toward the statewide average, it really just ends up making the state look just like its largest metro (Clark County holds 77 percent of Nevada’s weight, and Maricopa 64 percent of Arizona’s, to give two examples). This can also yield hard discontinuities at state lines, leading keen observers to be immediately distrustful of what they’re looking at.</p>
 <p>To get around that issue, we use each county’s <strong>neighbors</strong> instead, a widely used strategy in disease mapping.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> Going back to our Nevada example, Nye County would borrow from Clark because Pahrump is a true Las Vegas exurb, while Eureka County, three hundred miles to the north, would not.</p>
 <p>The between-county standard deviation of the <em>true</em> change comes out to <strong>5.0 points</strong>, against an observed spread of <strong>10.4</strong>. Roughly <strong>77%</strong> of the variation in the first map is sampling noise. Note the narrower scale below.</p>
@@ -252,7 +252,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>The median county’s shrunk value takes <strong>40%</strong> of its weight from its own data, rising to <strong>87%</strong> among the largest counties.</p>
+<p>For the median county, the posterior mean (we’ll call it the <em>shrinkage estimate</em> from here on) draws <strong>40%</strong> of its weight from the county’s own data, rising to <strong>87%</strong> among the largest counties.</p>
 </section>
 <section id="where-it-rose" class="level2">
 <h2 class="anchored" data-anchor-id="where-it-rose">Where it rose</h2>
@@ -408,7 +408,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="moving-the-threshold" class="level2">
 <h2 class="anchored" data-anchor-id="moving-the-threshold">Moving the Threshold</h2>
 <p>A fair objection to all of this is that 30 percent is an arbitrary line. A household at 29 percent and one at 31 percent are not meaningfully different, and if the increase were really just households drifting across that boundary, then tightening the definition should make most of it disappear.</p>
-<p>So what happens if we move the threshold for what it means to be “rent-burdened”? The two maps below repeat the shrunk map at stricter cuts, first for renters paying 40 percent or more of their income and then for those paying 50 percent or more. Same window, same neighbor shrinkage, and the same color scale as before, so all three can be read against each other directly.</p>
+<p>So what happens if we move the threshold for what it means to be “rent-burdened”? The two maps below repeat the shrinkage estimates at stricter cuts, first for renters paying 40 percent or more of their income and then for those paying 50 percent or more. Same window, same neighbor shrinkage, and the same color scale as before, so all three can be read against each other directly.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
