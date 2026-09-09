@@ -6,3 +6,8 @@
 posts/03_2026_popest/*.csv
 
 CLAUDE.md
+
+# quarto preview writes 0-byte placeholders like "index (7).html" into post
+# folders on every re-render; harmless but they pile up
+**/* (*).html
+**/*_files (*)/

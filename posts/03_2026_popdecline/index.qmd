@@ -3,6 +3,8 @@ title: "Cities and Counties with the Sharpest Population Decline in Each State"
 author: "Andrew J. Van Leuven"
 date: "2026-03-31"
 categories: [map]
+image: map.jpg
+image-alt: "Map of United States counties highlighting those with the sharpest population decline from their peak."
 draft: true
 format:
   html:

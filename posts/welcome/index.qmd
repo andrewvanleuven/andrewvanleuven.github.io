@@ -3,6 +3,8 @@ title: "Welcome to MapDork"
 author: "Andrew J. Van Leuven"
 date: "2025-12-31"
 categories: [map]
+image: kountry.jpg
+image-alt: "Hex map of the United States showing the density of Kountry-style restaurants."
 format:
   html:
     theme: cosmo

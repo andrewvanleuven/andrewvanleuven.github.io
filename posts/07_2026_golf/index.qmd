@@ -5,6 +5,8 @@ author:
   - "Trey Malone"
 date: "2026-07-03"
 categories: [map]
+image: thumbnail.png
+image-alt: "Dot map of the United States showing every golf course, colored green for public and orange for private."
 description: "A first look at where the country's golf courses are located, by count, per capita, and as point data."
 format:
   html:
