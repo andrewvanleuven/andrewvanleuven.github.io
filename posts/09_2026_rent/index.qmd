@@ -14,6 +14,8 @@ execute:
   echo: false
   warning: false
   message: false
+  # Pinned. The interactive maps embed their geometry, so each re-execution writes a multi-megabyte result into git history. Flip to auto when actually editing the post.
+  freeze: true
 ---
 
 A household is conventionally called **rent burdened** when gross rent takes up 30 percent or more of household income.[^1] By that definition, roughly half of American renters are burdened, and the share has been climbing since 2019. This post takes ACS table `B25070` at two non-overlapping five-year windows---2015-2019 and 2020-2024---and maps where the increase landed.
@@ -33,6 +35,8 @@ library(tigris)
 library(sf)
 library(spdep)
 library(scales)
+library(mapgl)
+library(glue)
 
 options(tigris_use_cache = TRUE)
 
@@ -181,24 +185,97 @@ burden <- b24 |>
     change50_moe = moe_rss(pct50_24_moe, pct50_19_moe)
   ) |>
   filter(!is.na(change)) |>
-  shift_geometry()   # AK/HI insets
+  st_transform(4326)   # mapgl wants lon/lat; the ggplot maps get shifted later
 
-states_sf <- burden |> group_by(state) |> summarise(.groups = "drop")
+# The interactive maps each embed their own copy of the boundaries, so they get a simplified one. ms_simplify works on the shared topology rather than polygon by polygon, so counties still tile with no slivers between them. keep = 0.35 takes about a third off the payload while leaving coastlines like the Mississippi delta still recognisable when a reader zooms in; much lower than that and they visibly polygonise.
+geom_ll <- burden |>
+  select(GEOID) |>
+  rmapshaper::ms_simplify(keep = 0.35, keep_shapes = TRUE)
+
+# State outlines dissolved from the same simplified boundaries, so the overlay lines up with the county edges exactly.
+states_ll <- geom_ll |>
+  left_join(st_drop_geometry(burden) |> select(GEOID, state), by = "GEOID") |>
+  group_by(state) |>
+  summarise(.groups = "drop")
+
+us48 <- states_ll |> filter(!state %in% c("Alaska", "Hawaii", "Puerto Rico"))
+
+# Attaches just the columns a given map needs to the light geometry.
+map_sf <- function(...) {
+  geom_ll |>
+    left_join(st_drop_geometry(burden) |> transmute(GEOID, ...), by = "GEOID") |>
+    select(-GEOID)
+}
+
+# Diverging ramp matching the static maps further down.
+div_pal <- colorRampPalette(c("#2166ac", "#f7f7f7", "#b2182b"))
 ```
 
 Margins of error are carried through the whole calculation, because they turn out to be an important part of the story.<!-- That leaves `r format(nrow(burden), big.mark = ",")` counties.  -->
 Weighting by renter households, the national burdened share went from **`r sprintf("%.1f", 100*sum(burden$burdened_19)/sum(burden$renters_19))`%** to **`r sprintf("%.1f", 100*sum(burden$burdened_24)/sum(burden$renters_24))`%**, and the median county moved **`r sprintf("%+.1f", median(burden$change))` points**.
+
+## Where it is worst right now
+
+Everything after this section is about change. Before getting there it is worth looking at the level, because the two are not the same map.
+
+```{r}
+#| label: map-level
+
+lvl <- burden |>
+  st_drop_geometry() |>
+  group_by(state) |>
+  summarise(level = weighted.mean(pct_24, renters_24),
+            chg   = weighted.mean(change, renters_24), .groups = "drop")
+
+lvl_sf <- map_sf(
+    pct_24,
+    tooltip = glue(
+      "<b>{county}, {state}</b><br>",
+      "{sprintf('%.1f', pct_24)}% of renters pay 30%+ of income<br>",
+      "{comma(round(renters_24))} renter households"
+    )
+)
+
+maplibre(bounds = us48, style = carto_style("positron")) |>
+  add_source(id = "counties", data = lvl_sf) |>
+  add_fill_layer(
+    id = "Rent burden",
+    source = "counties",
+    fill_color = interpolate(
+      column = "pct_24", values = c(35, 50, 65),
+      stops = RColorBrewer::brewer.pal(3, "YlOrRd"), na_color = "lightgrey"
+    ),
+    fill_opacity = 0.85,
+    tooltip = "tooltip"
+  ) |>
+  add_line_layer(id = "county_outlines", source = "counties",
+                 line_color = "black", line_width = 0.05) |>
+  add_line_layer(id = "state_outlines", source = states_ll,
+                 line_color = "black", line_width = 0.4) |>
+  add_continuous_legend(
+    "Renters paying 30%+ of income, 2024",
+    values = c("35%", "50%", "65%+"),
+    colors = RColorBrewer::brewer.pal(3, "YlOrRd"),
+    position = "bottom-left"
+  )
+```
+
+Florida is the most rent-burdened state in the country: **`r sprintf("%.1f", lvl$level[lvl$state == "Florida"])`%** of its renters hand over at least 30 percent of their income, against `r sprintf("%.1f", 100*sum(burden$burdened_24)/sum(burden$renters_24))` percent nationally. Broward, Miami-Dade and Palm Beach counties all clear 62 percent. Hawaii, Nevada and California come next.
+
+<!-- Line that up against the states that rose the most since 2019 and the two lists only partly overlap. California sits at `r sprintf("%.1f", lvl$level[lvl$state == "California"])` percent but has moved `r sprintf("%+.1f", lvl$chg[lvl$state == "California"])` points. New York is at `r sprintf("%.1f", lvl$level[lvl$state == "New York"])` and edged *down*. Orleans Parish is among the most burdened counties in the country and fell more than a point. These places were already expensive in 2019 and have stayed that way, which is a different problem from the one this post is mostly about. Texas and Arizona, two of the fastest risers, sit closer to the middle of the level distribution.
+
+Only Florida and Nevada manage to be near the top of both lists. -->
 
 ## The raw change
 
 ```{r}
 #| label: map-helper
 
-# Both maps are the same diverging choropleth, differing only in the column they fill by and how wide the scale runs.
+# Both static maps are the same diverging choropleth, differing only in the column they fill by and how wide the scale runs.
 burden_map <- function(col, cap, title, subtitle, thresh = 30) {
-  ggplot(burden) +
+  ggplot(burden_sh) +
     geom_sf(aes(fill = .data[[col]]), color = NA) +
-    geom_sf(data = states_sf, fill = NA, color = "white", linewidth = 0.2) +
+    geom_sf(data = states_sh, fill = NA, color = "white", linewidth = 0.2) +
     scale_fill_gradient2(
       low = "#2166ac", mid = "#f7f7f7", high = "#b2182b", midpoint = 0,
       limits = c(-cap, cap), oob = scales::squish,
@@ -221,13 +298,39 @@ burden_map <- function(col, cap, title, subtitle, thresh = 30) {
 
 ```{r}
 #| label: map-raw
-#| fig-width: 10
-#| fig-height: 6.5
-#| dpi: 120
 
-burden_map("change", 15,
-  "Change in share of renters paying 30%+ of income on rent, 2015—19 to 2020—24",
-  NULL)
+raw_sf <- map_sf(
+    change,
+    tooltip = glue(
+      "<b>{county}, {state}</b><br>",
+      "Change since 2019: {sprintf('%+.1f', change)} pp<br>",
+      "Margin of error: &plusmn;{sprintf('%.1f', change_moe)} pp<br>",
+      "{comma(round(renters_24))} renter households"
+    )
+)
+
+maplibre(bounds = us48, style = carto_style("positron")) |>
+  add_source(id = "counties", data = raw_sf) |>
+  add_fill_layer(
+    id = "Raw change",
+    source = "counties",
+    fill_color = interpolate(
+      column = "change", values = c(-15, 0, 15),
+      stops = div_pal(3), na_color = "lightgrey"
+    ),
+    fill_opacity = 0.85,
+    tooltip = "tooltip"
+  ) |>
+  add_line_layer(id = "county_outlines", source = "counties",
+                 line_color = "black", line_width = 0.05) |>
+  add_line_layer(id = "state_outlines", source = states_ll,
+                 line_color = "black", line_width = 0.4) |>
+  add_continuous_legend(
+    "Change in share paying 30%+ of income (pp)",
+    values = c("-15", "0", "+15"),
+    colors = div_pal(3),
+    position = "bottom-left"
+  )
 ```
 
 The map above is mostly wrong. Those familiar with the ACS will immediately know why. 
@@ -274,19 +377,49 @@ burden <- burden |>
     change40_eb = shrink(change40, change40_moe)$eb,
     change50_eb = shrink(change50, change50_moe)$eb
   )
+
+# The threshold maps and the listing thumbnail stay static, so they get their own copy with AK, HI and PR shifted into insets. Built here, once every shrunk column exists.
+burden_sh <- shift_geometry(burden)
+states_sh <- burden_sh |> group_by(state) |> summarise(.groups = "drop")
 ```
 
 The between-county standard deviation of the *true* change comes out to **`r sprintf("%.1f", sqrt(tau2))` points**, against an observed spread of **`r sprintf("%.1f", sd(burden$change))`**. Roughly **`r sprintf("%.0f", 100*(1 - tau2/var(burden$change)))`%** of the variation in the first map is sampling noise. Note the narrower scale below.
 
 ```{r}
 #| label: map-eb
-#| fig-width: 10
-#| fig-height: 6.5
-#| dpi: 120
 
-burden_map("change_eb", 8,
-  "Change in share of renters paying 30%+ of income on rent, 2015—19 to 2020—24",
-  "Shrunk toward neighboring counties")
+eb_sf <- map_sf(
+    change_eb,
+    tooltip = glue(
+      "<b>{county}, {state}</b><br>",
+      "Shrinkage estimate: {sprintf('%+.1f', change_eb)} pp<br>",
+      "Raw estimate: {sprintf('%+.1f', change)} &plusmn; {sprintf('%.1f', change_moe)} pp<br>",
+      "Weight on its own data: {sprintf('%.0f', 100*reliability)}%"
+    )
+)
+
+maplibre(bounds = us48, style = carto_style("positron")) |>
+  add_source(id = "counties", data = eb_sf) |>
+  add_fill_layer(
+    id = "Shrinkage estimate",
+    source = "counties",
+    fill_color = interpolate(
+      column = "change_eb", values = c(-8, 0, 8),
+      stops = div_pal(3), na_color = "lightgrey"
+    ),
+    fill_opacity = 0.85,
+    tooltip = "tooltip"
+  ) |>
+  add_line_layer(id = "county_outlines", source = "counties",
+                 line_color = "black", line_width = 0.05) |>
+  add_line_layer(id = "state_outlines", source = states_ll,
+                 line_color = "black", line_width = 0.4) |>
+  add_continuous_legend(
+    "Change in share paying 30%+ of income (pp)",
+    values = c("-8", "0", "+8"),
+    colors = div_pal(3),
+    position = "bottom-left"
+  )
 ```
 
 ```{r}
