@@ -4,6 +4,8 @@ author: "Andrew J. Van Leuven"
 date: "2026-09-08"
 categories: [map]
 description: "How the share of rent-burdened households changed between the 2010-2014 and 2020-2024 ACS."
+image: thumbnail.png
+image-alt: "County choropleth of the United States showing change in the share of rent-burdened households, blue for declines and red for increases."
 format:
   html:
     theme: cosmo
@@ -199,6 +201,19 @@ The between-county standard deviation of the *true* change comes out to **`r spr
 burden_map("change_eb", 8,
   "Rent burden eased most in the eastern half of the country",
   "Change in the share of renter households paying 30%+ of income, shrunk toward neighboring counties")
+```
+
+```{r}
+#| label: thumbnail
+
+# Bare version of the map above, written to disk for the blog listing thumbnail. No title, legend, caption or margins. Sized 4:3 to match the listing's crop so nothing gets cut off.
+ggsave(
+  "thumbnail.png",
+  burden_map("change_eb", 8, NULL, NULL) +
+    labs(caption = NULL) +
+    theme(legend.position = "none", plot.margin = margin(0, 0, 0, 0)),
+  width = 8, height = 6, dpi = 150
+)
 ```
 
 The median county's shrunk value takes **`r sprintf("%.0f", 100*median(burden$reliability))`%** of its weight from its own data, rising to **`r sprintf("%.0f", 100*median(burden$reliability[burden$renters_24 > 20000]))`%** among the largest counties.
