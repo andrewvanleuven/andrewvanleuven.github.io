@@ -236,7 +236,7 @@ The ACS is a sample, and in a county with only a few hundred renter households, 
 
 ## Shrinking out the noise
 
-Rather than blanking those counties out, let's shrink them. Comparing the spread of the estimates against their own margins of error gives an estimate of how much the true county changes actually vary; each county's value is then blended with a prior in proportion to how precise it is. A well-measured county keeps its own number, a hopeless one leans on the prior, and those somewhere in between get a blend of both. Importantly, every county still appears on the map.[^2]
+Rather than blanking those counties out, let's shrink them. Comparing the spread of the estimates against their own margins of error yields an estimate of how much the true county changes actually vary; each county's estimate is then blended with a prior in proportion to its own precision. A well-measured county keeps its own number, a hopeless one leans almost entirely on the prior, and those in between land somewhere in the middle. Importantly, every county still appears on the map.[^2]
 
 One obvious-seeming choice to remedy this problem is to rely on the county's state average. However, because this strategy pulls smaller counties' estimates toward the statewide average, it really just ends up making the state look just like its largest metro (Clark County holds 77 percent of Nevada's weight, and Maricopa 64 percent of Arizona's, to give two examples). This can also yield hard discontinuities at state lines, leading keen observers to be immediately distrustful of what they're looking at. 
 
@@ -302,7 +302,7 @@ ggsave(
 )
 ```
 
-The median county's shrunk value takes **`r sprintf("%.0f", 100*median(burden$reliability))`%** of its weight from its own data, rising to **`r sprintf("%.0f", 100*median(burden$reliability[burden$renters_24 > 20000]))`%** among the largest counties.
+For the median county, the posterior mean (we'll call it the *shrinkage estimate* from here on) draws **`r sprintf("%.0f", 100*median(burden$reliability))`%** of its weight from the county's own data, rising to **`r sprintf("%.0f", 100*median(burden$reliability[burden$renters_24 > 20000]))`%** among the largest counties.
 
 ## Where it rose
 
@@ -361,7 +361,7 @@ This is about what supply and demand would predict. Demand has been arriving in 
 
 A fair objection to all of this is that 30 percent is an arbitrary line. A household at 29 percent and one at 31 percent are not meaningfully different, and if the increase were really just households drifting across that boundary, then tightening the definition should make most of it disappear.
 
-So what happens if we move the threshold for what it means to be "rent-burdened"? The two maps below repeat the shrunk map at stricter cuts, first for renters paying 40 percent or more of their income and then for those paying 50 percent or more. Same window, same neighbor shrinkage, and the same color scale as before, so all three can be read against each other directly.
+So what happens if we move the threshold for what it means to be "rent-burdened"? The two maps below repeat the shrinkage estimates at stricter cuts, first for renters paying 40 percent or more of their income and then for those paying 50 percent or more. Same window, same neighbor shrinkage, and the same color scale as before, so all three can be read against each other directly.
 
 ```{r}
 #| label: map-40
